@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "checks": 20,
+  "scope": "document/settings consistency only",
+  "live_broker_test": false,
+  "real_board_test": false
+}

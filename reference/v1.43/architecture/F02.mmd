@@ -1,0 +1,36 @@
+%% F02: 서비스를 구성하는 애플리케이션과 저장소
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/project/10.md
+%% Detail: ../spec/protocol/C15.md
+%% Detail: ../spec/roles/B2.md
+%% Rule: C4 Container는 애플리케이션 또는 저장소다. Docker 컨테이너 및 실제 호스트 배치는 F05와 구분한다.
+%% Rule: SQLite와 사진 대기함을 별도 DB 서버 또는 별도 프로세스로 해석하지 않는다. SDK의 실제 언어와 바인딩은 보드 환경 확인 후 결정한다.
+%% Rule: 원본 영상이나 매 프레임 탐지 상자를 서버에서 다시 분석하지 않는다. 사진은 HTTPS, 사건·명령은 MQTT 경로다.
+%% Rule: 서버와 브로커의 각 화살표는 발행·구독 관계다. 직접 웹↔장치 연결을 추가하지 않는다.
+flowchart TD
+    subgraph system["Software system: 엣지 AI 주정차 안내"]
+        web["Container: React·TypeScript 관리자 웹"]
+        server["Container: Kotlin·Spring Boot 서버"]
+        broker["Container: Mosquitto 브로커"]
+        edge["Container: 엣지 앱 - AI와 SDK가 같은 프로세스"]
+        subgraph serverStores["서버가 사용하는 저장소"]
+            db["Container: PostgreSQL 업무 데이터"]
+            files["Container: 비공개 사진 파일"]
+        end
+        subgraph edgeStores["엣지 앱이 직접 사용하는 로컬 저장소"]
+            sqlite["Container: SQLite 상태·outbox"]
+            spool["Container: JPEG 사진 대기함"]
+        end
+        web -->|"HTTPS REST"| server
+        server -->|"HTTPS SSE: ZoneView"| web
+        edge -->|"HTTPS: JPEG 업로드"| server
+        edge -->|"MQTT 5/TLS: 사건·heartbeat·결과·reported"| broker
+        broker -->|"MQTT 5/TLS: 장치 메시지 전달"| server
+        server -->|"MQTT 5/TLS: 응용 ACK·명령·desired"| broker
+        broker -->|"MQTT 5/TLS: ACK·명령·정책 전달"| edge
+        server -->|"Spring JDBC / SQL"| db
+        server -->|"파일 I/O"| files
+        edge -->|"SDK 로컬 저장"| sqlite
+        edge -->|"SDK 파일 I/O"| spool
+    end

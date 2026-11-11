@@ -1,0 +1,107 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 시작 자료 v0.2 · 업무 기능 미구현</span></header>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a class="active" href="first-slice.html">첫 구현</a><a href="status.html">현재 상태</a><a href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선은 목표 설계입니다. 현재는 기동 코드·설정·문서만 작성했고 MQTT 수신·DB 저장·조회 기능은 다음에 구현합니다.</p></aside><article class="page"><h1>다음 구현: 가상 사건 수신 → 저장 → 조회</h1>
+<p>이 문서는 작업 지시서입니다. 아래 기능은 현재 골격에 구현되어 있지 않습니다.</p>
+<h2>완료 모습</h2>
+<p>PC 가상 장치가 사건 예제를 발행하면 서버가 저장하고 응용 ACK를 회신합니다. 조회 API에서 같은 사건과 현재 상태를 확인합니다. 같은 메시지를 다시 보내거나 오래된 메시지를 뒤늦게 보내도 데이터가 중복되거나 현재 상태가 되돌아가지 않습니다.</p>
+<h2>시작 순서</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>순서</th>
+<th>작업</th>
+<th>남길 결과</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>골격 빌드·기동, 기존 계약 검사</td>
+<td>새 실행 로그. 기존 validation 파일을 새 성공으로 복사하지 않음</td>
+</tr>
+<tr>
+<td>1</td>
+<td>JDBC·Flyway·PostgreSQL 의존성 추가, 기존 SQL 검토 후 마이그레이션</td>
+<td>빈 개발 DB 적용 결과·명시적인 zone/device/policy fixture</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Spring Integration MQTT 5 연결, 토픽·장치·Schema·의미 검사</td>
+<td>메시지 종류와 수신 결과. 범위 밖 메시지는 정상 처리했다고 ACK하지 않음</td>
+</tr>
+<tr>
+<td>3</td>
+<td>메시지 수신 업무와 트랜잭션·중복·순서 규칙</td>
+<td>수신 이력·사건·snapshot·view_revision 일관성</td>
+</tr>
+<tr>
+<td>4</td>
+<td>커밋 후 응용 ACK</td>
+<td>STORED/DUPLICATE/REJECTED 및 실패 경로 확인</td>
+</tr>
+<tr>
+<td>5</td>
+<td>상태 조회 API와 개발 조회 권한 구성</td>
+<td>기존 OpenAPI의 ZoneView. 제품 로그인은 후속 구현임을 구분</td>
+</tr>
+<tr>
+<td>6</td>
+<td>가상 발행 도구와 통합 시험</td>
+<td>재현 명령·기대값·실제값·미수행 항목</td>
+</tr>
+</tbody></table></div>
+<h2>첫 입력과 출력</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>기준</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>입력</td>
+<td>기존 examples.json의 guidance_complete. 과거 사건 재생으로 사용</td>
+</tr>
+<tr>
+<td>토픽</td>
+<td>parking/v2/devices/{device_id}/events, QoS 1, retain=false</td>
+</tr>
+<tr>
+<td>응용 ACK</td>
+<td>같은 장치 /acks, 원래 message_id 유지</td>
+</tr>
+<tr>
+<td>조회</td>
+<td>GET /api/zones/{id}/status, 기존 ZoneView 전체 계약</td>
+</tr>
+<tr>
+<td>선행 데이터</td>
+<td>등록 장치·구역·정책. 원본 예제의 참조 대상과 일치하는 개발 fixture</td>
+</tr>
+</tbody></table></div>
+<p>이력 재생만으로 현재 장치가 ONLINE이거나 실제 안내가 성공했다고 표시하지 않습니다. heartbeat의 연결 최신성·camera 관측 최신성은 별개입니다. 상태 조회에 필요한 초기값은 정식 계약에 맞는 미확인/빈 상태로 구성하고, 성공처럼 보이는 임의 값을 채우지 않습니다.</p>
+<h2>최소 인수 시험</h2>
+<ul>
+<li>정상 1건: DB 반영과 커밋 후 ACK, 조회의 ID·상태·revision 일치.</li>
+<li>같은 ID·같은 내용: 두 번째는 DUPLICATE, 이력 중복 없음.</li>
+<li>같은 ID·다른 내용: 격리 후 REJECTED, 현재 상태 훼손 없음.</li>
+<li>seq 12 → 10: 사건·snapshot 각각의 순서 조건 확인. 무조건 모든 과거 메시지를 버리지 않음.</li>
+<li>DB 저장 실패: 성공 ACK 없음. 동일 메시지 재전송 뒤 한 번만 저장.</li>
+<li>커밋 뒤 ACK 유실: 재전송에 DUPLICATE, 현재 상태 유지.</li>
+<li>조회: 기존 Schema·OpenAPI에 맞는 null·필드·타입. 한 시점의 읽기 보장.</li>
+</ul>
+<p>위 결과는 <strong>PC 가상 통합 시험</strong>입니다. 실제 보드·AI 성능·물리 출력 시험은 아닙니다.</p>
+<h2>이번에 구현하지 않는 것</h2>
+<p>SSE·웹 화면·관리자 명령·정식 로그인·사진 업로드·원격 배포·보드 SDK는 다음 단계입니다. 상태 조회 시험이 필요할 때 접근 제한을 전역 해제하지 않고, loopback 전용 개발 인증 방식을 명시적으로 추가합니다. 운영 로그인 계약과 구분합니다.</p>
+<h2>읽을 기준</h2>
+<p><a href="contracts.html">계약 원본</a>, <a href="../reference/v1.43/tasks/backend.md">백엔드 작업</a>, <a href="../reference/v1.43/spec/protocol/C14.md">C14</a>, <a href="../reference/v1.43/spec/protocol/C15.md">C15</a>, <a href="../reference/v1.43/spec/storage/D5.md">D5</a>.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

@@ -1,0 +1,15 @@
+%% F01: 사용자와 시스템의 관계
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/project/01.md
+%% Detail: ../spec/roles/B1.md
+%% Rule: 운영 관리자와 조회 사용자는 서비스 사용자다. Data·AI·백엔드·프론트 개발 담당은 이 그림의 Person과 다른 구분이다.
+%% Rule: 운전자는 별도 앱 없이 현장 안내를 받는다. 법적 위반 확정·과태료 부과·자동 신고는 범위에서 제외한다.
+flowchart TD
+    operator["Person: 운영 관리자 OPERATOR"]
+    viewer["Person: 조회 사용자 VIEWER"]
+    system["Software system: 엣지 AI 주정차 안내"]
+    driver["Person: 현장 운전자"]
+    operator -->|"웹 조회·정책·제어"| system
+    viewer -->|"웹 상태·이력 조회"| system
+    system -->|"LED·음성 안내"| driver

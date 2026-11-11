@@ -1,0 +1,30 @@
+%% F10: 새 안내는 저장 후, 안전 중단은 즉시
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/roles/B3.md
+%% Detail: ../spec/protocol/A5.md
+%% Detail: ../spec/storage/D3.md
+%% Rule: 안전 stop과 LED off는 DB·네트워크·사진 작업을 기다리지 않는다. 위 두 경로를 하나의 저장 우선 규칙으로 합치지 않는다.
+%% Rule: 이전 안내의 COMMITTED가 늦게 도착해도 stop_generation이 바뀌었거나 현재 guard가 무효면 새 play를 실행하지 않는다.
+%% Rule: 이미 사용한 시도 횟수는 유지한다. 실행 확인과 필요한 내구 저장 없이 APPLIED를 보고하지 않는다.
+%% Rule: AI 제어 루프는 카메라 읽기·추론·JPEG 인코딩·fsync를 기다리며 멈추면 안 된다. SDK 단일 writer와 비동기 완료 통지의 상세는 D3를 따른다.
+flowchart TD
+    subgraph play["새 안내 경로"]
+        intent["AI: 유효 후보·허용 조건으로 안내 의도 생성"]
+        durable["SDK: checkpoint·시도·메시지·outbox 원자 저장"]
+        committed["COMMITTED 수신"]
+        guard{"현재 guard와 stop_generation도 유효한가?"}
+        yes["새 play 실행"]
+        no["새 play 금지"]
+        intent --> durable --> committed --> guard
+        durable -->|"저장 실패"| no
+        guard -->|"예"| yes
+        guard -->|"아니오"| no
+    end
+    subgraph stop["안전 중단 경로"]
+        trigger["중지·이동·관측불능 입력"]
+        physical["stop_generation 증가와 즉시 stop·LED off"]
+        receipt["명령별 조건·드라이버 회신 확인과 중지 결과 저장"]
+        result["저장 후 결과 전송"]
+        trigger --> physical --> receipt --> result
+    end

@@ -1,0 +1,30 @@
+%% F07: 브로커 수신 확인과 서버 저장 확인
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/protocol/C2.md
+%% Detail: ../spec/storage/D1.md
+%% Detail: ../spec/storage/D2.md
+%% Detail: ../spec/storage/D5.md
+%% Rule: PUBACK와 서버 전달 사이에는 선후 보장이 없다. PUBACK는 브로커의 수신 확인이고, 응용 ACK가 서버의 저장 확인이다.
+%% Rule: 응용 ACK를 잃으면 같은 message_id·본문·device_seq로 재전송한다. 메시지 재전송 때문에 음성을 다시 재생하지 않는다.
+%% Rule: DB 저장 실패에는 성공 ACK를 보내지 않는다. 같은 ID의 다른 내용은 격리하고 REJECTED로 응답한다.
+%% Rule: heartbeat는 5초 간격, QoS 0이며 응용 ACK를 요구하지 않는다. 그림은 durable 사건 메시지 경로를 설명한다.
+%% Rule: 최초 전송, 재접속, PUBACK 뒤 응용 ACK 대기와 outbox 완료·실패 전환의 상세 기한은 D1·D2를 따른다.
+sequenceDiagram
+    participant E as 장치 SDK
+    participant B as Mosquitto
+    participant S as Spring 서버
+    participant D as PostgreSQL
+    E->>E: 상태와 outbox 원자 저장
+    E->>B: QoS 1 사건 발행
+    par 브로커의 발행 수신 확인
+        B-->>E: PUBACK
+    and 구독자에게 전달
+        B->>S: 사건 전달
+    end
+    S->>S: 토픽·계정·형식·의미 검증
+    S->>D: 중복 검사와 관련 변경 저장
+    D-->>S: DB COMMIT 성공
+    S->>B: 응용 ACK - STORED 또는 DUPLICATE
+    B-->>E: 응용 ACK 전달
+    E->>E: 저장 확인 후 전송 완료 처리

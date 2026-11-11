@@ -1,0 +1,31 @@
+%% F03: Spring 내부의 책임과 호출 관계
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/protocol/C14.md
+%% Detail: ../spec/protocol/C15.md
+%% Detail: ../spec/protocol/C17.md
+%% Detail: ../spec/storage/D5.md
+%% Detail: ../spec/storage/D6.md
+%% Rule: 웹 API·사진 API는 웹/장치 인증 경로를 구분한다. MQTT 어댑터는 브로커, 저장소 접근은 PostgreSQL, SSE 전달은 관리자 웹과 연결한다.
+%% Rule: 사진 파일 I/O는 DB 행 잠금 밖에서 수행한다. 서버 수신 성공 ACK와 SSE는 DB 커밋 뒤에 전송한다.
+%% Rule: Actuator·Micrometer와 구조화 로그로 관찰한다. 그림의 컴포넌트는 책임 구분이며 별도 서버나 확정 클래스명이 아니다.
+%% Rule: 구체적인 중복 처리, 구역 잠금, outbox lease, 늦은 콜백 처리는 D5를 따른다. 그림의 화살표로 트랜잭션 경계를 추정하지 않는다.
+flowchart TD
+    subgraph spring["Container 경계: 하나의 Kotlin·Spring Boot 애플리케이션"]
+        api["Component: 웹 API·인증 - MVC·Security"]
+        work["Component: 업무·트랜잭션 서비스"]
+        mqtt["Component: MQTT 5 어댑터"]
+        photo["Component: 사진 처리"]
+        repo["Component: Spring JDBC 저장소 접근"]
+        publisher["Component: 명령 발행 worker"]
+        sse["Component: SSE 전달 - SseEmitter"]
+        api -->|"요청 검증·업무 호출"| work
+        api -->|"사진 업로드 처리"| photo
+        mqtt -->|"장치 메시지 수신"| work
+        work -->|"DB 커밋 후 응용 ACK"| mqtt
+        work -->|"SQL·트랜잭션"| repo
+        photo -->|"예약·완료 확정"| repo
+        publisher -->|"outbox 조회·lease 처리"| repo
+        publisher -->|"명령 발행"| mqtt
+        work -->|"커밋 후 ZoneView"| sse
+    end

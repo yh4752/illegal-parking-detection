@@ -1,0 +1,28 @@
+digraph Components {
+  graph [rankdir=TB, bgcolor="transparent", pad="0.4", nodesep="0.7", ranksep="0.7", fontname="Apple SD Gothic Neo", label="C4 L3 · Spring 서버 내부의 책임\n첫 기능의 목표 구조 · 업무 기능 미구현", labelloc=t, fontsize=20, fontcolor="#19354a"];
+  node [shape=box, style="rounded,filled", fontname="Apple SD Gothic Neo", fontsize=14, margin="0.2,0.15", color="#216582", fillcolor="#e0f0f7", fontcolor="#19354a"];
+  edge [fontname="Apple SD Gothic Neo", fontsize=11, color="#326e8a", fontcolor="#486478", arrowsize=0.75];
+  broker [label="Mosquitto\n[외부 Container]", fillcolor="#edf1f5", color="#9aadb9"];
+  client [label="조회 클라이언트\n[외부: 프론트 또는 API 도구]", fillcolor="#edf1f5", color="#9aadb9"];
+  db [shape=cylinder, label="PostgreSQL\n[외부 Container]", fillcolor="#edf1f5", color="#9aadb9"];
+  {rank=same;broker;client;}
+  subgraph cluster_backend {
+    label="백엔드 앱 경계"; labeljust=l; color="#b7cad6"; style=rounded; fontsize=16;
+    mqtt [label="MQTT 입출력\n[Component · Spring Integration / MQTT 5]\ndevice/adapter/mqtt"];
+    api [label="상태 조회 HTTP\n[Component · Spring MVC]\nzone/adapter/http"];
+    ingest [label="메시지 수신 업무\n[Component · 트랜잭션 조정]\ndevice/application + domain\n검증·중복·순서·상태 반영"];
+    query [label="구역 상태 조회 업무\n[Component · 한 시점 읽기]\nzone/application"];
+    repo [label="업무 데이터 저장 접근\n[Component · Spring JDBC]\ndevice/adapter/jdbc\nSQL·제약·행 잠금"];
+    {rank=same;mqtt;api;}
+    {rank=same;ingest;query;}
+    mqtt -> ingest [label="수신 내용·토픽\n검증 후 업무 호출"];
+    ingest -> mqtt [label="DB 커밋 후\n응용 ACK 발행", constraint=false];
+    api -> query [label="접근 검사 뒤 조회"];
+    ingest -> repo [label="하나의 트랜잭션\n이력·snapshot·revision"];
+    query -> repo [label="일관된 ZoneView 읽기"];
+  }
+  broker -> mqtt [label="MQTT 5 사건 수신"];
+  mqtt -> broker [label="MQTT 5 응용 ACK", constraint=false];
+  client -> api [label="HTTP 상태 조회"];
+  repo -> db [label="JDBC / SQL"];
+}

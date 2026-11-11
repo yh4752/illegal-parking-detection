@@ -1,0 +1,481 @@
+{
+  "status": "PASS",
+  "artifact_revision": "v1.4 detail 2026-11-05",
+  "schema_dialect": "2020-12",
+  "openapi": "3.1.0",
+  "validation_versions": {
+    "jsonschema": "4.25.1",
+    "openapi-spec-validator": "0.7.2",
+    "referencing": "0.36.2"
+  },
+  "canonical_objects": 20,
+  "mqtt_families": 8,
+  "canonical_examples": [
+    {
+      "example": "guidance_complete",
+      "schema": "EventMessage",
+      "status": "PASS"
+    },
+    {
+      "example": "heartbeat",
+      "schema": "Heartbeat",
+      "status": "PASS"
+    },
+    {
+      "example": "ack_stored",
+      "schema": "Ack",
+      "status": "PASS"
+    },
+    {
+      "example": "ack_duplicate",
+      "schema": "Ack",
+      "status": "PASS"
+    },
+    {
+      "example": "stop_command",
+      "schema": "Command",
+      "status": "PASS"
+    },
+    {
+      "example": "stop_applied",
+      "schema": "CommandResult",
+      "status": "PASS"
+    },
+    {
+      "example": "zone_view",
+      "schema": "ZoneView",
+      "status": "PASS"
+    },
+    {
+      "example": "config_desired",
+      "schema": "ConfigDesired",
+      "status": "PASS"
+    },
+    {
+      "example": "availability_online",
+      "schema": "Availability",
+      "status": "PASS"
+    },
+    {
+      "example": "config_reported",
+      "schema": "ConfigReported",
+      "status": "PASS"
+    },
+    {
+      "example": "snapshot_request",
+      "schema": "Command",
+      "status": "PASS"
+    },
+    {
+      "example": "image_metadata",
+      "schema": "ImageMetadata",
+      "status": "PASS"
+    },
+    {
+      "example": "snapshot_ready",
+      "schema": "CommandResult",
+      "status": "PASS"
+    },
+    {
+      "example": "resume_command",
+      "schema": "Command",
+      "status": "PASS"
+    },
+    {
+      "example": "sse_zone_snapshot",
+      "schema": "SseEvent",
+      "status": "PASS"
+    },
+    {
+      "example": "rest_error",
+      "schema": "RestError",
+      "status": "PASS"
+    },
+    {
+      "example": "manual_close_event",
+      "schema": "EventMessage",
+      "status": "PASS"
+    },
+    {
+      "example": "automatic_photo_available",
+      "schema": "EventMessage",
+      "status": "PASS"
+    },
+    {
+      "example": "image_ref_available",
+      "schema": "ImageRef",
+      "status": "PASS"
+    },
+    {
+      "example": "image_ref_failed",
+      "schema": "ImageRef",
+      "status": "PASS"
+    },
+    {
+      "example": "clock_status_holdover",
+      "schema": "ClockStatus",
+      "status": "PASS"
+    },
+    {
+      "example": "clock_status_untrusted",
+      "schema": "ClockStatus",
+      "status": "PASS"
+    },
+    {
+      "example": "clock_policy_boundaries",
+      "schema": "ClockBoundaryExamples",
+      "status": "PASS"
+    },
+    {
+      "example": "image_metadata_close_confirm",
+      "schema": "ImageMetadata",
+      "status": "PASS"
+    },
+    {
+      "example": "image_metadata_close_reuse",
+      "schema": "ImageMetadata",
+      "status": "PASS"
+    }
+  ],
+  "negative_cases": [
+    {
+      "case": "missing required device_id",
+      "status": "REJECTED",
+      "first_error": "'device_id' is a required property"
+    },
+    {
+      "case": "unknown root property",
+      "status": "REJECTED",
+      "first_error": "Additional properties are not allowed ('extra' was unexpected)"
+    },
+    {
+      "case": "unknown nested snapshot property",
+      "status": "REJECTED",
+      "first_error": "Additional properties are not allowed ('extra' was unexpected)"
+    },
+    {
+      "case": "unsupported schema version",
+      "status": "REJECTED",
+      "first_error": "2 was expected"
+    },
+    {
+      "case": "boolean is not integer sequence",
+      "status": "REJECTED",
+      "first_error": "True is not of type 'integer'"
+    },
+    {
+      "case": "integer exceeds JS safe range",
+      "status": "REJECTED",
+      "first_error": "9007199254740992 is greater than the maximum of 9007199254740991"
+    },
+    {
+      "case": "empty identifier",
+      "status": "REJECTED",
+      "first_error": "'' should be non-empty"
+    },
+    {
+      "case": "unknown incident enum",
+      "status": "REJECTED",
+      "first_error": "'PARKED' is not valid under any of the given schemas"
+    },
+    {
+      "case": "missing required nullable field",
+      "status": "REJECTED",
+      "first_error": "'observed_at' is a required property"
+    },
+    {
+      "case": "false and zero are preserved not null",
+      "status": "REJECTED",
+      "first_error": "None is not of type 'boolean'"
+    },
+    {
+      "case": "bad UTC offset format",
+      "status": "REJECTED",
+      "first_error": "'2026-11-03T12:00:00+09:00' is not valid under any of the given schemas"
+    },
+    {
+      "case": "impossible calendar date",
+      "status": "REJECTED",
+      "first_error": "'2026-02-30T00:00:00Z' is not valid under any of the given schemas"
+    },
+    {
+      "case": "negative fps",
+      "status": "REJECTED",
+      "first_error": "-1 is less than the minimum of 0"
+    },
+    {
+      "case": "sequence mismatch",
+      "status": "REJECTED",
+      "first_error": "$ envelope snapshot device_seq"
+    },
+    {
+      "case": "boot mismatch",
+      "status": "REJECTED",
+      "first_error": "$ envelope snapshot boot_id"
+    },
+    {
+      "case": "clock flag mismatch",
+      "status": "REJECTED",
+      "first_error": "'2026-11-03T03:05:04Z' is not of type 'null'"
+    },
+    {
+      "case": "eventless stale event fields",
+      "status": "REJECTED",
+      "first_error": "'GUIDED' is not of type 'null'"
+    },
+    {
+      "case": "cleared pause cannot remain active snapshot",
+      "status": "REJECTED",
+      "first_error": "{'current_event_id': 'evt-001', 'incident_state': 'HELD', 'event_policy_version': 3, 'guidance_count': 1, 'continuous_stop_ms': 0, 'body_type': 'CAR', 'use_type': 'UNKNOWN', 'camera_health': 'OK', 'mode': 'PAUSED', 'output_status': 'IDLE', 'reason_codes': [], 'pauses': [{'pause_id': 'pause-001', 'source': 'USER', 'scope': 'EVENT', 'target_event_id': 'evt-001', 'starts_at': '2026-11-03T03:05:05Z', 'expires_at': None, 'status': 'CLEARED', 'reason': '현장 확인'}], 'received_policy_version': 3, 'active_policy_version': 3, 'mode_revision': 2, 'rearm_required': False, 'device_seq': 12, 'boot_id': 'boot-001', 'clock_synced': True, 'observed_at': '2026-11-03T03:05:05.200Z', 'overdue': False, 'clock_status': {'state': 'SYNCED', 'error_bound_ms': 120, 'last_sync_at': '2026-11-03T03:04:30Z', 'sync_age_ms': 35200}} is not valid under any of the given schemas"
+    },
+    {
+      "case": "more than two attempts",
+      "status": "REJECTED",
+      "first_error": "3 is greater than the maximum of 2"
+    },
+    {
+      "case": "untrusted nonnull observation timestamp",
+      "status": "REJECTED",
+      "first_error": "'UNTRUSTED' is not one of ['SYNCED', 'HOLDOVER']"
+    },
+    {
+      "case": "invalid trusted clock bound",
+      "status": "REJECTED",
+      "first_error": "1001 is greater than the maximum of 1000"
+    },
+    {
+      "case": "holdover exceeds age",
+      "status": "REJECTED",
+      "first_error": "1800001 is greater than the maximum of 1800000"
+    },
+    {
+      "case": "photo update missing body",
+      "status": "REJECTED",
+      "first_error": "None is not of type 'object'"
+    },
+    {
+      "case": "normal event has image update",
+      "status": "REJECTED",
+      "first_error": "{'image_id': 'image-first-001', 'image_kind': 'FIRST_GUIDANCE', 'event_id': 'evt-001', 'captured_at': '2026-11-03T03:05:00Z', 'status': 'AVAILABLE', 'error_code': None} is not of type 'null'"
+    },
+    {
+      "case": "failed photo missing error",
+      "status": "REJECTED",
+      "first_error": "None is not of type 'string'"
+    },
+    {
+      "case": "available photo missing retention",
+      "status": "REJECTED",
+      "first_error": "None is not of type 'string'"
+    },
+    {
+      "case": "invalid JPEG hash",
+      "status": "REJECTED",
+      "first_error": "'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' does not match '^[a-f0-9]{64}$'"
+    },
+    {
+      "case": "image dimensions exceed profile",
+      "status": "REJECTED",
+      "first_error": "1281 is greater than the maximum of 1280"
+    },
+    {
+      "case": "reuse on wrong kind",
+      "status": "REJECTED",
+      "first_error": "'EVENT_CLOSE' was expected"
+    },
+    {
+      "case": "public view token leak",
+      "status": "REJECTED",
+      "first_error": "'secret' is not of type 'null'"
+    },
+    {
+      "case": "wrong command parameters",
+      "status": "REJECTED",
+      "first_error": "'pause_ids' is a required property"
+    },
+    {
+      "case": "wrong command scope",
+      "status": "REJECTED",
+      "first_error": "'DEVICE' was expected"
+    },
+    {
+      "case": "resume lacks token",
+      "status": "REJECTED",
+      "first_error": "None is not of type 'string'"
+    },
+    {
+      "case": "invalid command TTL",
+      "status": "REJECTED",
+      "first_error": "$ command ttl"
+    },
+    {
+      "case": "future STOP outside ZONE",
+      "status": "REJECTED",
+      "first_error": "$ future STOP scope"
+    },
+    {
+      "case": "wire STOP cannot carry web null",
+      "status": "REJECTED",
+      "first_error": "{'pause_id': 'pause-001', 'starts_at': None, 'expires_at': None, 'reason': '현장 확인'} is not valid under any of the given schemas"
+    },
+    {
+      "case": "first guidance beyond unresolved",
+      "status": "REJECTED",
+      "first_error": "$.timers unresolved must exceed first guidance"
+    },
+    {
+      "case": "SSE revision mismatch",
+      "status": "REJECTED",
+      "first_error": "$ SSE id/revision"
+    },
+    {
+      "case": "strict JSON parser '{\"x\":1,\"x\":2}'",
+      "status": "REJECTED"
+    },
+    {
+      "case": "strict JSON parser '{\"fps\":NaN}'",
+      "status": "REJECTED"
+    },
+    {
+      "case": "strict JSON parser '{\"fps\":Infinity}'",
+      "status": "REJECTED"
+    },
+    {
+      "case": "strict JSON parser b'\\xff'",
+      "status": "REJECTED"
+    },
+    {
+      "case": "serialized metadata size >64KiB",
+      "status": "REJECTED before JSON schema"
+    },
+    {
+      "case": "web STOP server pause id rejected",
+      "status": "REJECTED",
+      "first_error": "{'starts_at': None, 'expires_at': None, 'reason': '현장 확인', 'pause_id': 'server-owned'} is not valid under any of the given schemas"
+    },
+    {
+      "case": "web non-STOP null scope rejected",
+      "status": "REJECTED",
+      "first_error": "None is not of type 'string'"
+    }
+  ],
+  "api_operations": [
+    {
+      "operation": "op01",
+      "method": "GET",
+      "path": "/api/csrf",
+      "status": "PASS",
+      "response_schema": "CsrfResponse"
+    },
+    {
+      "operation": "op02",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": "PASS",
+      "request_schema": "LoginRequest",
+      "response_schema": "AuthUser"
+    },
+    {
+      "operation": "op03",
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "status": "PASS",
+      "scope": "204 has no content"
+    },
+    {
+      "operation": "op04",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": "PASS",
+      "response_schema": "AuthUser"
+    },
+    {
+      "operation": "op05",
+      "method": "GET",
+      "path": "/api/zones/{id}/status",
+      "status": "PASS",
+      "response_schema": "ZoneView"
+    },
+    {
+      "operation": "op06",
+      "method": "GET",
+      "path": "/api/events",
+      "status": "PASS",
+      "response_schema": "EventListResponse"
+    },
+    {
+      "operation": "op07",
+      "method": "GET",
+      "path": "/api/events/{id}",
+      "status": "PASS",
+      "response_schema": "EventDetail"
+    },
+    {
+      "operation": "op08",
+      "method": "GET",
+      "path": "/api/zones/{id}/policy",
+      "status": "PASS",
+      "response_schema": "PolicyGetResponse"
+    },
+    {
+      "operation": "op09",
+      "method": "PUT",
+      "path": "/api/zones/{id}/policy",
+      "status": "PASS",
+      "request_schema": "PolicyPutRequest",
+      "response_schema": "PolicyPutResponse"
+    },
+    {
+      "operation": "op10",
+      "method": "POST",
+      "path": "/api/devices/{id}/commands",
+      "status": "PASS",
+      "request_schema": "CommandCreateRequest",
+      "response_schema": "CommandCreateResponse"
+    },
+    {
+      "operation": "op11",
+      "method": "GET",
+      "path": "/api/commands/{id}",
+      "status": "PASS",
+      "response_schema": "AuthorizedCommandView"
+    },
+    {
+      "operation": "op12",
+      "method": "POST",
+      "path": "/api/events/{id}/reviews",
+      "status": "PASS",
+      "request_schema": "ReviewCreateRequest",
+      "response_schema": "ReviewCreateResponse"
+    },
+    {
+      "operation": "op13",
+      "method": "POST",
+      "path": "/api/devices/{id}/images",
+      "status": "PASS",
+      "request_schema": "ImageMetadata",
+      "response_schema": "ImageUploadResponse"
+    },
+    {
+      "operation": "op14",
+      "method": "GET",
+      "path": "/api/images/{id}",
+      "status": "PASS",
+      "scope": "binary response descriptor, no live JPEG transfer"
+    },
+    {
+      "operation": "op15",
+      "method": "GET",
+      "path": "/api/stream",
+      "status": "PASS",
+      "scope": "SSE data schema; framing/network not exercised"
+    }
+  ],
+  "synthetic_clock_assertions": 7,
+  "limitations": [
+    "Schema/API specification and example checks only; no application, MQTT broker, database, edge SDK, physical device, or performance integration test was executed.",
+    "clock_policy_boundaries is a documented boundary table, not a MQTT message.",
+    "Stateful checks in semantic_checks.json are still implementation requirements.",
+    "OpenAPI response union permits a live token only by schema; server must enforce OPERATOR identity and token expiry."
+  ]
+}

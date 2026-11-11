@@ -1,0 +1,30 @@
+%% F04: 같은 보드에서 결합하는 AI와 SDK
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/roles/B2.md
+%% Detail: ../spec/roles/B3.md
+%% Detail: ../spec/storage/D3.md
+%% Rule: AI는 판단 상태와 실제 출력 제어를 소유한다. SDK는 통신·저장 공통 코드이며 백엔드가 작성하고 AI가 실제 보드에 설치·결합한다.
+%% Rule: restore, commit_transition, take_command의 정확한 입력·결과와 버전 규칙은 B2 및 개발자료 07 계약을 따른다. 별도 HTTP 서비스나 IPC를 추가하지 않는다.
+%% Rule: SDK 언어·바인딩은 아직 정하지 않았다. PC 모의 어댑터는 백엔드, 실물 어댑터는 AI가 담당한다.
+%% Rule: 카메라 읽기·추론·JPEG 인코딩·네트워크·fsync가 AI 제어 루프를 막지 않아야 한다. JPEG와 촬영 시각은 AI가 제공한다.
+%% Rule: 새 안내는 저장 완료와 현재 조건 재검사 후 시작한다. 안전 중단은 저장을 기다리지 않는다. F10을 함께 읽는다.
+flowchart TD
+    subgraph edge["Container 경계: 하나의 엣지 애플리케이션 프로세스"]
+        subgraph aiOwner["AI 담당의 컴포넌트"]
+            control["Component: AI 제어 - 탐지·추적·품질·정차·출력 결정"]
+            platform["Component: 실물 플랫폼 어댑터 - 카메라·시계·LED·스피커"]
+            control -->|"실제 입출력·시계 사용"| platform
+        end
+        subgraph backendOwner["백엔드 담당의 SDK 컴포넌트"]
+            sdk["Component: SDK 내부 인터페이스"]
+            writer["Component: 단일 SQLite writer"]
+            transport["Component: MQTT worker"]
+            imageWorker["Component: 사진 worker"]
+            sdk -->|"원자 저장 요청"| writer
+            sdk -->|"수신·발행·재전송"| transport
+            sdk -->|"사진 대기함·HTTPS 업로드"| imageWorker
+        end
+        control -->|"내부 함수 호출"| sdk
+        sdk -->|"비동기 완료 통지·명령 전달"| control
+    end

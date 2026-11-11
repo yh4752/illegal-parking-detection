@@ -1,0 +1,102 @@
+MQTT 연결·복구와 SDK 내부 처리 설계 v1.4
+2026-11-05 · 구현 전에 사용할 기준
+
+1. 이번에 정한 범위
+기존 메시지 필드·토픽·QoS·안내 시간과 담당 분담은 유지한다. 이 문서는 실제 프로그램이나 실험 결과가 아니다. 보드의 언어·런타임·드라이버는 AI 담당자가 확인해야 한다. 백엔드는 여기의 외부 계약·저장/전송 모듈·가상 입력을 PC에서 먼저 개발할 수 있다.
+
+2. 연결을 다시 맺을 때
+장치는 등록한 전용 MQTT 계정과 고정 Client ID를 사용한다. 예제에서 edge0001 계정은 device_id=edge-01에만 접근한다. 서버 수신·발신은 serverin0001과 serverout0001로 나눠 동일 ID 충돌을 피한다. 브로커는 username을 Client ID로 사용한다. 동일 장치 계정의 두 프로세스 실행은 금지한다.
+연결마다 Clean Start=true, Session Expiry=0으로 시작한다. 기존 업무 기록은 MQTT 세션 대신 장치 SQLite와 서버 PostgreSQL의 발송 대기함에 보존한다. 연결 후 반드시 자기 토픽을 다시 구독하고 SUBACK 성공을 확인한다. 명령은 원래 유효기간 안에서만 서버가 재전송한다.
+TLS 인증서와 호스트 이름을 검증한다. 접속/구독 제한시간10초, Keep Alive15초, 최대 동시 QoS1 발행8개를 초기값으로 둔다. 실패 재접속은1·2·4·8·16·30초에 분산을 적용하되30초를 넘지 않는다. 인증·ACL 오류 또는 같은 Client ID 충돌은 무한 재접속 대신 설정을 점검한다.
+장치 재접속 때 availability ONLINE, 최신 config/reported와 새 heartbeat를 보낸 뒤 과거 사건·결과를 전송한다. 과거 사건이나 retained ONLINE만으로 관리 화면을 현재 정상으로 바꾸지 않는다. 기존 heartbeat15초 초과 STALE/30초 초과 OFFLINE을 유지한다.
+정상 서버 재시작과 과거 DB 백업 복원은 다르다. DB 복원은 RECOVERY_HOLD라는 내부 운영 절차로 정책·장치 최신 상태·명령·중복 기록을 먼저 대조한다. 그 전에는 옛 retained desired나 명령을 재발행하지 않는다. 외부 JSON enum을 새로 만들지 않는다.
+
+3. 세 가지 성공을 구분한다
+MQTT PUBACK는 브로커와의 전송 확인이다. STORED/DUPLICATE 응용 ACK는 서버의 영속 저장 확인이다. APPLIED는 장치가 해당 명령의 기준에 따라 확인하고 저장한 적용 결과다. 즉시 STOP은 논리 보류와 드라이버 중단 회신을, 예약 STOP은 일정 등록을 뜻한다. 앞 단계 성공을 뒷 단계 성공으로 표시하지 않는다.
+사건/명령 결과는 PUBACK를 최대5초 기다리고, PUBACK 후 응용 ACK를5초 기다린다. 응용 ACK가 없으면1·2·4·8·16·30초의 backoff 후 같은 메시지를 다시 보낸다. message_id·device_seq·발생시각·원본문은 바꾸지 않는다. 원본은 서버 응용 ACK를 받아야 전송 완료된다. REJECTED는 실패함으로 옮겨 점검한다.
+관리자 명령은 미확인 동안5초 간격으로 원래 command_id와 본문을 재발행하되, MQTT Message Expiry는 매번 남은 유효시간으로 줄인다. 원래60초를 다시 주지 않는다. SDK도 수신한 남은 수명을 단조 deadline으로 고정해 로컬 큐 대기 시간을 차감한다. 일반 명령에는 기존 시각 신뢰 검사를 추가한다. 즉시 STOP만 기존 예외를 유지한다.
+서버 재시작으로 단조 deadline을 잃으면 신뢰 UTC로 원래 expires_at을 확인한다. UTC까지 불신이면 이전 명령은 재발행하지 않는다. 신규 즉시 STOP은 새 명령으로 발급할 수 있다. 이미 발행됐을 가능성이 있는 명령의 결과가 없으면65초 시점에 미확인으로 표시하며, 이를 실행 실패로 단정하지 않는다.
+
+4. SDK와 AI의 함수 경계
+AI 제어 루프 하나가 판단 상태를 소유하고 SDK의 writer 하나가 로컬 SQLite를 쓴다. 동일 프로세스 안의 모듈 호출을 기본으로 하며 별도 네트워크 서비스를 추가하지 않는다. SQLite WAL/FULL은 구현 초기 선택이고 저장장치의 실제 내구성은 별도로 시험한다.
+AI는 operation_id·예상 local_revision·버전 있는 checkpoint·사건/시도/사진 변경을 SDK에 제출한다. SDK는 같은 트랜잭션에서 checkpoint·횟수·ID/순서·메시지·outbox를 저장하고 COMMITTED를 반환한다. 같은 operation_id와 같은 내용의 재시도는 원래 결과를 돌려준다. 다른 내용은 충돌이다. 중복 완료 응답을 새 재생 허가로 사용하지 않는다.
+요청/응답의 의미와 내부 자료형은 sdk_processing_v1.4.json에 적었다. 실제 언어 함수 선언은 보드 runtime 확인 후 작성한다. 메시지 해시는 RFC8785 정규화 결과의 SHA256을 사용하고 기기/서버에서 공통 벡터로 비교한다. 숫자·Unicode·배열 순서를 임의 변환하지 않으며 재전송은 저장한 원본 bytes를 유지한다.
+
+5. 저장이 느려도 중단할 수 있어야 한다
+AI는 비동기 저장을 기다리는 동안에도 이동·중지 입력을 계속 처리해야 한다. 카메라 읽기·추론·JPEG 인코딩 역시 제어 루프 밖 producer/worker로 분리한다. 소프트웨어 구조만으로 실제500ms 중단을 보장하지 않으며 실제 보드에서 측정한다.
+새 play/LED on은 로컬 저장이 성공해야 허용한다. 그러나 stop/LED off는 안전상 저장을 기다리지 않고 수행한다. DB 실패가 실제 중단을 막아서는 안 된다. 즉시 STOP은 저장과 드라이버 회신을 확인하기 전에는 APPLIED를 보고하지 않는다. 다른 명령은 각자의 기존 완료 기준을 따른다. 실제 중단도 실패하면 기존 FAILED/UNKNOWN 및 현장 중지 절차를 따른다.
+중지 입력이 들어오면 AI는 내부 stop_generation을 증가시켜 이전 안내 허가를 무효화한다. 그 뒤 이전 저장 작업의 COMMITTED가 늦게 도착해도 음성을 시작하지 않는다. 이미 저장한 시도 횟수는 되돌리지 않는다. 이 generation은 보드 내부 값이며 MQTT 필드로 추가하지 않는다.
+일반 명령12개와 즉시 STOP4개, 저장 대기32개 중 긴급4개 예약을 초기값으로 둔다. 포화된 입력을 성공 처리하거나 조용히 버리지 않는다. 추가 수신을 멈추고 연결 장애/재전송 경로를 사용한다. STOP 전달까지 막히면 AI 장애 경로로 자동 출력을 보류·중단한다. 사진 큐와 별도로 동작한다.
+
+6. 재시작 때 진행 중 명령
+RECEIVED는 일반 명령의 효과를 시작하기 전 수신 기록이다. EXECUTING은 실행 의도를 선저장했으므로 실제 효과가 발생했을 수도 있다. TERMINAL은 결과와 상태가 원자 저장된 상태다. UNCERTAIN은 결과가 불명확해 대조가 필요한 내부 상태다.
+재시작한 RECEIVED를 자동 실행하지 않는다. 서버가 동일 명령을 새 MQTT 잔여기한과 함께 재전송하면 원래 유효기간·현재 사건·현재 상태를 다시 확인해 효과 미시작이 입증된 작업만 이어간다. RESUME/CLOSE의 이전 부팅 토큰은 거부한다. EXECUTING/UNCERTAIN은 이 경로로 재실행하지 않는다. 즉시 STOP의 긴급 물리 중단은 새 안내를 허용하지 않는 별도 안전 예외다.
+새 boot_id·기존 device_seq·사건·횟수·중지를 복원하고 후보 시간을0으로 만든다. RESTART 보류와 기존 확인 절차를 적용한다. 시각/관측 정상 회복5초 뒤 새 유효 후보300초를 요구한다. 새 사진 없이 이전 토큰을 재사용하지 않는다.
+
+7. 장애별 기대 순서
+
+F-M1 서버 DB 저장 후 ACK 유실
+1. 장치 원본 outbox 유지
+2. 5초 ACK 대기+backoff 후 같은 ID/본문 재전송
+3. 서버 중복기록을 확인해 DUPLICATE ACK
+4. 장치 전송 완료; AI 안내 재실행 없음
+
+F-M2 명령 PUBACK 후 장치 미접속 또는 재부팅
+1. 브로커 PUBACK만으로 실행 완료하지 않음
+2. 서버5초 간격으로 같은 명령을 잔여TTL 안에서 재발행
+3. 장치는 새 연결 후 재구독하고 현재 기한/상태 검사
+4. 기한내 결과가 없으면 원래65초에 미확인; 늦은 결과는기존규칙반영
+
+F-M3 새 안내 시도 COMMIT 직후 전원 중단
+1. checkpoint와시도횟수/outbox는함께남음
+2. 실제방송이없었어도시도는사용된것으로유지
+3. 재시작UNKNOWN/RESTART보류·후보0
+4. 같은attempt를재생하지않고남은기존복구절차수행
+
+F-M4 DB 저장 대기 중 이동 또는 즉시 STOP
+1. AI stop_generation 증가·새play허가취소
+2. DB응답을기다리지않고같은제어루프에서stop/LEDoff
+3. 늦은COMMITTED를받아도이전play실행하지않음
+4. 확인된결과/상태를저장;저장실패또는중단실패를APPLIED로꾸미지않음
+
+F-M5 사진 업로드 지연과 큐 포화
+1. 사진worker/2개대기/50MiB한도안에서처리
+2. 추가사진은기존QUEUE_FULL등사진오류로명시
+3. 사건종료·중지·heartbeat경로와분리
+4. 재시도기한후사진만만료;사건과outbox는삭제하지않음
+
+F-M6 같은 계정의 장치 프로그램 두 개 실행
+1. OS프로세스잠금으로두번째실행거부
+2. MQTT0x8E수신프로세스는자동재접속중지
+3. 실행인스턴스/등록계정확인후하나만재개
+4. 이전connection_id OFFLINE으로현재heartbeat판정을덮어쓰지않음
+
+8. 제공 파일과 검증 범위
+transport_settings_v1.4.json: 실제 구현에 옮길 접속·재연결·재전송·브로커 한도 설정.
+sdk_processing_v1.4.json: 동시 처리·함수 경계·원자 저장·중단 예외·재시작 기준.
+mosquitto.conf.example 및 acl.example: 실제 계정·인증서 파일을 별도 준비해 적용할 예제. 예제 자체에 비밀값은 없다.
+pages.json: 통합 설계 보고서의 D1~D3 원고.
+검증한 것은 기존 필드/시간과 새 내부 초기값의 정합성, JSON 구조, 문서 표 구조이다. 브로커 접속·보드 SDK 실행·전원 장애 내구성·실제 음성 출력 시험은 아직 수행하지 않았다.
+
+9. 공식 근거와 팀 선택의 구분
+MQTT 표준은 Clean Start/Session Expiry/Will/Message Expiry의 의미를 설명한다. 세션0·Keep Alive15초·재시도 간격·큐 크기는 본 프로젝트의 초기 선택이다. Mosquitto·Spring·SQLite 문서는 구현 경로의 근거이며 대여 보드 호환이나 목표 성능을 보증하지 않는다.
+
+MQTT5
+https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html
+Clean Start·Session Expiry·Message Expiry·Will과 Client ID의 의미. 아래 숫자는 표준 권고값이 아니라 팀 초기 선택이다.
+
+MOSQUITTO
+https://mosquitto.org/man/mosquitto-conf-5.html
+TLS·password_file·acl_file·persistence·대기 한도·use_username_as_clientid 설정 항목. 실제 고정 버전에서 설정 로드와 ACL 인수시험 필요.
+
+SPRING_MQTT
+https://docs.spring.io/spring-integration/reference/mqtt.html
+Spring Integration의 MQTT 5 inbound/outbound 어댑터. 문서의 MQTT v3 예제를 혼용하지 않는다. 버전 호환은 빌드 시 고정.
+
+SQLITE
+https://www.sqlite.org/pragma.html#pragma_synchronous
+SQLite 저장 동기화 설정. 실제 보드 파일시스템/저장장치의 전원 장애 내구성은 실험 대상.
+
+RFC8785
+https://www.rfc-editor.org/rfc/rfc8785
+JSON Canonicalization Scheme. 허용 JSON 숫자·Unicode 조건을 검사하고 동일 테스트벡터로 기기/서버 구현을 대조한다.

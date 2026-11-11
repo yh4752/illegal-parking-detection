@@ -1,0 +1,29 @@
+%% F08: 관리자 명령의 접수부터 적용 결과까지
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/protocol/C4.md
+%% Detail: ../spec/protocol/C5.md
+%% Detail: ../spec/protocol/C6.md
+%% Detail: ../spec/storage/D2.md
+%% Detail: ../spec/storage/D5.md
+%% Rule: 참여자를 줄여 표현했지만 SDK와 AI의 책임은 F04 및 B2·B3 그대로다. SDK가 실제 출력 성공을 추정하지 않는다.
+%% Rule: 202 QUEUED는 서버의 접수 완료다. PUBACK는 브로커 수신이며 APPLIED와 다르다.
+%% Rule: 원래 60초 명령 기한과 5초 결과 유예 뒤에도 실제 결과가 없으면 DELIVERY_TIMEOUT으로 기록한다. 적용 여부 미확인이며 미실행 또는 실행 실패로 단정하지 않는다.
+%% Rule: 즉시 STOP의 APPLIED는 논리 중지·드라이버 확인·결과 내구 저장을 뜻한다. 실제 물리 무음을 보증하지 않는다. 안전 중단 순서는 F10을 따른다.
+%% Rule: 예약 STOP의 APPLIED는 일정 등록 완료다. RESUME 후에도 다른 중지가 남으면 PAUSED를 유지한다. 늦은 실제 결과 처리와 확인 토큰 조건은 C4~C6을 따른다.
+sequenceDiagram
+    participant W as 관리자 웹
+    participant S as Spring 서버
+    participant B as Mosquitto
+    participant E as 엣지 앱 SDK와 AI
+    W->>S: REST 제어 요청
+    S->>S: command·outbox·request_receipt 원자 저장
+    S-->>W: COMMIT 후 HTTP 202 QUEUED
+    S->>B: MQTT 명령 발행
+    B->>E: 유효 기한 안의 명령 전달
+    E->>E: SDK 중복·기한 검사와 AI 최종 현장 검사
+    E->>E: 명령별 적용 조건·결과 확인과 로컬 결과 저장
+    E->>B: 저장된 명령 결과 발행
+    B->>S: 결과 전달
+    S->>S: 실제 결과와 화면 상태 DB 반영
+    S-->>W: COMMIT 후 SSE 갱신

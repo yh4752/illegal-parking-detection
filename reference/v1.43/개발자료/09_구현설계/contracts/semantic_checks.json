@@ -1,0 +1,52 @@
+[
+  {
+    "id": "SC01",
+    "rule": "Envelope device_seq/boot_id/clock_synced must equal snapshot; event reference and SSE id must match corresponding data.",
+    "checked_by_fixture_script": true
+  },
+  {
+    "id": "SC02",
+    "rule": "Command expires_at is issued_at+60000ms. Immediate STOP starts_at==issued_at; future STOP requires ZONE, starts_at>issued_at and pause expiry after start. REST null normalizes only on server.",
+    "checked_by_fixture_script": true
+  },
+  {
+    "id": "SC03",
+    "rule": "Timers.unresolved_ms>first_guidance_ms; policy base/version progression, geometric simplicity/noncollinearity and profile availability require service checks.",
+    "checked_by_fixture_script": "timer comparison only; other checks require implementation"
+  },
+  {
+    "id": "SC04",
+    "rule": "Token purpose/event/image/boot/policy/mode/time binding, one-time consumption and clock trust require stored state and monotonic time.",
+    "checked_by_fixture_script": false
+  },
+  {
+    "id": "SC05",
+    "rule": "Dedup payload identity, device_seq order, terminal event protection, concurrent updates, retries and physical output require persistence/integration tests.",
+    "checked_by_fixture_script": false
+  },
+  {
+    "id": "SC06",
+    "rule": "Parse strict JSON: reject duplicate keys, NaN/Infinity and non-UTF8; enforce serialized UTF8 metadata<=65536B, JPEG<=5242880B, HTTP total-body bound separately. Schema number does not validate JPEG bytes.",
+    "checked_by_fixture_script": "strict parser helper and metadata byte limit only"
+  },
+  {
+    "id": "SC07",
+    "rule": "Image source reuse needs accepted CLOSE_CONFIRM, same bytes/hash/capture metadata, valid originating command and same event; image lifecycle retention depends on authoritative server state.",
+    "checked_by_fixture_script": "provided two reuse examples only"
+  },
+  {
+    "id": "SC08",
+    "rule": "ClockStatus bounds are syntactic necessary conditions. Actual state depends on external adapter validity, same boot, monotonic age, probe failure and time-jump evidence.",
+    "checked_by_fixture_script": "six supplied documented boundaries via synthetic evidence; not a real clock adapter"
+  },
+  {
+    "id": "SC09",
+    "rule": "HTTP authorization, CSRF, device-to-topic/path ownership, public null token vs live OPERATOR token and SSE filtering require request context.",
+    "checked_by_fixture_script": "public token schema only"
+  },
+  {
+    "id": "SC10",
+    "rule": "UTC values remain null if originally untrusted; operating windows do not cross midnight and require start<end plus registered timezone; raw IDs are opaque while registered device/zone IDs must be topic/path-safe.",
+    "checked_by_fixture_script": "window comparison only"
+  }
+]

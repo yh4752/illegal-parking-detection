@@ -1,0 +1,17 @@
+erDiagram
+    zone ||--|| device : registers
+    zone ||--|| zone_view : projects
+    zone ||--o{ zone_policy : versions
+    zone ||--o{ incident : records
+    device ||--o{ inbound_receipt : deduplicates
+    inbound_receipt ||--o| event_message : retains
+    zone ||--o{ command : receives
+    command ||--o| server_outbox : publishes
+    zone_policy ||--o| server_outbox : publishes
+    device ||--o{ pause_projection : reports
+    app_user ||--o{ review : writes
+    app_user ||--o{ request_receipt : deduplicates
+    device ||--o{ device_image : uploads
+    device_image ||--o| image_upload_intent : stages
+    device ||--o{ entity_tombstone : remembers
+    zone ||--o{ audit_entry : audits

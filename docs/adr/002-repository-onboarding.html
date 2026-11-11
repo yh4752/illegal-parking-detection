@@ -1,0 +1,79 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 시작 자료 v0.2 · 업무 기능 미구현</span></header>
+<nav aria-label="문서 메뉴"><a href="../index.html">팀 요약</a><a href="../backend.html">서버 구조</a><a href="../first-slice.html">첫 구현</a><a href="../status.html">현재 상태</a><a href="../review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선은 목표 설계입니다. 현재는 기동 코드·설정·문서만 작성했고 MQTT 수신·DB 저장·조회 기능은 다음에 구현합니다.</p></aside><article class="page"><h1>ADR-002: 클론한 팀원과 개발 에이전트의 진입점</h1>
+<ul>
+<li>날짜: 2026-11-11</li>
+<li>상태: 채택. 문서 책임을 설계한 후 README·CONTRIBUTING·루트/백엔드 AGENTS에 반영했다.</li>
+<li>저장소: 개인 계정 yh4752의 비공개 parking-system. 팀원 계정·초대는 별도.</li>
+</ul>
+<h2>해결할 문제</h2>
+<p>기존 README는 이전 대화와 설계 판본을 아는 사람을 대상으로 쓰였다. 클론 명령·필수 도구·예상 결과·담당별 첫 작업이 한 경로로 이어지지 않는다. 수정 전 AGENTS.md에는 ‘아직 미구현’ 같은 변하기 쉬운 상태가 반복되어 기능 추가 후 지침과 코드가 충돌할 수 있다.</p>
+<h2>문서별 책임</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>문서</th>
+<th>독자·역할</th>
+<th>넣지 않을 내용</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>README.md</td>
+<td>처음 보는 사람: 문제·목표 동작·현재 실행 가능 범위·클론/실행·담당별 링크</td>
+<td>대화 경과, 개발 도구 내부 사정, 모든 설계 규칙</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>팀원: 접근 권한·도구·브랜치/PR·검증·변경 절차·막혔을 때 확인할 곳</td>
+<td>정식 메시지 필드의 복사본</td>
+</tr>
+<tr>
+<td>AGENTS.md</td>
+<td>AI: 읽는 순서·작업 범위·정식 기준 위치·명령·변경/보고 원칙</td>
+<td>고정된 ‘다음 작업’, 개인 경로, 항상 변하는 완료 상태</td>
+</tr>
+<tr>
+<td>backend/AGENTS.md</td>
+<td>백엔드 작업의 추가 규칙: 판단 소유권·트랜잭션·검증 경계</td>
+<td>루트 규칙의 반복</td>
+</tr>
+<tr>
+<td>docs/status.md</td>
+<td>모든 독자: 실제 작성·실행 여부</td>
+<td>명세의 미래 목표를 실행 결과로 기록</td>
+</tr>
+<tr>
+<td>docs/architecture.md 등</td>
+<td>역할·구조·기능 상세를 필요할 때 탐색</td>
+<td>README의 클론 절차 중복</td>
+</tr>
+</tbody></table></div>
+<p>루트 지침과 backend 추가 지침만 만든다. frontend·edge-sdk에는 실제 코드가 아직 없으므로 별도 규칙 파일은 만들지 않는다. 사용 AI가 AGENTS.md를 자동으로 읽는다고 가정하지 않고 수동 진입 문구를 제공한다. 저장소 지침은 사용자 요청과 개발 도구의 상위 정책을 덮어쓰지 않는다.</p>
+<h2>개발 흐름</h2>
+<p>클론 → README에서 현재 범위 확인 → 로컬 기동 또는 문서 검사 → 역할별 첫 작업 선택 → 브랜치 → 코드·영향 문서·시험 수정 → PR 확인 순서로 진행한다. 개발자가 수행할 작업에는 기존 v1.43 계약을 연결하되 첫 진입에서 127개 원본을 모두 읽게 하지 않는다.</p>
+<p>CI는 문서·설정과 백엔드 빌드를 구분한다. 제품 동작은 새로 구현하지 않는다. 실제 빌드나 초기 CI가 실패하면 재현 가능한 원인만 수정하고 실패를 숨기기 위해 검사를 끄지 않는다.</p>
+<h2>검토 기준</h2>
+<ul>
+<li>README만 보고 무엇을 만드는지, 지금 무엇을 실행할 수 있는지 설명할 수 있다.</li>
+<li>클론 URL·작업 디렉터리·필수 도구·명령·예상 결과·중지 방법이 일치한다.</li>
+<li>공통 규칙과 변동 상태의 원본이 분리되어 있다. 규칙은 검증 가능한 행동으로 작성한다.</li>
+<li>실제 보드와 PC 가상 장치, 브로커 수신과 DB 저장, 작성과 실행 성공을 구분한다.</li>
+<li>개인 경로·실제 비밀값·데이터 원본 없이 클론할 수 있고 상세 계약은 보존한다.</li>
+<li>별도 검토 후 중요한 지적을 반영하고, 공개할 결과에 맞는 실제 검증을 수행한다.</li>
+</ul>
+<h2>채택하지 않는 것</h2>
+<p>지금은 조직 생성·협업자 자동 초대·브랜치 보호의 강제 적용·실서비스 배포·모든 AI 도구용 중복 규칙 파일을 추가하지 않는다. 필요한 정보나 실제 사용 도구가 확인되면 확장한다.</p>
+<h2>검토와 반영</h2>
+<p>독립 검토에서 기존 문서의 ‘v1.43 원본 수정’ 안내와 원본 해시 보존 검사가 충돌하는 점을 지적했다. 보존본을 임의로 바꾸지 않고, 계약 변경 시 ADR과 새 기준 위치·관련 예제·검증을 함께 기록하도록 수정했다. 실제 검증 결과는 <a href="../status.html">현재 상태</a>에서 확인한다.</p>
+<p>문서 분리 기준은 <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes">GitHub README 안내</a>, 에이전트 파일 적용 범위는 <a href="https://developers.openai.com/codex/guides/agents-md">AGENTS.md 안내</a>를 참고했다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

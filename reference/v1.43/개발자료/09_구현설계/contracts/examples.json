@@ -1,0 +1,916 @@
+{
+  "guidance_complete": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "zone_id": "zone-01",
+    "message_id": "msg-010",
+    "boot_id": "boot-001",
+    "device_seq": 10,
+    "occurred_at": "2026-11-03T03:05:04Z",
+    "clock_synced": true,
+    "event_id": "evt-001",
+    "event_type": "GUIDANCE_PLAYBACK_COMPLETED",
+    "event": {
+      "event_id": "evt-001",
+      "state": "GUIDED",
+      "event_policy_version": 3,
+      "started_at": "2026-11-03T03:00:00Z",
+      "closed_at": null,
+      "close_reason": null,
+      "guidance_count": 1,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "continuous_stop_ms": 304000,
+      "overdue": false
+    },
+    "snapshot": {
+      "current_event_id": "evt-001",
+      "incident_state": "GUIDED",
+      "event_policy_version": 3,
+      "guidance_count": 1,
+      "continuous_stop_ms": 304000,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "camera_health": "OK",
+      "mode": "AUTO",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 1,
+      "rearm_required": false,
+      "device_seq": 10,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:05:04Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 34000
+      }
+    },
+    "image_update": null
+  },
+  "heartbeat": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "zone_id": "zone-01",
+    "message_id": "hb-011",
+    "boot_id": "boot-001",
+    "device_seq": 11,
+    "occurred_at": "2026-11-03T03:05:04Z",
+    "clock_synced": true,
+    "event_id": "evt-001",
+    "snapshot": {
+      "current_event_id": "evt-001",
+      "incident_state": "GUIDED",
+      "event_policy_version": 3,
+      "guidance_count": 1,
+      "continuous_stop_ms": 304000,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "camera_health": "OK",
+      "mode": "AUTO",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 1,
+      "rearm_required": false,
+      "device_seq": 11,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:05:04Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 34000
+      }
+    },
+    "fps": 5.4,
+    "pending_message_count": 0,
+    "storage_ok": true
+  },
+  "ack_stored": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "message_id": "msg-010",
+    "status": "STORED",
+    "error_code": null,
+    "committed_at": "2026-11-03T03:05:04.100Z"
+  },
+  "ack_duplicate": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "message_id": "msg-010",
+    "status": "DUPLICATE",
+    "error_code": null,
+    "committed_at": "2026-11-03T03:05:04.100Z"
+  },
+  "stop_command": {
+    "schema_version": 2,
+    "command_id": "cmd-001",
+    "device_id": "edge-01",
+    "type": "STOP_GUIDANCE",
+    "scope": "EVENT",
+    "target_event_id": "evt-001",
+    "issued_at": "2026-11-03T03:05:05Z",
+    "expires_at": "2026-11-03T03:06:05Z",
+    "expected_mode_revision": null,
+    "expected_received_policy_version": null,
+    "expected_active_policy_version": null,
+    "expected_event_policy_version": null,
+    "confirmation_token": null,
+    "params": {
+      "pause_id": "pause-001",
+      "starts_at": "2026-11-03T03:05:05Z",
+      "expires_at": null,
+      "reason": "현장 확인"
+    }
+  },
+  "stop_applied": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "zone_id": "zone-01",
+    "message_id": "msg-012",
+    "boot_id": "boot-001",
+    "device_seq": 12,
+    "occurred_at": "2026-11-03T03:05:05.200Z",
+    "clock_synced": true,
+    "event_id": "evt-001",
+    "command_id": "cmd-001",
+    "result": "APPLIED",
+    "error_code": null,
+    "result_data": {
+      "pause_ids": [
+        "pause-001"
+      ],
+      "image_id": null,
+      "confirmation_token": null,
+      "token_valid_for_ms": null,
+      "closed_event_id": null
+    },
+    "snapshot": {
+      "current_event_id": "evt-001",
+      "incident_state": "HELD",
+      "event_policy_version": 3,
+      "guidance_count": 1,
+      "continuous_stop_ms": 0,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "camera_health": "OK",
+      "mode": "PAUSED",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [
+        {
+          "pause_id": "pause-001",
+          "source": "USER",
+          "scope": "EVENT",
+          "target_event_id": "evt-001",
+          "starts_at": "2026-11-03T03:05:05Z",
+          "expires_at": null,
+          "status": "ACTIVE",
+          "reason": "현장 확인"
+        }
+      ],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 2,
+      "rearm_required": false,
+      "device_seq": 12,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:05:05.200Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 35200
+      }
+    }
+  },
+  "zone_view": {
+    "zone_id": "zone-01",
+    "view_revision": 8,
+    "received_at": "2026-11-03T03:05:05.300Z",
+    "last_heartbeat_at": "2026-11-03T03:05:04.200Z",
+    "connection_state": "ONLINE",
+    "snapshot": {
+      "current_event_id": "evt-001",
+      "incident_state": "HELD",
+      "event_policy_version": 3,
+      "guidance_count": 1,
+      "continuous_stop_ms": 0,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "camera_health": "OK",
+      "mode": "PAUSED",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [
+        {
+          "pause_id": "pause-001",
+          "source": "USER",
+          "scope": "EVENT",
+          "target_event_id": "evt-001",
+          "starts_at": "2026-11-03T03:05:05Z",
+          "expires_at": null,
+          "status": "ACTIVE",
+          "reason": "현장 확인"
+        }
+      ],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 2,
+      "rearm_required": false,
+      "device_seq": 12,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:05:05.200Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 35200
+      }
+    },
+    "commands": [
+      {
+        "command_id": "cmd-001",
+        "type": "STOP_GUIDANCE",
+        "server_status": "APPLIED",
+        "issued_at": "2026-11-03T03:05:05Z",
+        "expires_at": "2026-11-03T03:06:05Z",
+        "result_received_at": "2026-11-03T03:05:05.300Z",
+        "result": "APPLIED",
+        "error_code": null,
+        "result_data": {
+          "pause_ids": [
+            "pause-001"
+          ],
+          "image_id": null,
+          "confirmation_token": null,
+          "token_valid_for_ms": null,
+          "closed_event_id": null
+        }
+      }
+    ],
+    "image_refs": [
+      {
+        "image_id": "image-first-001",
+        "image_kind": "FIRST_GUIDANCE",
+        "event_id": "evt-001",
+        "captured_at": "2026-11-03T03:05:00Z",
+        "received_at": "2026-11-03T03:05:00.050Z",
+        "expires_at": "2026-11-10T03:05:00Z",
+        "status": "AVAILABLE",
+        "error_code": null
+      }
+    ]
+  },
+  "config_desired": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "desired_policy": {
+      "zone_id": "zone-01",
+      "version": 3,
+      "base_version": 2,
+      "change_class": "TIMING",
+      "geometry": {
+        "roi_polygon_m": [
+          [
+            0,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            0,
+            2
+          ]
+        ],
+        "exit_polygon_m": [
+          [
+            4,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "calibration_id": "cal-001",
+        "reference_points": [
+          {
+            "image_uv": [
+              0.1,
+              0.2
+            ],
+            "ground_xy_m": [
+              0,
+              0
+            ]
+          },
+          {
+            "image_uv": [
+              0.7,
+              0.2
+            ],
+            "ground_xy_m": [
+              4,
+              0
+            ]
+          },
+          {
+            "image_uv": [
+              0.7,
+              0.8
+            ],
+            "ground_xy_m": [
+              4,
+              2
+            ]
+          },
+          {
+            "image_uv": [
+              0.1,
+              0.8
+            ],
+            "ground_xy_m": [
+              0,
+              2
+            ]
+          }
+        ]
+      },
+      "timers": {
+        "first_guidance_ms": 300000,
+        "confirm_ms": 3000,
+        "repeat_after_end_ms": 30000,
+        "max_attempts": 2,
+        "unresolved_ms": 600000,
+        "exit_confirm_ms": 3000
+      },
+      "vision_profile_id": "vision-001",
+      "operating_hours": {
+        "timezone": "Asia/Seoul",
+        "windows": [
+          {
+            "weekday": 1,
+            "start_hhmm": "00:00",
+            "end_hhmm": "24:00"
+          },
+          {
+            "weekday": 2,
+            "start_hhmm": "00:00",
+            "end_hhmm": "24:00"
+          },
+          {
+            "weekday": 3,
+            "start_hhmm": "00:00",
+            "end_hhmm": "24:00"
+          },
+          {
+            "weekday": 4,
+            "start_hhmm": "00:00",
+            "end_hhmm": "24:00"
+          },
+          {
+            "weekday": 5,
+            "start_hhmm": "00:00",
+            "end_hhmm": "24:00"
+          },
+          {
+            "weekday": 6,
+            "start_hhmm": "00:00",
+            "end_hhmm": "24:00"
+          },
+          {
+            "weekday": 7,
+            "start_hhmm": "00:00",
+            "end_hhmm": "24:00"
+          }
+        ]
+      }
+    }
+  },
+  "availability_online": {
+    "device_id": "edge-01",
+    "boot_id": "boot-001",
+    "connection_id": "conn-001",
+    "status": "ONLINE"
+  },
+  "config_reported": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "zone_id": "zone-01",
+    "message_id": "cfg-013",
+    "boot_id": "boot-001",
+    "device_seq": 13,
+    "occurred_at": "2026-11-03T03:05:06Z",
+    "clock_synced": true,
+    "event_id": null,
+    "config_status": "APPLIED",
+    "error_code": null,
+    "snapshot": {
+      "current_event_id": "evt-001",
+      "incident_state": "HELD",
+      "event_policy_version": 3,
+      "guidance_count": 1,
+      "continuous_stop_ms": 0,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "camera_health": "OK",
+      "mode": "PAUSED",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [
+        {
+          "pause_id": "pause-001",
+          "source": "USER",
+          "scope": "EVENT",
+          "target_event_id": "evt-001",
+          "starts_at": "2026-11-03T03:05:05Z",
+          "expires_at": null,
+          "status": "ACTIVE",
+          "reason": "현장 확인"
+        }
+      ],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 2,
+      "rearm_required": false,
+      "device_seq": 13,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:05:06Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 36000
+      }
+    }
+  },
+  "snapshot_request": {
+    "schema_version": 2,
+    "command_id": "cmd-photo-001",
+    "device_id": "edge-01",
+    "type": "REQUEST_SNAPSHOT",
+    "scope": "DEVICE",
+    "target_event_id": null,
+    "issued_at": "2026-11-03T03:05:09Z",
+    "expires_at": "2026-11-03T03:06:09Z",
+    "expected_mode_revision": null,
+    "expected_received_policy_version": null,
+    "expected_active_policy_version": null,
+    "expected_event_policy_version": null,
+    "confirmation_token": null,
+    "params": {
+      "purpose": "RESUME"
+    }
+  },
+  "image_metadata": {
+    "image_id": "image-001",
+    "request_command_id": "cmd-photo-001",
+    "event_id": "evt-001",
+    "captured_at": "2026-11-03T03:05:10Z",
+    "clock_synced": true,
+    "boot_id": "boot-001",
+    "mode_revision": 2,
+    "received_policy_version": 3,
+    "active_policy_version": 3,
+    "event_policy_version": 3,
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "width": 1280,
+    "height": 720,
+    "image_kind": "RESUME_CONFIRM",
+    "image_profile_id": "jpeg-1280-q80-v1",
+    "created_at": "2026-11-03T03:05:10Z",
+    "source_image_id": null
+  },
+  "snapshot_ready": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "zone_id": "zone-01",
+    "message_id": "msg-014",
+    "boot_id": "boot-001",
+    "device_seq": 14,
+    "occurred_at": "2026-11-03T03:05:10.200Z",
+    "clock_synced": true,
+    "event_id": "evt-001",
+    "command_id": "cmd-photo-001",
+    "result": "APPLIED",
+    "error_code": null,
+    "result_data": {
+      "pause_ids": [],
+      "image_id": "image-001",
+      "confirmation_token": "EXAMPLE_ONLY_NOT_A_REAL_TOKEN",
+      "token_valid_for_ms": 29800,
+      "closed_event_id": null
+    },
+    "snapshot": {
+      "current_event_id": "evt-001",
+      "incident_state": "HELD",
+      "event_policy_version": 3,
+      "guidance_count": 1,
+      "continuous_stop_ms": 0,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "camera_health": "OK",
+      "mode": "PAUSED",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [
+        {
+          "pause_id": "pause-001",
+          "source": "USER",
+          "scope": "EVENT",
+          "target_event_id": "evt-001",
+          "starts_at": "2026-11-03T03:05:05Z",
+          "expires_at": null,
+          "status": "ACTIVE",
+          "reason": "현장 확인"
+        }
+      ],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 2,
+      "rearm_required": false,
+      "device_seq": 14,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:05:10.200Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 40200
+      }
+    }
+  },
+  "resume_command": {
+    "schema_version": 2,
+    "command_id": "cmd-resume-001",
+    "device_id": "edge-01",
+    "type": "RESUME_GUIDANCE",
+    "scope": "DEVICE",
+    "target_event_id": "evt-001",
+    "issued_at": "2026-11-03T03:05:15Z",
+    "expires_at": "2026-11-03T03:06:15Z",
+    "expected_mode_revision": 2,
+    "expected_received_policy_version": 3,
+    "expected_active_policy_version": 3,
+    "expected_event_policy_version": 3,
+    "confirmation_token": "EXAMPLE_ONLY_NOT_A_REAL_TOKEN",
+    "params": {
+      "pause_ids": [
+        "pause-001"
+      ],
+      "identity_confirmed": false,
+      "reason": "현장 작업 종료와 사진 확인"
+    }
+  },
+  "sse_zone_snapshot": {
+    "event": "zone_snapshot",
+    "id": "8",
+    "data": {
+      "zone_id": "zone-01",
+      "view_revision": 8,
+      "received_at": "2026-11-03T03:05:05.300Z",
+      "last_heartbeat_at": "2026-11-03T03:05:04.200Z",
+      "connection_state": "ONLINE",
+      "snapshot": {
+        "current_event_id": "evt-001",
+        "incident_state": "HELD",
+        "event_policy_version": 3,
+        "guidance_count": 1,
+        "continuous_stop_ms": 0,
+        "body_type": "CAR",
+        "use_type": "UNKNOWN",
+        "camera_health": "OK",
+        "mode": "PAUSED",
+        "output_status": "IDLE",
+        "reason_codes": [],
+        "pauses": [
+          {
+            "pause_id": "pause-001",
+            "source": "USER",
+            "scope": "EVENT",
+            "target_event_id": "evt-001",
+            "starts_at": "2026-11-03T03:05:05Z",
+            "expires_at": null,
+            "status": "ACTIVE",
+            "reason": "현장 확인"
+          }
+        ],
+        "received_policy_version": 3,
+        "active_policy_version": 3,
+        "mode_revision": 2,
+        "rearm_required": false,
+        "device_seq": 12,
+        "boot_id": "boot-001",
+        "clock_synced": true,
+        "observed_at": "2026-11-03T03:05:05.200Z",
+        "overdue": false,
+        "clock_status": {
+          "state": "SYNCED",
+          "error_bound_ms": 120,
+          "last_sync_at": "2026-11-03T03:04:30Z",
+          "sync_age_ms": 35200
+        }
+      },
+      "commands": [
+        {
+          "command_id": "cmd-001",
+          "type": "STOP_GUIDANCE",
+          "server_status": "APPLIED",
+          "issued_at": "2026-11-03T03:05:05Z",
+          "expires_at": "2026-11-03T03:06:05Z",
+          "result_received_at": "2026-11-03T03:05:05.300Z",
+          "result": "APPLIED",
+          "error_code": null,
+          "result_data": {
+            "pause_ids": [
+              "pause-001"
+            ],
+            "image_id": null,
+            "confirmation_token": null,
+            "token_valid_for_ms": null,
+            "closed_event_id": null
+          }
+        }
+      ],
+      "image_refs": [
+        {
+          "image_id": "image-first-001",
+          "image_kind": "FIRST_GUIDANCE",
+          "event_id": "evt-001",
+          "captured_at": "2026-11-03T03:05:00Z",
+          "received_at": "2026-11-03T03:05:00.050Z",
+          "expires_at": "2026-11-10T03:05:00Z",
+          "status": "AVAILABLE",
+          "error_code": null
+        }
+      ]
+    }
+  },
+  "rest_error": {
+    "code": "MODE_CHANGED",
+    "message": "새 중지가 적용되었습니다. 상태와 사진을 다시 확인하세요.",
+    "details": {
+      "expected_mode_revision": 2,
+      "actual_mode_revision": 3
+    },
+    "retryable": false,
+    "request_id": "req-001"
+  },
+  "manual_close_event": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "zone_id": "zone-01",
+    "message_id": "msg-020",
+    "boot_id": "boot-001",
+    "device_seq": 20,
+    "occurred_at": "2026-11-03T03:06:30Z",
+    "clock_synced": true,
+    "event_id": "evt-001",
+    "event_type": "EVENT_CLOSED_MANUAL",
+    "event": {
+      "event_id": "evt-001",
+      "state": "CLOSED_MANUAL",
+      "event_policy_version": 3,
+      "started_at": "2026-11-03T03:00:00Z",
+      "closed_at": "2026-11-03T03:06:30Z",
+      "close_reason": "MANUAL",
+      "guidance_count": 1,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "continuous_stop_ms": 0,
+      "overdue": false
+    },
+    "snapshot": {
+      "current_event_id": null,
+      "incident_state": null,
+      "event_policy_version": null,
+      "guidance_count": 0,
+      "continuous_stop_ms": 0,
+      "body_type": null,
+      "use_type": null,
+      "camera_health": "OK",
+      "mode": "AWAITING_RESUME",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [
+        {
+          "pause_id": "rearm-001",
+          "source": "REARM_REQUIRED",
+          "scope": "ZONE",
+          "target_event_id": null,
+          "starts_at": "2026-11-03T03:06:30Z",
+          "expires_at": null,
+          "status": "ACK_REQUIRED",
+          "reason": "관리자 종료 후 빈 구역 확인 필요"
+        }
+      ],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 4,
+      "rearm_required": true,
+      "device_seq": 20,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:06:30Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 120000
+      }
+    },
+    "image_update": null
+  },
+  "automatic_photo_available": {
+    "schema_version": 2,
+    "device_id": "edge-01",
+    "zone_id": "zone-01",
+    "message_id": "msg-015-photo",
+    "boot_id": "boot-001",
+    "device_seq": 15,
+    "occurred_at": "2026-11-03T03:05:11Z",
+    "clock_synced": true,
+    "event_id": "evt-001",
+    "event_type": "IMAGE_STATUS_CHANGED",
+    "event": null,
+    "snapshot": {
+      "current_event_id": "evt-001",
+      "incident_state": "HELD",
+      "event_policy_version": 3,
+      "guidance_count": 1,
+      "continuous_stop_ms": 0,
+      "body_type": "CAR",
+      "use_type": "UNKNOWN",
+      "camera_health": "OK",
+      "mode": "PAUSED",
+      "output_status": "IDLE",
+      "reason_codes": [],
+      "pauses": [
+        {
+          "pause_id": "pause-001",
+          "source": "USER",
+          "scope": "EVENT",
+          "target_event_id": "evt-001",
+          "starts_at": "2026-11-03T03:05:05Z",
+          "expires_at": null,
+          "status": "ACTIVE",
+          "reason": "현장 확인"
+        }
+      ],
+      "received_policy_version": 3,
+      "active_policy_version": 3,
+      "mode_revision": 2,
+      "rearm_required": false,
+      "device_seq": 15,
+      "boot_id": "boot-001",
+      "clock_synced": true,
+      "observed_at": "2026-11-03T03:05:11Z",
+      "overdue": false,
+      "clock_status": {
+        "state": "SYNCED",
+        "error_bound_ms": 120,
+        "last_sync_at": "2026-11-03T03:04:30Z",
+        "sync_age_ms": 41000
+      }
+    },
+    "image_update": {
+      "image_id": "image-first-001",
+      "image_kind": "FIRST_GUIDANCE",
+      "event_id": "evt-001",
+      "captured_at": "2026-11-03T03:05:00Z",
+      "status": "AVAILABLE",
+      "error_code": null
+    }
+  },
+  "image_ref_available": {
+    "image_id": "image-first-001",
+    "image_kind": "FIRST_GUIDANCE",
+    "event_id": "evt-001",
+    "captured_at": "2026-11-03T03:05:00Z",
+    "received_at": "2026-11-03T03:05:00.050Z",
+    "expires_at": "2026-11-10T03:05:00Z",
+    "status": "AVAILABLE",
+    "error_code": null
+  },
+  "image_ref_failed": {
+    "image_id": "image-close-002",
+    "image_kind": "EVENT_CLOSE",
+    "event_id": "evt-002",
+    "captured_at": null,
+    "received_at": "2026-11-03T03:08:30Z",
+    "expires_at": null,
+    "status": "FAILED",
+    "error_code": "NO_VALID_FRAME"
+  },
+  "clock_status_holdover": {
+    "state": "HOLDOVER",
+    "error_bound_ms": 700,
+    "last_sync_at": "2026-11-03T03:04:30Z",
+    "sync_age_ms": 600000
+  },
+  "clock_status_untrusted": {
+    "state": "UNTRUSTED",
+    "error_bound_ms": 1001,
+    "last_sync_at": "2026-11-03T03:04:30Z",
+    "sync_age_ms": 1800001
+  },
+  "clock_policy_boundaries": [
+    {
+      "condition": "external normal, stratum2, same-boot age300000, valid E1000",
+      "expected": "SYNCED"
+    },
+    {
+      "condition": "external normal, same-boot age300001, valid E1000",
+      "expected": "HOLDOVER"
+    },
+    {
+      "condition": "same-boot trusted anchor age1800000, daemon valid E1000",
+      "expected": "HOLDOVER"
+    },
+    {
+      "condition": "same-boot anchor age1800001 or valid E1001",
+      "expected": "UNTRUSTED"
+    },
+    {
+      "condition": "probe failures accumulate10000ms or abs(deltaUTC-deltaMonotonic)=501ms",
+      "expected": "UNTRUSTED"
+    },
+    {
+      "condition": "network down but same-boot age600000 and current valid E700",
+      "expected": "HOLDOVER; do not stop solely for network loss"
+    }
+  ],
+  "image_metadata_close_confirm": {
+    "image_id": "image-close-confirm-001",
+    "request_command_id": "cmd-close-photo-001",
+    "event_id": "evt-001",
+    "captured_at": "2026-11-03T03:06:29Z",
+    "clock_synced": true,
+    "boot_id": "boot-001",
+    "mode_revision": 3,
+    "received_policy_version": 3,
+    "active_policy_version": 3,
+    "event_policy_version": 3,
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "width": 1280,
+    "height": 720,
+    "image_kind": "CLOSE_CONFIRM",
+    "image_profile_id": "jpeg-1280-q80-v1",
+    "created_at": "2026-11-03T03:06:29Z",
+    "source_image_id": null
+  },
+  "image_metadata_close_reuse": {
+    "image_id": "image-close-001",
+    "request_command_id": null,
+    "event_id": "evt-001",
+    "captured_at": "2026-11-03T03:06:29Z",
+    "clock_synced": true,
+    "boot_id": "boot-001",
+    "mode_revision": 3,
+    "received_policy_version": 3,
+    "active_policy_version": 3,
+    "event_policy_version": 3,
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "width": 1280,
+    "height": 720,
+    "image_kind": "EVENT_CLOSE",
+    "image_profile_id": "jpeg-1280-q80-v1",
+    "created_at": "2026-11-03T03:06:30Z",
+    "source_image_id": "image-close-confirm-001"
+  }
+}

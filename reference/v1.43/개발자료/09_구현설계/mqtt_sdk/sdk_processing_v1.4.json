@@ -1,0 +1,202 @@
+{
+  "document_version": "1.4",
+  "revision": "2026-11-05 SDK 처리 상세",
+  "status": "언어 독립 설계. 실제 함수 선언/보드 바인딩은 W01 환경 확인 후 작성.",
+  "unchanged": "04의 메시지·상태·타이머·오류 enum을 유지. 아래 내부 상태·오류는 외부 JSON에 자동 추가하지 않는다.",
+  "execution": {
+    "ai_state_owner": "AI 제어 루프 하나가 도메인 상태 전이를 소유. 네트워크 callback은 AI 상태나 물리 출력을 직접 바꾸지 않음.",
+    "sqlite_writer": "SDK 단일 writer. BEGIN IMMEDIATE, journal_mode=WAL, synchronous=FULL, foreign_keys=ON을 초기값으로 검증. 네트워크/사진 I/O를 트랜잭션 안에서 실행하지 않음.",
+    "async_commits": "commit 요청은 비동기 receipt로 완료. AI 루프가 fsync·네트워크·사진을 기다리며 정지하지 않음. AI 도메인 commit은 최대1개 진행중.",
+    "workers": [
+      "MQTT I/O 및 재접속 worker",
+      "SQLite 단일 writer",
+      "JPEG HTTPS worker1개"
+    ],
+    "safety_generation": "AI는 중지·관측불능 등 안전 입력마다 메모리 stop_generation을 증가시키고 즉시 stop/LED off 경로를 수행한다. 새 play를 예약한 commit receipt가 늦게 와도 당시 generation과 현재값이 다르거나 현재 조건이 불충족하면 play하지 않는다. 이미 저장한 시도 횟수는 되돌리지 않는다.",
+    "ai_producer_condition": "AI 플랫폼 어댑터는 동기 추론·카메라 읽기·JPEG 인코딩을 제어 루프 밖 producer/worker에서 수행하고 최신 완료 관측만 넘긴다. 제어 루프가 긴 추론 반환을 기다리며 STOP을 처리하지 못하는 구조는 인수 불가다. 실제500ms 목표 충족은 스케줄링·보드 실험으로 확인한다."
+  },
+  "bounded_work": {
+    "command_regular_slots": 12,
+    "command_immediate_stop_slots": 4,
+    "sqlite_pending_slots": 32,
+    "sqlite_urgent_reserved_slots": 4,
+    "heartbeat_latest_slots": 1,
+    "reported_latest_slots": 1,
+    "photo_worker": 1,
+    "photo_pending_jobs": 2,
+    "photo_spool_bytes": 52428800,
+    "durable_outbox_bytes": 104857600,
+    "checkpoint_max_bytes_initial": 524288,
+    "queue_rule": "AI 루프는 즉시 STOP을 일반 명령보다 먼저 확인한다. 큐가 꽉 차면 즉시 성공 처리하거나 오래된 제어를 몰래 버리지 않는다. 입력을 더 받지 않고 연결 장애로 표시·연결 종료하여 서버 outbox가 재전송하게 한다. 이미 도착한 STOP을 전달할 경로까지 막히면 AI에 용량 장애를 알리고 자동출력을 보류·중단한다. 해당 명령을 APPLIED로 꾸미지 않는다.",
+    "metadata": "큐 숫자·checkpoint 크기는 내부 구현 초기값이며 04 제한 필드를 변경하지 않는다."
+  },
+  "internal_types": {
+    "OperationId": "caller-generated opaque1..128 string; 재시도 동안 고정",
+    "LocalRevision": "integer0..9007199254740991; AI checkpoint 커밋만 증가",
+    "Checkpoint": "{codec_version:int>=1, bytes:bounded byte array}; AI가 encode/decode와 마이그레이션 소유",
+    "TransitionRequest": "{operation_id, expected_local_revision, checkpoint, event_changes, snapshot_draft, attempt_changes, result_changes, photo_intents}; 변화가 없는 목록은 빈 배열; 외부 projection은04 타입으로 검증",
+    "CommitReceipt": "{status:COMMITTED|DUPLICATE|CONFLICT|FAILED, operation_id, local_revision:null|int, allocated_ids, internal_error:null|code}; DUPLICATE는 새 실행 허가가 아님",
+    "CommandDelivery": "{command:04.Command, received_monotonic_ms:int, remaining_expiry_deadline_mono_ms:int, body_hash:string}; MQTT callback이 수신시각/속성 보존",
+    "CommandJournalState": "RECEIVED | EXECUTING | TERMINAL | UNCERTAIN (내부 전용)",
+    "OutputCallback": "{attempt_id, generation, kind:STARTED|COMPLETED|STOPPED|FAILED|UNKNOWN, monotonic_ms, detail}; AI가 실제 드라이버에서 제공",
+    "PhotoInput": "{image_id, metadata:04.ImageMetadata, owned_bytes_or_private_path, capture_age_evidence}; 파일 소유권을 uploader로 명시 이전",
+    "InternalError": [
+      "REVISION_CONFLICT",
+      "OPERATION_CONTENT_CONFLICT",
+      "CHECKPOINT_VERSION_UNSUPPORTED",
+      "CHECKPOINT_TOO_LARGE",
+      "QUEUE_CAPACITY",
+      "LOCAL_STORE_FAILURE",
+      "LOCAL_STORE_FULL",
+      "SHUTTING_DOWN"
+    ]
+  },
+  "commit_steps": [
+    "요청 타입·크기·등록 ID와 checkpoint projection의 사건/횟수/버전 일치 검사",
+    "단일 writer가 operation_id journal 조회; 같은 hash는 원래 receipt, 다른 hash는 CONFLICT",
+    "expected_local_revision과 현재값 비교; 불일치면 아무 변화 없이 CONFLICT",
+    "AI checkpoint·사건·시도/명령/사진 의도·증가 local_revision·필요한 message_id/device_seq·immutable payload/outbox를 같은 트랜잭션에 기록",
+    "COMMIT 성공 뒤만 COMMITTED 완료 이벤트를 AI에 전달하고 송신 대상 공개",
+    "응답 유실은 같은 operation_id로 조회/재시도; 새 operation_id로 동일 시도 재생 금지"
+  ],
+  "command_steps": [
+    "topic/body device_id·스키마·본문크기·명령 scope와 MQTT expiry 존재/양수 검사; 04/12 의미 검증은 AI가 최종 수행",
+    "command_id+본문hash로 중복 확인. TERMINAL이면 원래 result message를 다시 보내고, EXECUTING/UNCERTAIN이면 재실행하지 않음",
+    "SDK는 RECEIVED 수신 journal을 먼저 저장한다. AI가 최종 기한/사건/버전/토큰 검사를 통과한 일반 명령만 EXECUTING과 실행 의도·필요 checkpoint를 먼저 원자 저장하고 효과를 시작한다. TERMINAL 결과는 별도 완료 트랜잭션에 기록한다.",
+    "즉시 STOP은 유효 대상·기한 확인 뒤 AI가 안전 stop/LED off를 우선 수행. DB가 느리거나 실패해도 실제 중단을 기다리게 하지 않음. 논리 중지와 결과는 최대한 같은 저장 경계로 남김",
+    "해당 명령의 적용 결과·checkpoint·TERMINAL journal·command-results outbox를 원자 저장한다. 즉시 STOP의 APPLIED는 논리 보류와 드라이버 stop 확인을, 미래 STOP의 APPLIED는 일정 등록을 뜻한다. RESUME/CLOSE/사진은 기존 명령별 완료 기준을 따른다. 저장 성공 전 APPLIED를 전송하지 않는다.",
+    "만료/거부의 결과도 가능한 경우 영속화·전송. 저장 불가면 성공 결과 없음; 서버는 미확인을 표시. 저장 회복 시 같은 command_id를 대조하여 뒤늦은 결과를 정리"
+  ],
+  "stop_exception": "선저장은 새 play/LED on·재개 등 새 동작 허용에 필수다. stop/LED off는 안전 우선 예외이며 실패한 DB가 물리 중단을 막지 않는다. 즉시 STOP의 APPLIED는 중지 적용·드라이버 확인·결과 저장 뒤에만 가능하다. 실제 중단 실패 시 기존 A5의 FAILED/UNKNOWN·현장 중지 경로를 유지한다.",
+  "clock_and_heartbeat": "시계 근거는 AI 플랫폼 어댑터가 제공한다. cached snapshot의 observed_at과 continuous_stop_ms를 SDK가 새 값으로 꾸미지 않는다. 새 heartbeat sequence 저장 실패 시 재사용 sequence로 정상 heartbeat를 만들지 않고 연결을 종료·장애를 알린다. 새 순서값을 안전하게 영속화할 수 있을 때만 storage_ok=false 보고를 전송한다.",
+  "restart": [
+    "출력은 자동 시작하지 않고 AI가 정지/현장 초기 상태를 확인",
+    "SDK DB 무결성과 checkpoint codec/version/등록 ID 검사. 손상·불명확은 자동 초기화하지 않고 보류/운영 확인",
+    "새 boot_id 생성, persisted device_seq 유지. RESTART 보류·후보0·기존 사건/횟수/중지 복원을 원자 저장",
+    "EXECUTING이었던 비멱등 물리 시도는 UNKNOWN/UNCERTAIN으로 보존하고 재실행 금지. 이미 원자 완료된 명령은 원래결과만 재전송",
+    "토큰은 모두 무효. 사진 age를 안전하게 복원할 수 없으면 사진만 기존 AGE_UNKNOWN 처리",
+    "재접속 순서 후 과거 outbox 전송; 현장 확인과 기존 재개조건 충족 전 안내 금지"
+  ],
+  "shutdown": "AI 신규 play/제어 접수를 막고 stop/LED off를 먼저 수행. writer의 진행중 저장을 최대2초 대기하되 이것이 physical stop을 늦추지 않음. 네트워크 완료를 기다려 종료를 무한정 연장하지 않는다. 강제 종료 시 재시작 보류/불확실 복구를 적용한다.",
+  "failure_sequences": [
+    {
+      "id": "F-M1",
+      "case": "서버 DB 저장 후 ACK 유실",
+      "steps": [
+        "장치 원본 outbox 유지",
+        "5초 ACK 대기+backoff 후 같은 ID/본문 재전송",
+        "서버 중복기록을 확인해 DUPLICATE ACK",
+        "장치 전송 완료; AI 안내 재실행 없음"
+      ]
+    },
+    {
+      "id": "F-M2",
+      "case": "명령 PUBACK 후 장치 미접속 또는 재부팅",
+      "steps": [
+        "브로커 PUBACK만으로 실행 완료하지 않음",
+        "서버5초 간격으로 같은 명령을 잔여TTL 안에서 재발행",
+        "장치는 새 연결 후 재구독하고 현재 기한/상태 검사",
+        "기한내 결과가 없으면 원래65초에 미확인; 늦은 결과는기존규칙반영"
+      ]
+    },
+    {
+      "id": "F-M3",
+      "case": "새 안내 시도 COMMIT 직후 전원 중단",
+      "steps": [
+        "checkpoint와시도횟수/outbox는함께남음",
+        "실제방송이없었어도시도는사용된것으로유지",
+        "재시작UNKNOWN/RESTART보류·후보0",
+        "같은attempt를재생하지않고남은기존복구절차수행"
+      ]
+    },
+    {
+      "id": "F-M4",
+      "case": "DB 저장 대기 중 이동 또는 즉시 STOP",
+      "steps": [
+        "AI stop_generation 증가·새play허가취소",
+        "DB응답을기다리지않고같은제어루프에서stop/LEDoff",
+        "늦은COMMITTED를받아도이전play실행하지않음",
+        "확인된결과/상태를저장;저장실패또는중단실패를APPLIED로꾸미지않음"
+      ]
+    },
+    {
+      "id": "F-M5",
+      "case": "사진 업로드 지연과 큐 포화",
+      "steps": [
+        "사진worker/2개대기/50MiB한도안에서처리",
+        "추가사진은기존QUEUE_FULL등사진오류로명시",
+        "사건종료·중지·heartbeat경로와분리",
+        "재시도기한후사진만만료;사건과outbox는삭제하지않음"
+      ]
+    },
+    {
+      "id": "F-M6",
+      "case": "같은 계정의 장치 프로그램 두 개 실행",
+      "steps": [
+        "OS프로세스잠금으로두번째실행거부",
+        "MQTT0x8E수신프로세스는자동재접속중지",
+        "실행인스턴스/등록계정확인후하나만재개",
+        "이전connection_id OFFLINE으로현재heartbeat판정을덮어쓰지않음"
+      ]
+    }
+  ],
+  "tests": "위 순서는 BC01~BC06·기존 TC/OP에 넣을 기대 동작이다. 실제 프로그램·브로커·보드 시험은 미수행. SQLite fsync·드라이버 중단 지연은 실물에서 확인한다.",
+  "root_patch_required": [
+    {
+      "path": "07.interfaces[clock_and_output_ports].rule",
+      "replacement": "New play/LED-on requires local commit; safety stop/LED-off runs without waiting for storage or network. Immediate STOP APPLIED requires durable result, logical inhibition and actual driver response; scheduled STOP APPLIED is registration only. Other commands follow their own existing completion rules; A5 failure/unknown path is retained."
+    },
+    {
+      "path": "07.interfaces[commit_command_result].rule",
+      "replacement": "State/result share one transaction. For new control effects reserve before effect; immediate safety stop is exempt from waiting for storage. Never infer APPLIED from transport delivery or from an unpersisted request."
+    }
+  ],
+  "sources": [
+    {
+      "id": "MQTT5",
+      "url": "https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html",
+      "sections": [
+        "3.1.2.4",
+        "3.1.2.11.2",
+        "3.3.2.3.3",
+        "3.1.3.2.2",
+        "3.1.4"
+      ],
+      "fact": "Clean Start·Session Expiry·Message Expiry·Will과 Client ID의 의미. 아래 숫자는 표준 권고값이 아니라 팀 초기 선택이다.",
+      "checked_on": "2026-11-05"
+    },
+    {
+      "id": "MOSQUITTO",
+      "url": "https://mosquitto.org/man/mosquitto-conf-5.html",
+      "fact": "TLS·password_file·acl_file·persistence·대기 한도·use_username_as_clientid 설정 항목. 실제 고정 버전에서 설정 로드와 ACL 인수시험 필요.",
+      "checked_on": "2026-11-05"
+    },
+    {
+      "id": "SPRING_MQTT",
+      "url": "https://docs.spring.io/spring-integration/reference/mqtt.html",
+      "fact": "Spring Integration의 MQTT 5 inbound/outbound 어댑터. 문서의 MQTT v3 예제를 혼용하지 않는다. 버전 호환은 빌드 시 고정.",
+      "checked_on": "2026-11-05"
+    },
+    {
+      "id": "SQLITE",
+      "url": "https://www.sqlite.org/pragma.html#pragma_synchronous",
+      "fact": "SQLite 저장 동기화 설정. 실제 보드 파일시스템/저장장치의 전원 장애 내구성은 실험 대상.",
+      "checked_on": "2026-11-05"
+    },
+    {
+      "id": "RFC8785",
+      "url": "https://www.rfc-editor.org/rfc/rfc8785",
+      "fact": "JSON Canonicalization Scheme. 허용 JSON 숫자·Unicode 조건을 검사하고 동일 테스트벡터로 기기/서버 구현을 대조한다.",
+      "checked_on": "2026-11-05"
+    }
+  ],
+  "canonical_content_hash": "SHA256 of RFC8785 canonical JSON, 동일 구현/테스트벡터로 교차검증. 재전송 bytes와 ID는 최초 저장한 원본을 유지한다. 배열 순서는 정규화로 바꾸지 않는다. checkpoint bytes는 AI codec버전과 함께 byte hash.",
+  "recovery_stabilization": "기존 A2/C12대로 시각·관측 회복 정상5초 확인 후 새 유효 정차300초. fresh30s라는 구 설명은 오타이며 이 설계에 적용하지 않음.",
+  "journal_phase_boundaries": {
+    "RECEIVED": "검증 가능한 명령 원본과 수신정보만 저장; 일반 명령의 상태 변경/물리 효과는 아직 시작하지 않음. 즉시STOP의 긴급 물리중단은 별도 안전 예외.",
+    "EXECUTING": "최종 guard 승인 뒤 실행 의도·필요 상태를 원자 저장했으므로 효과가 발생했을 수 있음. 재시작 자동 재실행 금지.",
+    "TERMINAL": "실제 outcome과 checkpoint/command-results가 원자 저장되어 같은 요청에는 기존결과만 회신.",
+    "UNCERTAIN": "EXECUTING 중 재시작/회신상실 등으로 결과 확인 불가. 서버/현장 상태 대조 전 성공·실패를 지어내지 않음."
+  },
+  "restart_received_command": "RECEIVED는 재부팅 뒤 자동 재큐잉하지 않는다. 서버가 같은 ID/본문을 새 MQTT remaining expiry와 함께 재전송하면 원래60초와 현재 guard를 다시 검증한 뒤 효과 미시작이 입증된 작업만 이어간다. RESUME/CLOSE의 이전 boot 토큰은 INVALID_TOKEN으로 거부한다. 사진·즉시/예약 STOP도 현재 사건/시각/TTL 조건을 재검사한다. 이전 boot의 단조deadline을 복사하거나60초를 다시 부여하지 않는다. 새 재전송 또는 신뢰할 시각 근거가 없으면 실행하지 않는다. EXECUTING/UNCERTAIN은 이 재개 대상이 아니다."
+}

@@ -1,0 +1,36 @@
+%% F16: 관측 실패, 실제 이탈과 관리자 예외
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/project/09.md
+%% Detail: ../spec/protocol/C5.md
+%% Detail: ../spec/protocol/C6.md
+%% Detail: ../spec/protocol/A3.md
+%% Detail: ../spec/protocol/A4.md
+%% Detail: ../spec/protocol/A5.md
+%% Rule: 사건 진행 중 대표 경로다. 전체 상태 전이표를 대체하지 않는다. 관측 실패 때 기존 사건과 사용한 안내 횟수는 유지한다.
+%% Rule: 품질이 정상 5초로 회복되더라도 동일성·중지·시각 등 나머지 조건이 충족되어야 새 후보를 시작한다. 동일성이 불명확한 경우를 단순 품질 회복으로 자동 해제하지 않는다.
+%% Rule: 미검출은 이탈 증거가 아니다. 이탈을 확인하지 못하면 사건을 유지하며 CLOSED_EXIT를 추정하지 않는다.
+%% Rule: 자동 사고 원인 판별은 범위에 없다. 관리자 예외의 종료 시각만으로 자동 재개하지 않는다.
+%% Rule: 현장 물리 중지는 원격으로 해제할 수 없다. 명시 재개 후에도 다른 중지가 남으면 안내를 재개하지 않는다. 세부 확인 토큰과 재개 절차는 C5·C6을 따른다.
+flowchart TD
+    subgraph uncertain["관측할 수 없는 상황"]
+        bad["가림·입력 중단·동일성 불명확"]
+        hold["출력 중단·안내 보류·후보 초기화"]
+        type{"회복 조건 구분"}
+        quality["품질 회복: 정상 5초와 동일성 등 조건 확인 후 새 후보"]
+        identity["동일성 불명확: 관리자 확인 필요"]
+        bad --> hold --> type
+        type --> quality
+        type --> identity
+    end
+    subgraph exit["실제 이탈 확인"]
+        observed["같은 차량이 구역 밖으로 이동한 모습을 실제로 3초 확인"]
+        closed["CLOSED_EXIT: 사건 종료와 사진 작업·기록"]
+        observed --> closed
+    end
+    subgraph exception["사고·공사 등 관리자 예외"]
+        reason["관리자가 현장 사유 확인 후 필요한 범위에 중지 요청"]
+        applied["장치 적용 확인·사유·범위·결과 기록"]
+        resume["새 확인 사진과 명시 재개, 남은 중지·시각·관측 조건 확인"]
+        reason --> applied --> resume
+    end

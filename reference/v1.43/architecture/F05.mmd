@@ -1,0 +1,34 @@
+%% F05: 장치·브라우저·서버의 실제 배치
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/project/10.md
+%% Detail: ../spec/protocol/C16.md
+%% Detail: ../spec/protocol/C17.md
+%% Rule: Nginx가 React 정적 파일을 브라우저에 제공하며 React 코드는 브라우저에서 실행된다. Nginx→Spring 화살표의 실제 프록시 대상은 API·SSE·사진 업로드다.
+%% Rule: 서버와 브로커는 같은 호스트의 서로 다른 프로그램이다. DB·사진·브로커 데이터는 영속 볼륨에 둔다.
+%% Rule: 허가한 HTTPS 443와 MQTT/TLS 8883만 외부 공개 대상으로 삼는다. Spring 8080, DB 5432, 관리 포트를 외부에 직접 열지 않는다.
+%% Rule: Prometheus/Grafana는 선택 모니터링 프로필이다. Actuator·구조화 로그는 기본 관찰 항목이다.
+%% Rule: 단일 호스트 구조다. 고가용성이나 무중단 배포를 보장하지 않는다. 보드 OS·ABI·카메라·배선·SDK 바인딩·서버 실제 주소는 확인이 남아 있다.
+flowchart TD
+    subgraph pc["Deployment node: 관리자 PC"]
+        browser["Container instance: 브라우저에서 실행하는 React"]
+    end
+    subgraph board["Deployment node: QCS610 보드"]
+        edge["Container instance: AI·SDK 엣지 앱"]
+        local["Local stores: SQLite·JPEG 대기함"]
+        edge -->|"로컬 접근"| local
+    end
+    subgraph host["Deployment node: 개발 PC 또는 Linux 서버 1대 - Docker Compose"]
+        nginx["Container instance: Nginx - 외부 HTTPS 443"]
+        spring["Container instance: Spring Boot - 내부 8080"]
+        mqtt["Container instance: Mosquitto - MQTT/TLS 8883"]
+        pg["Container instance: PostgreSQL - 내부 5432"]
+        nginx -->|"HTTP: API·SSE·사진 업로드 프록시"| spring
+        spring -->|"JDBC / SQL"| pg
+        spring -->|"ACK·명령·정책 발행"| mqtt
+        mqtt -->|"장치 메시지 전달"| spring
+    end
+    browser -->|"HTTPS 443: 파일 요청·REST·SSE 연결"| nginx
+    edge -->|"HTTPS 443: JPEG 업로드"| nginx
+    edge -->|"MQTT/TLS 8883: 장치 메시지"| mqtt
+    mqtt -->|"MQTT/TLS 8883: ACK·명령·정책"| edge

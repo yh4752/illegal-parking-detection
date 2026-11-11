@@ -1,0 +1,32 @@
+%% F06: 첫 안내·재안내·미해소는 서로 다른 시계다
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/project/07.md
+%% Detail: ../spec/protocol/C3.md
+%% Detail: ../spec/protocol/A1.md
+%% Detail: ../spec/protocol/A2.md
+%% Detail: ../spec/protocol/A6.md
+%% Rule: 이 그림은 세 개의 독립적인 시간 기준이다. 시간 간격의 비율이나 고정된 330초 재안내를 뜻하지 않는다.
+%% Rule: 모든 재생 직전에 관측·동일성·품질·중지·출력·시각 등 현재 허용 조건을 검사한다. 정확한 guard와 시간 측정은 A1·A2·A6을 따른다.
+%% Rule: 600초 경계에서는 새 안내보다 미해소 처리를 우선한다. 600초 도달만으로 이미 재생 중인 음성을 중단하지 않는다.
+%% Rule: 이동·관측 실패·가림·중지로 후보가 초기화되어도 사건 ID·사용한 안내 횟수·고정된 미해소 기준은 유지한다.
+%% Rule: 5분은 이 프로젝트의 실험 안내 정책이며 법적 위반 확정 기준이 아니다.
+flowchart TD
+    subgraph first["첫 안내 시계"]
+        candidate["실제 좌표 3개 확보 후 유효 후보 시작"]
+        confirmed["같은 후보 3초: 정차 확인"]
+        ready["현재 유효 후보 300초: 첫 안내 조건 검사"]
+        candidate --> confirmed --> ready
+    end
+    subgraph repeat["재안내 시계"]
+        ended["첫 음성 정상 종료 또는 중단"]
+        gap["종료 이후 30초 이상"]
+        repeatGuard["현재 후보도 300초 이상이며 새 시도를 포함해 사건당 최대 2회"]
+        ended --> gap --> repeatGuard
+    end
+    subgraph unresolved["장기 미해소 시계"]
+        fixed["최초 3초 정차 확인 때 그 후보 시작을 기준으로 고정"]
+        long["고정 기준에서 600초: 관리자 확인 요청"]
+        block["이후 새 자동 안내 금지"]
+        fixed --> long --> block
+    end

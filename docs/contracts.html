@@ -1,0 +1,49 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 시작 자료 v0.2 · 업무 기능 미구현</span></header>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="first-slice.html">첫 구현</a><a href="status.html">현재 상태</a><a href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선은 목표 설계입니다. 현재는 기동 코드·설정·문서만 작성했고 MQTT 수신·DB 저장·조회 기능은 다음에 구현합니다.</p></aside><article class="page"><h1>정식 계약은 여기서 찾습니다</h1>
+<p>이번 골격에서는 기존 원본을 <code>reference/v1.43</code>에 보존했습니다. 별도 축약 메시지나 임시 제품 API를 만들지 않았습니다. 아래 링크의 파일이 제품 구현 기준입니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>내용</th>
+<th>원본</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>메시지 타입·필드</td>
+<td><a href="../reference/v1.43/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A3%8C/09_%EA%B5%AC%ED%98%84%EC%84%A4%EA%B3%84/contracts/parking.schema.json">parking.schema.json</a></td>
+</tr>
+<tr>
+<td>HTTP 경로·요청·응답·권한</td>
+<td><a href="../reference/v1.43/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A3%8C/09_%EA%B5%AC%ED%98%84%EC%84%A4%EA%B3%84/contracts/openapi.json">openapi.json</a></td>
+</tr>
+<tr>
+<td>가상 입력·기대 상태</td>
+<td><a href="../reference/v1.43/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A3%8C/09_%EA%B5%AC%ED%98%84%EC%84%A4%EA%B3%84/contracts/examples.json">examples.json</a></td>
+</tr>
+<tr>
+<td>의미 검사</td>
+<td><a href="../reference/v1.43/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A3%8C/09_%EA%B5%AC%ED%98%84%EC%84%A4%EA%B3%84/contracts/semantic_checks.json">semantic_checks.json</a></td>
+</tr>
+<tr>
+<td>SQL 초기 후보</td>
+<td><a href="../reference/v1.43/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A3%8C/09_%EA%B5%AC%ED%98%84%EC%84%A4%EA%B3%84/db/schema.sql">schema.sql</a></td>
+</tr>
+<tr>
+<td>SDK 내부 함수·자료형</td>
+<td><a href="../reference/v1.43/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A3%8C/07_%EB%B3%B4%EB%93%9C%EB%82%B4%EB%B6%80_SDK_%EC%97%B0%EB%8F%99%EA%B3%84%EC%95%BD_v1.4.json">내부 계약</a></td>
+</tr>
+</tbody></table></div>
+<p>문서 v1.43과 <code>schema_version=2</code>는 별개입니다. SQL은 실제 적용 검증 후 Flyway 마이그레이션으로 승격합니다. 승격 이후에는 실행용 마이그레이션을 수정하지 않고 새 변경으로 관리하며, 기존 설계 SQL과의 관계를 기록합니다.</p>
+<p>계약을 바꾸면 원본·예제·의미 검사·관련 구현과 시험·C4/arc42 영향을 함께 확인합니다. 작업표나 그림을 고쳤다는 이유로 wire 계약이 자동 변경되는 것은 아닙니다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

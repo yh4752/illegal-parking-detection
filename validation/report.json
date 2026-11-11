@@ -1,0 +1,89 @@
+{
+  "checked_at": "2026-11-11T18:04:52.172545+09:00",
+  "revision": "0.2",
+  "scope": "검토 반영·선별 문서·GitHub 협업 준비",
+  "checks": [
+    {
+      "name": "문서 구조·링크·원본 보존",
+      "result": "PASS",
+      "details": {
+        "status": "PASS",
+        "scope": "문서 구조·링크·SVG·v1.43 원본 보존",
+        "counts": {
+          "markdown": 20,
+          "html": 7,
+          "svg": 3,
+          "local_links": 107,
+          "baseline_files": 127
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "팀 본문 선별",
+      "result": "PASS",
+      "before": {
+        "architecture_chars": 6194,
+        "h2_count": 13,
+        "diagram_count": 3
+      },
+      "after": {
+        "architecture_chars": 2051,
+        "h2_count": 5,
+        "diagram_count": 1
+      },
+      "note": "글자수는 Markdown 원본 전체 기준"
+    },
+    {
+      "name": "공유본 재생성 일치",
+      "result": "PASS",
+      "files": 10
+    },
+    {
+      "name": "핵심 C4 그림 확인",
+      "result": "PASS",
+      "details": "6개 핵심 요소로 축소한 SVG를 PNG로 렌더링해 확인"
+    },
+    {
+      "name": "Compose 설정",
+      "result": "PASS",
+      "note": "문법 검사만 수행. 컨테이너 기동 아님"
+    },
+    {
+      "name": "Git 제외 규칙",
+      "result": "PASS",
+      "cases": 6,
+      "note": "설정 예시·Wrapper는 포함, 실환경 설정·빌드·데이터·가중치는 제외"
+    },
+    {
+      "name": "로컬 Git",
+      "result": "INITIALIZED",
+      "branch": "main",
+      "remote_count": 0,
+      "commit_created": false
+    },
+    {
+      "name": "GitHub Actions YAML",
+      "result": "PASS",
+      "details": "Ruby YAML safe_load로 문법 확인, docs/backend 2개 job. 공식 action tag의 commit SHA 확인"
+    },
+    {
+      "name": "GitHub CI 실행",
+      "result": "NOT_RUN",
+      "details": "원격 저장소 미생성·업로드 없음"
+    },
+    {
+      "name": "Gradle·서버·컨테이너 실기동",
+      "result": "NOT_RERUN",
+      "details": "이번 수정은 문서·협업 설정. 기존 환경 제한 기록은 bootstrap-v0.1.json 참고"
+    }
+  ],
+  "previous_runtime_record": "bootstrap-v0.1.json",
+  "not_implemented": [
+    "MQTT 수신",
+    "DB 저장",
+    "제품 상태 조회",
+    "가상 장치 실행 코드"
+  ],
+  "next": "원격 저장소의 소유 계정·공개 범위 결정 후 최초 push 및 CI 실행"
+}

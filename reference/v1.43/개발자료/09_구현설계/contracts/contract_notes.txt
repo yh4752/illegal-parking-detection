@@ -1,0 +1,57 @@
+v1.4 계약을 프로그램으로 검사하는 명세
+2026-11-05 · 설계 산출물
+
+1. 무엇을 확정했는가
+기존 04 JSON의 20개 객체와 8개 MQTT 메시지 계열을 JSON Schema draft 2020-12로 정의했다. API는 기존 15개 작업을 OpenAPI 3.1.0으로 정식화했다. MQTT의 필드·토픽·기존 25개 예제 payload와 시간 정책은 바꾸지 않는다. 새 기능이나 실행 서버를 구현한 산출물이 아니다.
+
+parking.schema.json의 루트 oneOf는 MQTT 메시지 8계열의 합집합이다. 실제 수신에서는 토픽을 먼저 확인하고 x-topic-definitions에 맞는 $defs 스키마 하나로 검증한다. 루트 합집합 통과만으로 잘못된 토픽에 온 다른 메시지를 수용하지 않는다. ImageMetadata·ZoneView 등은 해당 $defs를 직접 사용한다.
+
+모든 구조 객체는 필수 키와 additionalProperties:false를 명시한다. null 허용은 키 생략과 다르다. 예: observed_at이 null일 수 있어도 observed_at 키는 있어야 한다. 숫자의 0, boolean의 false, 빈 배열은 null로 바꾸지 않는다. RestError.details만 기존 명세가 확장 가능한 object로 정했으므로 JSON 값으로 구성된 맵을 허용한다. 이는 일반 DTO의 알 수 없는 필드를 허용하는 예외가 아니다.
+
+2. 미상세 REST 입력을 정한 부분
+즉시 STOP의 MQTT params.starts_at는 서버가 정한 issued_at와 정확히 같아야 한다. 브라우저는 그 값을 미리 알 수 없으므로 REST STOP에서만 starts_at:null을 '즉시'라는 입력으로 사용한다. 서버가 issued_at를 생성하고 MQTT starts_at에 같은 값을 쓴다. 예약 STOP의 starts_at는 미래 UTC 문자열이며 scope=ZONE만 허용한다. 과거 또는 현재 시각인 예약 요청을 즉시 STOP으로 조용히 변환하지 않고 INVALID_SCHEMA로 거부한다. REST에는 서버 생성 pause_id를 넣지 않는다. wire Command에는 null이 허용되지 않는다.
+
+공개 ZoneView/SSE/VIEWER 응답의 confirmation_token은 필드를 유지하되 null로 고정한다. OPERATOR가 GET /api/commands/{id}로 조회하는 유효한 결과만 토큰 문자열을 받을 수 있다. 기존 'token removed'는 필드 삭제가 아니라 비밀값 비공개라는 뜻으로 정리했다. schema가 OPERATOR의 권한을 검사해 주지는 않는다.
+
+기존 guidance_policy_v14의 VALIDATION_ERROR 문구는 error_code 목록에 없는 값이었다. unresolved_ms<=first_guidance_ms는 기존 INVALID_SCHEMA(HTTP400)를 사용하도록 정정한다. 오류코드나 MQTT 필드를 새로 추가하지 않는다.
+
+3. HTTP 세부 표현
+웹 세션 쿠키 이름 JSESSIONID, CSRF 헤더 X-CSRF-TOKEN으로 명시한다. GET /api/csrf를 먼저 호출하고 세션 쿠키와 토큰을 함께 유지한다. 장치 사진 업로드는 장치별 HTTPS 불투명 Bearer 토큰을 사용한다. 이 토큰은 JWT일 필요가 없고, 브라우저의 로그인 세션이나 MQTT 비밀번호와 별개다. 실제 비밀값은 예제와 ZIP에 포함하지 않는다.
+
+SSE 응답은 text/event-stream 문자열이며 data 값의 JSON은 ZoneView다. OpenAPI의 x-data-schema/x-event-schema는 이 관계를 설명한다. 실제 SSE 프레이밍·프록시 버퍼링·재연결·로그인 만료는 별도 통합 시험 대상이다. 바이너리 JPEG의 5 MiB 제한·실제 해시·이미지 디코드도 서버가 bytes를 검사해야 한다.
+
+4. JSON Schema만으로 검증할 수 없는 것
+semantic_checks.json의 SC01~SC10을 따른다. 단일 메시지 내부 자료형과 범위가 맞아도 다음이 자동으로 보장되지는 않는다.
+- envelope와 snapshot의 sequence/boot/clock 값 일치, 사건 참조 일치.
+- 명령의 60초 계산, 정차·미해소 타이머의 대소 관계, 날짜·예약 구간의 상호 비교.
+- 보정 좌표의 단순 다각형·비공선성, 실제 보정 자료와 vision profile 존재.
+- 토큰의 사건/사진/부팅/규칙/중지 버전·30초 결합과 1회 소비.
+- 같은 ID에 다른 내용, DB 동시 갱신, 종료 사건 재개 방지, 실제 재전송과 물리 출력.
+- 현재 clock adapter의 추정오차 유효성·같은 부팅·외부 동기화 상태.
+
+validate_examples.py는 이 중 입력 자체로 확인 가능한 일부를 검사한다. 검증기가 자료형을 판정하기 전에 UTF-8·중복 JSON 키·NaN/Infinity·전송 bytes 크기를 검사하도록 구현해야 한다. draft 2020-12의 format은 검증기 설정에 따라 주석으로만 처리될 수 있으므로 현재 Python 검증에서는 FormatChecker를 명시적으로 켠다.
+
+5. 재현 방법
+압축을 푼 개발자료/09_구현설계/contracts에서 실행한다.
+
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python validate_examples.py
+
+Windows에서는 .venv\Scripts\python.exe를 사용한다. 기본 실행은 ../../04_공통_통신계약과_메시지예제_v1.4.json을 읽는다. 파일 위치가 다르면 다음처럼 지정한다.
+python validate_examples.py --contract <공통계약_JSON_경로> --report validation_report.json
+
+schema와 OpenAPI의 참조는 파일 내부 참조라 검증 과정에서 스키마 URL을 다운로드하지 않는다. requirements.txt 설치에는 패키지 다운로드 환경이 필요하다. JSON Schema 4.25.1, OpenAPI Spec Validator 0.7.2를 고정했고 실제 검증 환경의 referencing 버전은 report에 기록한다. build_schema.py는 작업용 생성 소스이며 팀 사용에는 생성된 JSON과 validator면 충분하다.
+
+6. 검증 결과를 읽는 방법
+validation_report.json에 기존 25개 예제, 잘못된 입력 45개, API 작업 15개, 합성 시계 경계 7개의 결과를 기록했다. clock_policy_boundaries 예제는 실제 전송 메시지가 아닌 문서용 6개 경계 시나리오다. probe 실패와 time jump를 나눠 합성 체크 7개로 검사했다.
+이는 schema 문법·OpenAPI 문법·자료형·일부 의미 비교의 검증이다. 서버·MQTT 브로커·DB·SDK·실제 보드·스피커·성능을 시험한 결과가 아니다. 나머지 동작은 TC/OP/BC 인수시험에서 확인해야 한다.
+
+공식 근거
+- OpenAPI 3.1.0: HTTP API의 요청·응답·보안·미디어 유형을 기술하는 규격. 본 프로젝트가 3.1.0을 사용하기로 선택했으며 최신 버전이라는 주장은 하지 않는다.
+  https://spec.openapis.org/oas/v3.1.0.html
+- JSON Schema draft 2020-12 Core: 스키마와 참조·vocabulary의 구조.
+  https://json-schema.org/draft/2020-12/json-schema-core
+- JSON Schema draft 2020-12 Validation: type·required·조건·format의 검증 의미.
+  https://json-schema.org/draft/2020-12/json-schema-validation
+공식 문서 확인일 2026-11-05. API 설계 선택과 실제 성능 검증은 이 표준의 보증이 아니다.

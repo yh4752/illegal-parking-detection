@@ -1,0 +1,29 @@
+%% F11: 관련 DB 변경은 함께 저장하고 응답은 커밋 뒤에 보낸다
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/storage/D5.md
+%% Rule: 두 상자는 서로 다른 작업 경로다. 한 트랜잭션이 양쪽 데이터를 모두 생성한다는 뜻이 아니다.
+%% Rule: DB는 READ COMMITTED이며 구역별 zone_view 행 잠금으로 동시 쓰기를 직렬화한다. 잠금 순서와 세부 변경 집합은 D5 및 transactions.txt를 따른다.
+%% Rule: 네트워크·파일 I/O 동안 DB 행 잠금을 유지하지 않는다. ACK 전송 실패가 이미 성공한 DB 커밋을 되돌리지 않는다.
+%% Rule: 현재 상태 순서와 과거 사건 이력 순서를 구분한다. 실제 결과가 먼저 도착했다면 늦은 발행 콜백으로 완료 상태를 되돌리지 않는다.
+flowchart TD
+    subgraph incoming["사건 수신 트랜잭션"]
+        ev["토픽·계정·본문 검증"]
+        evtx["zone_view 잠금: 중복 기록·사건·현재 상태·필요한 revision 저장"]
+        evcommit{"COMMIT 성공?"}
+        evout["커밋 후 응용 ACK·SSE"]
+        evfail["롤백: 저장 성공 응답 없음"]
+        ev --> evtx --> evcommit
+        evcommit -->|"예"| evout
+        evcommit -->|"아니오"| evfail
+    end
+    subgraph command["명령 접수 트랜잭션"]
+        cmd["권한·대상 검증"]
+        cmdtx["zone_view 잠금: command·server_outbox·request_receipt 저장"]
+        cmdcommit{"COMMIT 성공?"}
+        cmdout["커밋 후 HTTP 202와 별도 발행 작업"]
+        cmdfail["롤백: 접수 성공 응답 없음"]
+        cmd --> cmdtx --> cmdcommit
+        cmdcommit -->|"예"| cmdout
+        cmdcommit -->|"아니오"| cmdfail
+    end

@@ -1,0 +1,23 @@
+# Examples bind edge0001 credential to registered device edge-01.
+# Exact topics only. Generate separately for each registered device.
+user edge0001
+topic write parking/v2/devices/edge-01/events
+topic write parking/v2/devices/edge-01/heartbeat
+topic write parking/v2/devices/edge-01/availability
+topic write parking/v2/devices/edge-01/config/reported
+topic write parking/v2/devices/edge-01/command-results
+topic read parking/v2/devices/edge-01/acks
+topic read parking/v2/devices/edge-01/config/desired
+topic read parking/v2/devices/edge-01/commands
+
+user serverin0001
+topic read parking/v2/devices/edge-01/events
+topic read parking/v2/devices/edge-01/heartbeat
+topic read parking/v2/devices/edge-01/availability
+topic read parking/v2/devices/edge-01/config/reported
+topic read parking/v2/devices/edge-01/command-results
+
+user serverout0001
+topic write parking/v2/devices/edge-01/acks
+topic write parking/v2/devices/edge-01/config/desired
+topic write parking/v2/devices/edge-01/commands

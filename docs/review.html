@@ -1,0 +1,65 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 시작 자료 v0.2 · 업무 기능 미구현</span></header>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="first-slice.html">첫 구현</a><a href="status.html">현재 상태</a><a class="active" href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선은 목표 설계입니다. 현재는 기동 코드·설정·문서만 작성했고 MQTT 수신·DB 저장·조회 기능은 다음에 구현합니다.</p></aside><article class="page"><h1>시작 문서 검토와 반영</h1>
+<p>2026-11-11 · v0.1을 검토한 뒤 v0.2에 반영. 제품 v1.43의 동작·역할·계약은 유지한다.</p>
+<p>검토 질문은 세 가지다. 처음 보는 팀원이 역할과 첫 작업을 찾을 수 있는가? 이번에 필요한 설명만 있는가? 구현·시험 상태를 오해하지 않는가?</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>발견한 문제</th>
+<th>반영한 수정</th>
+<th>완료 확인</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>arc42 12항목을 모두 채워 읽을 양이 많음</td>
+<td>팀 본문을 다섯 질문으로 재작성</td>
+<td>본문 대제목 5개</td>
+</tr>
+<tr>
+<td>팀 설명에 서버 패키지·버전·배포 정보 혼재</td>
+<td>서버 세부는 backend.md, 실행은 각 README에 배치</td>
+<td>팀 본문에 패키지 표 없음</td>
+</tr>
+<tr>
+<td>C4 세 단계와 모든 저장소가 한꺼번에 등장</td>
+<td>본문은 핵심 L2 한 장. L1은 선택 링크, L3는 서버 설명으로 이동</td>
+<td>첫 화면 그림 1장</td>
+</tr>
+<tr>
+<td>README와 구조 문서가 같은 설명·그림 반복</td>
+<td>README는 읽는 순서·실행 시작점만 안내</td>
+<td>README의 구조도 중복 제거</td>
+</tr>
+<tr>
+<td>실행 성공과 파일 작성 상태가 여러 곳에서 반복됨</td>
+<td>실제 결과는 status.md와 validation 기록으로 연결</td>
+<td>미구현 기능의 완료 표시 없음</td>
+</tr>
+<tr>
+<td>HTML을 GitHub의 첫 진입점으로 안내함</td>
+<td>GitHub에서는 Markdown, 내려받아 볼 때 HTML 사용</td>
+<td>README에서 두 경로 구분</td>
+</tr>
+<tr>
+<td>변경 공유·자동 검사 경로가 없음</td>
+<td>브랜치→PR, PR 양식, 문서/빌드 CI 정의</td>
+<td>로컬 정적 검사와 원격 CI 미실행 구분</td>
+</tr>
+</tbody></table></div>
+<h2>arc42를 어디까지 적용했나</h2>
+<p>핵심 목표·시스템 경계·구성·주요 실행 흐름·결정·현재 막힌 항목만 선택했다. arc42 번호를 팀 본문의 목차로 사용하지 않는다. 원격 배포 설계, 포괄적인 공통 설계, 품질 트리, 용어집은 새로 채우지 않는다. 필요한 실행 설정은 infra 안내, 첫 기능의 시험은 first-slice, 정밀 규칙은 기존 v1.43을 참조한다.</p>
+<p><a href="https://docs.arc42.org/tips/1-2/">arc42의 필수 내용 중심 작성 안내</a>를 참고했다. 이 안내를 12개 절을 모두 작성하라는 요구로 해석하지 않는다.</p>
+<h2>검토 후 확인</h2>
+<p>최종 문서 링크·그림 생성·선별 기준·원본 보존·Git 제외 규칙을 검사했다. 결과는 <a href="../validation/report.json">validation/report.json</a>에 기록했다. 빌드·실제 기동은 이전 환경 제한으로 미완료이며, 새 CI 설정을 추가했다는 이유로 통과 처리하지 않는다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

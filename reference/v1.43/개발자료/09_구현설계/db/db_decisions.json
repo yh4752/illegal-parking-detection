@@ -1,0 +1,105 @@
+{
+  "document_version": "1.4",
+  "revision": "2026-11-05 상세 설계",
+  "status": "implementation_design_not_runtime_verified",
+  "isolation": "READ COMMITTED",
+  "write_serialization": "zone_view row SELECT FOR UPDATE; includes all visible changes and cleanup",
+  "lock_order": [
+    "zone_view",
+    "device",
+    "incident IDs sorted",
+    "command IDs sorted",
+    "device_image IDs sorted",
+    "related rows"
+  ],
+  "limits": {
+    "lock_timeout_ms": 1000,
+    "statement_timeout_ms": 3000,
+    "transaction_retry_limit": 3,
+    "retry_base_ms": [
+      50,
+      100,
+      200
+    ],
+    "retry_jitter_ms": [
+      0,
+      50
+    ],
+    "server_outbox_workers": 1,
+    "outbox_lease_ms": 15000,
+    "publish_ack_wait_ms": 5000,
+    "command_republish_ms": 5000,
+    "server_photo_upload_workers": 1,
+    "revision_reservation_block": 1000000
+  },
+  "retryable_sqlstates": [
+    "40P01",
+    "40001",
+    "55P03"
+  ],
+  "mqtt_dedup": [
+    "device_id",
+    "message_id"
+  ],
+  "http_dedup": [
+    "user_id",
+    "client_request_id"
+  ],
+  "http_fingerprint_input": [
+    "method",
+    "canonical target",
+    "validated request body"
+  ],
+  "content_hash": "SHA-256 of RFC8785 canonical JSON; not MQTT transport metadata",
+  "reads": "ZoneView single SELECT with subqueries; alternatively read-only REPEATABLE READ",
+  "restore": "Explicit recovery gate; latest external range reservation manifest is required, never backup bundled stale copy; fresh device reconciliation before re-enabling publication; after range setup, open recovery-state MQTT ingest only, keep commands/desired/API/SSE disabled until reconciliation",
+  "data_loss_limit": "An older backup cannot recover server-ACKed history already removed from edge; record loss and unknown outcomes.",
+  "sources": [
+    {
+      "url": "https://www.postgresql.org/docs/current/explicit-locking.html",
+      "use": "row locking and lock order"
+    },
+    {
+      "url": "https://www.postgresql.org/docs/current/transaction-iso.html",
+      "use": "statement vs transaction snapshot"
+    },
+    {
+      "url": "https://www.postgresql.org/docs/current/ddl-constraints.html",
+      "use": "DDL key/unique/check/FK constraints"
+    },
+    {
+      "url": "https://www.postgresql.org/docs/current/continuous-archiving.html",
+      "use": "backup recovery limitations; no PITR implementation claimed"
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc8785.html",
+      "use": "canonical JSON fingerprints"
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "DB01",
+      "scenario": "concurrent heartbeat/historical close/STOP request"
+    },
+    {
+      "id": "DB02",
+      "scenario": "transaction crash, ACK loss, altered duplicate payload"
+    },
+    {
+      "id": "DB03",
+      "scenario": "lease crash, stale callback and actual result reorder"
+    },
+    {
+      "id": "DB04",
+      "scenario": "image intent/file/DB crash boundaries and late FAILED"
+    },
+    {
+      "id": "DB05",
+      "scenario": "7/30 day retention and old request replay"
+    },
+    {
+      "id": "DB06",
+      "scenario": "DB rollback with valid/lost manifest and newer device policy"
+    }
+  ]
+}

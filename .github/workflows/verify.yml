@@ -1,0 +1,52 @@
+name: Verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Documents and local configuration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: python3 tools/check_structure.py
+      - run: npm --prefix tools/docs ci
+      - run: npm --prefix tools/docs run build
+      - name: Require updated generated documentation
+        run: git diff --exit-code -- docs
+      - name: Validate Compose configuration only
+        working-directory: infra
+        run: docker compose --env-file .env.example config --quiet
+
+  backend:
+    name: Backend bootstrap tests and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Test and package bootstrap
+        working-directory: backend
+        run: bash ./gradlew test bootJar --no-daemon

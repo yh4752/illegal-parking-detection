@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "scope": "PostgreSQL grammar parse; JSON and document table checks",
+  "sql_statements": 41,
+  "tables": 17,
+  "executed_on_postgresql": false,
+  "parser": "pglast 8.7"
+}

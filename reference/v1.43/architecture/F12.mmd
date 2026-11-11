@@ -1,0 +1,21 @@
+%% F12: 사진 파일과 DB는 세 단계로 맞춘다
+%% v1.43 | 설계 예정 · 구현/실험 결과 아님
+%% v1.42 그림의 의미를 텍스트화. 세부 조건은 아래 명세를 함께 읽는다.
+%% Detail: ../spec/protocol/C11.md
+%% Detail: ../spec/storage/D6.md
+%% Rule: 사진 파일과 PostgreSQL은 하나의 ACID 트랜잭션이 아니다. A·C는 짧은 DB 트랜잭션이며 B는 행 잠금 밖의 파일 작업이다.
+%% Rule: 사진과 DB가 모두 내구 저장된 뒤에만 201/200을 응답한다. 재시작 시 복구 판정 전에는 새 업로드와 사진 정리를 일시 차단한다.
+%% Rule: 같은 image_id의 다른 내용은 충돌이다. 만료 사진은 즉시 접근을 차단하고 410을 반환하며 재시도로 보관기한을 연장하거나 사진을 되살리지 않는다.
+%% Rule: 이미 AVAILABLE인 사진을 늦게 도착한 FAILED로 되돌리지 않는다. 사진 실패가 사건 종료나 안전 중단을 지연시키지 않는다.
+flowchart TD
+    request["사진 업로드 수신"]
+    reserve["A: 인증·JPEG·hash·metadata 검사와 DB intent 예약"]
+    file["B: 잠금 밖에서 임시 파일 쓰기·동기화·최종 rename"]
+    finish["C: 토큰·hash·기한 재검사 후 AVAILABLE·revision 커밋"]
+    response["최초 성공 HTTP 201"]
+    repair["재시작 복구: intent와 파일 hash 대조 후 완료 또는 정리"]
+    retry["C 뒤 응답 유실: 같은 내용 재시도는 HTTP 200"]
+    request --> reserve --> file --> finish --> response
+    reserve -.->|"다음 단계 전 중단"| repair
+    file -.->|"C 전 중단"| repair
+    finish -.->|"응답 유실"| retry

@@ -1,0 +1,72 @@
+{
+  "checked_at": "2026-11-11T17:26:32.937119+09:00",
+  "scope": "C4/arc42 문서, 프로젝트 골격, 로컬 설정. 제품 수신·저장 기능은 미구현.",
+  "checks": [
+    {
+      "name": "구조 검사",
+      "result": "PASS",
+      "details": {
+        "status": "PASS",
+        "scope": "문서 구조·링크·SVG·v1.43 원본 보존",
+        "counts": {
+          "markdown": 16,
+          "html": 5,
+          "svg": 3,
+          "local_links": 76,
+          "baseline_files": 127
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "공유본 재생성 동일성",
+      "result": "PASS",
+      "generated_files": 8,
+      "command": "node tools/docs/build.mjs"
+    },
+    {
+      "name": "Docker Compose 문법·루프백 바인딩",
+      "result": "PASS",
+      "services": [
+        "postgres",
+        "mosquitto"
+      ],
+      "command": "docker compose --env-file .env.example config --format json",
+      "note": "daemon을 사용한 실행 검증 아님"
+    },
+    {
+      "name": "Gradle Wrapper 공식 checksum",
+      "result": "PASS",
+      "sha256": "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172",
+      "source": "https://services.gradle.org/distributions/gradle-8.14.3-wrapper.jar.sha256"
+    },
+    {
+      "name": "C4 그림 렌더링 확인",
+      "result": "PASS",
+      "details": "3개 SVG를 PNG로 렌더링해 확인. L3 제목 줄바꿈·경계 라벨 및 L1 간선 문구 조정."
+    },
+    {
+      "name": "Gradle test bootJar",
+      "result": "BLOCKED",
+      "command": "./gradlew test bootJar --no-daemon",
+      "details": "Gradle 최초 다운로드 단계에서 Java UnknownHostException, 임시 프록시 설정 후 SocketException: Operation not permitted. 컴파일·JUnit 미실행."
+    },
+    {
+      "name": "Docker 실제 기동",
+      "result": "NOT_RUN",
+      "details": "docker info에서 Docker 소켓 접근 권한 거부. 이미지 pull, 컨테이너, DB, 브로커 실행 미검증."
+    },
+    {
+      "name": "서버 HTTP 실기동",
+      "result": "NOT_RUN",
+      "details": "빌드 미완료. 예상 health 응답을 관측값으로 표시하지 않음."
+    }
+  ],
+  "not_performed": [
+    "제품 MQTT 수신·저장·조회",
+    "기존 계약 검사 재실행",
+    "실물 보드·실차·LED·음성 시험",
+    "브라우저에서 HTML 전체 화면 렌더링 검사"
+  ],
+  "next": "팀 개발 환경에서 골격 빌드·기동 확인 후 docs/first-slice.md 진행"
+}

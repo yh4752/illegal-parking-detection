@@ -1,0 +1,131 @@
+{
+  "edition": "v1.43",
+  "scope": "Mermaid grammar only, using existing local bundle in Node VM; trusted plain-text label DOM sanitization replaced with String; grammar unchanged",
+  "render": "NOT_RUN: browser launch failed in current environment",
+  "hardware_or_software_tests": false,
+  "malformed_negative_control_rejected": true,
+  "results": [
+    {
+      "file": "F01.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "8f7d0f5ac6286b86bb2f400c107ee7e9a4336a8ef26fc98b50b4ab389565ce82"
+    },
+    {
+      "file": "F02.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "1973d00165b4a64b053ebbada60ce2553a86e2797d120b26d74dcb8e7ee62255"
+    },
+    {
+      "file": "F03.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "c328d4ebb039f552064ee4f83a43995b1c473a6b664a9eeadfe67b5e1ec03d77"
+    },
+    {
+      "file": "F04.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "957fa752fe0395b220c9809112cf63bcc77bd628224347fc77b037385bd633fc"
+    },
+    {
+      "file": "F05.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "7d3d658879477b5cbc54c20aa20f045243ffd350161d69d7515da85be4246daf"
+    },
+    {
+      "file": "F06.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "3d7c3b771887fd9aef38a300e45db59d1c423421d5e4101936461c2f765a1576"
+    },
+    {
+      "file": "F07.mmd",
+      "grammar": "PASS",
+      "diagramType": "sequence",
+      "sha256": "155321a495563bd8e15ed7fcb9a4250be8bd75e413bed997ad8955aadfe1b082"
+    },
+    {
+      "file": "F08.mmd",
+      "grammar": "PASS",
+      "diagramType": "sequence",
+      "sha256": "f4777fe2ee5e6f36131bcb0ff3b48fd1e9cbbafb524954e19480c182403fea8c"
+    },
+    {
+      "file": "F09.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "d9d1b9af90bf65073a9d2228dcaa3277035c73a9cd8b13089d6b121f7c7e82a8"
+    },
+    {
+      "file": "F10.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "7185c6a0b82b802618b1c4545a530a02b13a16a0f61e73f40b64be4a000ba2e1"
+    },
+    {
+      "file": "F11.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "8ac917b72ccf0d6811045132e755f5063236daf59a0e0b74bb502ff489904cf7"
+    },
+    {
+      "file": "F12.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "33b79a146d23d84661180da9d73fd4d3a2fbc656dd66569c3e02dd5d0271786c"
+    },
+    {
+      "file": "F13.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "b2fcb6d05d2916cd9c5d7116117aa5ea16f5f97e153f5d7f6bd9d0f7832382d6"
+    },
+    {
+      "file": "F14.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "2725dfaae9e033f8b37249beae2f11d9eee26aaadd82c38c8c7d48af348a2c55"
+    },
+    {
+      "file": "F15.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "50317eb7954a417fa5c18cf00326c977b647c3e496f406ffbea26eb7b45a5ce3"
+    },
+    {
+      "file": "F16.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "64a29802b6d8275bdee8ff850ce07aa612a1bed8f44ab27cb8b167440065e141"
+    },
+    {
+      "file": "F17.mmd",
+      "grammar": "PASS",
+      "diagramType": "flowchart-v2",
+      "sha256": "d092e5cc6b9c8ebb8c5464109d1690490a0ae9aeac6f2439c2813c8a56b699e5"
+    }
+  ],
+  "local_detail_links_exist": true,
+  "source_figures_preserved": [
+    "F01",
+    "F02",
+    "F03",
+    "F04",
+    "F05",
+    "F06",
+    "F07",
+    "F08",
+    "F09",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+    "F14",
+    "F15",
+    "F16",
+    "F17"
+  ]
+}

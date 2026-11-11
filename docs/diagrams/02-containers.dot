@@ -1,0 +1,20 @@
+digraph Containers {
+  graph [rankdir=LR, bgcolor="transparent", pad="0.3", nodesep="0.55", ranksep="0.6", fontname="Apple SD Gothic Neo", label="C4 L2 · 첫 개발에 필요한 핵심 구조\n실선: 첫 연동 대상 / 점선: 후속 연결 · 통신 기능은 아직 미구현", labelloc=t, fontsize=18, fontcolor="#19354a"];
+  node [shape=box, style="rounded,filled", fontname="Apple SD Gothic Neo", fontsize=13, margin="0.2,0.15", color="#216582", fillcolor="#e0f0f7", fontcolor="#19354a"];
+  edge [fontname="Apple SD Gothic Neo", fontsize=11, color="#326e8a", fontcolor="#486478", arrowsize=0.7];
+  simulator [label="PC 가상 장치\n[외부 시험 도구]\n실물 대신 메시지 발행", fillcolor="#fff0d5", color="#af7c2f"];
+  subgraph cluster_system {
+    label="주정차 안내 시스템"; labeljust=l; color="#b7cad6"; style=rounded; fontsize=15;
+    edgeapp [label="현장 보드 앱\n[Container · 언어 미정]\nAI 판단·출력 + 저장·통신 SDK", style="rounded,dashed,filled", fillcolor="#f2f4f6", color="#92a5b4"];
+    broker [label="메시지 중계\n[Container · Mosquitto]\nMQTT 브로커"];
+    server [label="백엔드 서버\n[Container · Kotlin/Spring Boot]\n검증·저장·조회", penwidth=2];
+    web [label="관리자 웹\n[Container · React]\n상태 표시·조작 요청", style="rounded,dashed,filled", fillcolor="#f2f4f6", color="#92a5b4"];
+    db [shape=cylinder, label="업무 DB\n[Container · PostgreSQL]\n이력·현재 상태"];
+    edgeapp -> broker [label="사건·상태 / ACK·명령\nMQTT 5 + 운영 TLS", dir=both, style=dashed];
+    broker -> server [label="장치 메시지 전달\nMQTT 5"];
+    server -> broker [label="커밋 후 저장 확인\nMQTT 5", constraint=false];
+    server -> db [label="JDBC / SQL"];
+    web -> server [label="조회·요청 REST\n상태 갱신 SSE / HTTPS", dir=both, style=dashed];
+  }
+  simulator -> broker [label="사건 발행·저장 확인\nMQTT 5 / 로컬 연결", dir=both];
+}

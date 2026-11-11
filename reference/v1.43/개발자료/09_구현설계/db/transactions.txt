@@ -1,0 +1,89 @@
+v1.4 DB·동시 처리·복구 상세 설계
+2026-11-05 · 구현 전 설계. SQL 구문 검증과 실제 DB 실행·장애 시험은 구분한다.
+
+1. 이번에 고정한 선택
+서버는 PostgreSQL + Spring JDBC + Flyway를 사용한다. 쓰기 격리 수준은 READ COMMITTED, 동일 구역의 모든 가시 상태 변경은 zone_view 행 SELECT FOR UPDATE 하나로 직렬화한다. 초기 구역/장치 각 1개라는 범위에 맞춘 선택이며 모든 프로젝트에 적용할 성능 최적해라는 뜻은 아니다. 명령, 정책, heartbeat, 사건, 사진 상태, 보관 정리와 연결 상태 타이머도 같은 경계를 사용한다.
+잠금 순서는 zone_view → device → incident(event_id 정렬) → command(command_id 정렬) → device_image(image_id 정렬) → 나머지 관련 행이다. 워커도 역순 잠금을 잡지 않는다. 여러 구역을 한 트랜잭션으로 변경하지 않는다. MQTT·HTTPS·파일 쓰기/삭제·인증서 작업·manifest 동기화는 이 잠금을 가진 채 실행하지 않는다.
+트랜잭션 lock_timeout 초기 1초, statement_timeout 초기 3초. 40P01/40001/55P03만 전체 롤백 뒤 최대 3회 재시도(50·100·200ms + 0~50ms 지터). 명령 ID·client_request_id·payload·원래 expires_at은 유지한다. 제한을 넘으면 성공 ACK/HTTP 성공을 보내지 않는다. 명령 수명과 안전 검사는 재시도마다 재평가한다. 수치는 운영 초기값이고 실측 후 조정한다.
+
+2. 저장 단위와 자료형
+schema.sql은 컬럼·키·검색 인덱스의 초안이다. 외부 ID는 UUID만 받도록 제한하지 않고 기존 1~128자 opaque 문자열을 따른다. seq/revision은 JSON 안전 정수 상한 9007199254740991을 지킨다. 원본 계약의 enum·null·시간·기하·버전 의미 검증은 수신 검증기가 담당하며 JSONB 컬럼에 넣었다고 검증이 끝난 것이 아니다.
+zone_policy는 과거 행을 UPDATE하지 않는다. 새 버전을 INSERT하고 zone.latest_policy_version만 바꾼다. 런타임 계정에는 과거 정책 UPDATE/DELETE 권한을 주지 않는다. 사용자 비밀번호는 encoded password_hash만 저장한다. HTTPS 장치 인증은 장치별 고엔트로피 opaque Bearer token(JWT 아님)의 SHA-256만 device에 저장하며 원문은 최초 안전 인계 때만 제공한다. 교체 때 해시·credential_version을 바꾸면 옛 토큰을 거부한다. MQTT 계정은 브로커 보호 설정에서 별도로 관리한다. 실제 비밀값은 공유 SQL에 넣지 않는다.
+incident는 사건별 이력 요약, zone_view.snapshot은 실제 장치의 최신 상태다. 과거 사건 A의 종료 메시지보다 새 사건 B의 snapshot이 먼저 도착할 수 있으므로 DB에 '장치당 미종료 incident 1개' 유일 제약을 만들지 않는다. 현재 사건은 zone_view 하나로 표현하고 이력은 별도 순서로 갱신한다.
+zone_view의 마지막 관측 current_event_id와 event_message·review·image의 event_id 일부는 의도적으로 물리 FK가 없다. 사건 요약 보관기간과 해당 메시지/리뷰의 보관기간이 다르기 때문이다. 서비스가 구역 잠금 아래 incident 또는 entity_tombstone의 소속을 검사한다. 사건 삭제가 CASCADE로 리뷰·사진을 뜻하지 않게 지우는 것을 금지한다. 마지막 관측 snapshot이 오래된 종료 ID를 가리킬 수 있으며, 이때 OFFLINE/관측시각을 유지하고 상세 조회는 보관기한에 따라 GONE으로 처리한다. 빈 구역이라고 새 관측을 만들어내지 않는다.
+
+3. 사건/명령 결과 수신 트랜잭션
+(1) 인증된 MQTT 계정·토픽의 장치와 본문 ID를 대조하고 크기·JSON Schema·의미 규칙을 검사한다. 정상 JSON의 동일 내용 비교는 RFC8785 canonical UTF-8의 SHA-256을 사용한다. MQTT DUP/QoS/수신시각은 payload hash에 넣지 않는다. 객체 키 순서·공백만 달라도 충돌로 오판하지 않으며 배열 순서는 유지한다.
+(2) BEGIN READ COMMITTED → zone_view FOR UPDATE → 등록 장치 확인.
+(3) inbound_receipt(device_id,message_id)를 확인한다. 같은 hash의 STORED면 업무 갱신 없이 커밋 후 DUPLICATE ACK. 같은 hash의 기존 REJECTED면 기존 REJECTED를 다시 회신한다. 다른 hash면 원래 receipt를 덮지 않고 격리 감사 기록을 남긴 뒤 MESSAGE_ID_CONFLICT/REJECTED. 같은 ID의 충돌 원본은 제한된 격리 영역에 30일 보관하며 세션/확인 토큰은 운영 로그에 출력하지 않는다.
+(4) 새 durable events는 receipt와 event_message를 같은 트랜잭션에 INSERT한다. command-results는 receipt와 command의 실제 결과를 함께 저장한다. unknown command가 tombstone에도 없으면 NOT_FOUND/REJECTED이며 APPLIED를 추정하지 않는다.
+(5) 사건 요약은 event_id별 last_device_seq와 종료 고정 조건을 따른다. 더 큰 seq만 상태·횟수를 바꾼다. 오래된 EVENT_STARTED라도 아직 null인 시작시각 등 불변 출처 정보는 모순 여부를 확인해 채울 수 있지만 상태·횟수·종료를 되돌리지 않는다. 종료된 사건은 과거 메시지나 snapshot으로 다시 열지 않는다.
+(6) envelope.device_seq가 현재 장치 last_device_seq보다 클 때만 현재 snapshot을 교체한다. snapshot의 current_event_id 요약도 같은 사건 순서 검사를 거친다. 사건이 바뀌었다고 과거 사건을 서버가 임의 종료하지 않는다.
+(7) 같은 최신 snapshot의 non-cleared pauses를 pause_projection에 반영한다. 이전 목록에는 있었으나 새 전체 목록에서 사라진 pause는 서버가 '해제 관측됨'으로 표시한다. 서버 요청 접수만으로 중지를 해제하지 않는다.
+(8) 화면에 보이는 값이 바뀌면 동일 트랜잭션에서 view_revision을 1 증가시키고, 그 상태의 ZoneView를 구성한다. COMMIT 성공 뒤에만 ACK·SSE를 보낸다. ACK/SSE 실패가 커밋을 되돌리지 않는다. ACK.committed_at은 커밋 확인 후의 서버 UTC로 생성한다.
+장치가 DB 커밋 성공 응답을 놓쳐도 같은 ID/hash로 재전송하므로 재실행 없이 DUPLICATE로 수렴한다. 이것은 구현·시험해야 할 성질이며 MQTT QoS만의 보장이 아니다.
+
+4. heartbeat·최신성·조회
+heartbeat는 응용 ACK를 만들지 않고 durable receipt 테이블에도 쌓지 않는다. zone_view 잠금 아래 새 device_seq의 현재 상태를 반영하고 실제 새 heartbeat를 받은 서버 시각과 heartbeat 순서를 기록한다. 과거 재전송 사건은 last_heartbeat_at을 갱신하지 않는다. 오래된 heartbeat가 최신 snapshot을 덮거나 정상 영상이라고 추정하게 하지 않는다. received_at과 observed_at은 각각 수신과 실제 관측 시각으로 구별한다.
+STALE 15초 초과·OFFLINE 30초 초과 전환도 같은 구역 잠금·revision 증가 경계를 사용한다. availability는 connection_id를 대조하며 오래된 연결의 OFFLINE을 새 연결에 적용하지 않는다. retained ONLINE만으로 heartbeat freshness를 복원하지 않는다.
+REST ZoneView는 단일 SELECT(관련 최신 20개 명령·10개 사진은 하위 쿼리)로 한 MVCC snapshot에서 읽는다. 여러 SELECT를 쓴다면 read-only REPEATABLE READ로 묶는다. SSE는 커밋에서 만든 revision/상태를 전송하며 누락은 기존 'SSE 연결 후 REST 재조회'로 복구한다.
+
+5. 관리자 명령과 중복 HTTP 요청
+중복 키는 기존 계약대로 (user_id, client_request_id)이다. action_key는 'POST /api/devices/{정규화된실제ID}/commands' 또는 'POST /api/events/{실제ID}/reviews'이며 요청 hash 계산에 함께 넣는다. 같은 사용자가 같은 키를 다른 작업·대상·본문에 재사용하면 IDEMPOTENCY_CONFLICT/409다. endpoint별로 새 요청으로 취급하지 않는다.
+명령 POST는 권한/CSRF·구역 잠금·중복 검사·현장 snapshot 기준 검사를 거친 뒤 command, server_outbox, request_receipt를 함께 저장한다. 서버가 issued_at을 정하고 REST 즉시 STOP의 starts_at=null을 그 issued_at으로 바꾼다. MQTT Command의 starts_at은 계속 UTC이며 기존 외부 보드 형식을 바꾸지 않는다. commit 후 202 QUEUED를 반환한다. 같은 요청 재시도에는 최초 command_id와 최초 202 응답을 반환한다.
+receipt는 성공 자원과 함께 저장한다. 저장 전에 거부된 요청은 성공 receipt를 만들지 않는다. 접수 후 실제 적용 여부는 command 결과로만 판정한다. 사용자 수정 review는 별도 overlay이며 장치 use_type·면제·사건 종료를 바꾸지 않는다.
+정책 PUT은 같은 구역 잠금 아래 expected_version을 현재 최신 버전과 대조한다. 새 version/content와 POLICY outbox를 같은 트랜잭션에 넣는다. 새 desired가 생기면 아직 실행 안 된 옛 POLICY outbox는 CANCELLED로 바꾸고 최신 것만 retained 재전송한다. 정책 PUT의 재응답을 잃었다면 GET으로 버전을 확인한다. 존재하지 않는 client_request_id를 정책 API에 추가하지 않는다.
+
+6. outbox 워커와 결과 반영
+단일 서버 단일 발행 워커가 후보를 읽고, 구역 잠금 뒤 해당 outbox를 다시 검사한다. READY/WAITING_RESULT의 기한 내 작업을 LEASED로 바꾸고 임의 lease_token과 15초 lease_until을 저장해 커밋한다. 네트워크 I/O는 트랜잭션 밖에서 한다. PUBACK 대기 한도 5초; command 재발행은 5초 간격이며 원래 command_id/payload/expires_at을 유지하고 MQTT Message Expiry는 남은 시간만 사용한다.
+송신 결과 갱신은 새 구역 트랜잭션에서 자신의 lease_token일 때만 수행한다. 늦게 돌아온 옛 워커 콜백이 새 워커 상태를 덮지 못한다. 명령이 먼저 실제 결과를 받았다면 DONE을 되돌리지 않는다. PUBACK 후 WAITING_RESULT를 표시하지만 APPLIED를 만들지 않는다. 실결과가 없고 expires_at+5초가 지나면 DELIVERY_TIMEOUT으로 기록한다. 실제 늦은 결과는 기존 규칙대로 반영하되 최초 terminal_at을 다시 잡아 보관기간을 늘리지 않는다.
+게시 직후 프로세스가 종료되어 발행 기록을 못 남겼다면 lease 만료 후 같은 ID로 재발행할 수 있다. 장치의 명령 중복 검사가 필수다. 정상 재시작에서는 미확인 lease를 만료시키고 명령 기한·서버 시각 신뢰를 재검사한다. 서버 UTC가 신뢰되지 않으면 재시작 전 명령을 새 60초 명령으로 재생성하지 않는다. 즉시 STOP 예외는 새 요청의 기존 단조시계 경로에만 적용한다.
+정책의 PUBACK는 장치 적용 확인이 아니다. 실제 received/active 버전은 config/reported로 관찰한다.
+
+7. 사진 파일과 DB의 불일치 복구
+사진 파일과 PostgreSQL은 하나의 ACID 트랜잭션이 아니다. 201/200은 JPEG와 메타데이터가 모두 내구 저장된 뒤에만 반환한다. 초기 사진 업로드 worker는 서버에서도 1개로 제한한다.
+A. 인증·크기·JPEG·hash·metadata 검사 후, 구역 잠금 아래 image_id의 기존 내용/종료 여부를 확인하고 device_image PENDING과 image_upload_intent(upload_token,최종키,hash,metadata)를 예약한다. 동일 ID 다른 hash/metadata는 IMAGE_ID_CONFLICT. 이미 AVAILABLE이고 같은 내용이면 보관기한을 확인한 뒤 200, 만료면 410이다. FAILED/EXPIRED는 새 업로드로 되살리지 않는다.
+B. 잠금 밖에서 비공개 같은 파일시스템의 임시 파일에 쓰고 fsync한다. 서버 생성 storage_key만 파일명으로 사용하며 사용자 image_id를 경로로 연결하지 않는다. 원자 rename 후 디렉터리 내구화까지 수행한다. JPEG와 이벤트 정차 판단은 서로 기다리지 않는다.
+C. 다시 구역 잠금 → intent token/hash/기한/현재 상태 검사 → AVAILABLE·stored_at·expires_at·storage_key 기록 + intent 삭제 + revision 증가를 커밋하고 201을 반환한다. 원본 captured_at이 신뢰되면 그 시각+7일, 아니면 최초 server received_at+7일이다. HTTP 재시도나 CLOSE_CONFIRM bytes 재사용으로 연장하지 않는다.
+D. B 이전 종료: intent와 temp 파일을 이용해 동일 요청 재시도/정리를 수행한다. B 후 C 전 종료: 재시작 reconciler가 final 파일의 hash와 intent를 확인한 뒤 C를 완료하거나 파일을 삭제한다. C 후 HTTP 응답 유실: 같은 업로드는 200. 복구 판정 전 새 업로드와 사진 정리를 일시 차단한다.
+E. 늦은 장치 PENDING/FAILED/EXPIRED는 서버 AVAILABLE을 덮지 않는다. 서버 보관기한만 AVAILABLE→EXPIRED를 만든다. 업로드 예약 중 장치 FAILED가 먼저 확정됐다면 C에서 이를 되살리지 않고 파일을 정리한다.
+F. 보관기한 도달 시 API는 즉시 410. 구역 잠금 아래 EXPIRED/RETENTION_EXPIRED와 deletion_pending을 커밋한다. 잠금 밖에서 파일 삭제 후 DB 확인한다. 삭제 중 종료되면 재실행하고 이미 없는 파일은 성공으로 취급한다. 24시간 이내 제거가 시험 조건이다. 정적 공개 URL은 제공하지 않는다.
+무허가 접근으로 파일이 사라지는 등 무결성 장애는 새 업무 오류코드를 임의 추가하지 않고 내부 장애로 처리한다. 잘못된 정상 사진을 200으로 반환하지 않으며 로그·운영 알림 후 백업/재조정한다. enum·오류 매핑은 공통 API 검증표와 맞춘다.
+
+8. 보관과 늦은 메시지의 부활 방지
+매일 정리하지만 API의 만료 접근 차단은 즉시 적용한다. event_message/review/audit는 각각 최초 received_at/created_at+30일, 종료 incident는 원래 종료 기준+30일, command는 최초 terminal_at+30일이다. wire_payload의 제어 토큰은 필요한 명령 전달/조회 기한이 지난 뒤 제거하고 hash는 남긴다. 만료 사진의 bytes는 7일+정리유예24시간 이내 제거한다.
+종료 command 정리 때는 연결된 terminal server_outbox를 먼저 삭제/압축하고 command를 지운다. device_image 정리 전에는 image_upload_intent가 종료·조정됐는지 확인한다. 활성 lease/미확인 작업은 정리하지 않는다.
+요약을 지우기 전에 같은 구역 트랜잭션에서 entity_tombstone에 EVENT/COMMAND/IMAGE의 ID·최종 상태·최종 seq·필요 hash만 남긴다. inbound_receipt의 ID/hash/outcome과 HTTP request_receipt의 키/hash/resource_id는 원문 이력보다 오래 보관한다. raw response는 자원 정리 때 제거한다. 지워진 HTTP 자원에 동일 요청이 오면 GONE/410이며 새 명령이나 review를 생성하지 않는다.
+등록 장치 수명 동안 최소 중복 방지·종료 표식은 자동 시한 삭제하지 않는다. 원문/사진을 무기한 보관하겠다는 뜻은 아니다. 폐기 시 운영자가 장치 자격증명을 폐기하고 해당 장치의 모든 대기 전송을 정리한 뒤 표식을 삭제한다. 같은 device_id를 새 장치에 재사용하지 않는다.
+이미 아는 message_id 재전송은 원래 저장 확인만 반복하며 이력 received_at을 바꾸지 않는다. 처음 받은 새 message_id가 종료 tombstone의 사건을 가리키더라도 종료 요약을 되살리지 않는다. 필요한 새 수신 이력은 그 수신일 기준으로 저장할 수 있지만 현재 상태·종료/안내 횟수는 복원하지 않는다. 이미 삭제된 이미지 ID의 업로드도 410이며 새 7일 보관을 시작하지 않는다.
+활성 사건 최소 상태와 아직 해제되지 않은 pause, 유효한 발송 대기는 보호한다. 지워지는 부모에 기대는 이력 FK를 삭제 CASCADE로 처리하지 않는다.
+
+9. DB 과거 복원과 view_revision 범위 예약
+정상 프로세스 재시작과 과거 DB 백업 복원은 다른 절차다. view_revision의 단조 증가를 유지하기 위해 별도 서비스 없이 서버의 보호된 운영 파일 'revision-reservations.json'을 둔다. 이 파일은 DB 백업을 복원하는 경로 밖에 보관하며, 추가 저장매체에 최신 사본을 보관한다. DB 덤프에 딸려온 오래된 사본을 최신 권위로 사용하지 않는다.
+구역별로 1,000,000개 번호 범위를 예약한다. manifest는 zone_id, manifest_generation, reserved_through, reserved_at만 가진다. 예: 상한 999999를 영속 기록한 후 해당 범위를 DB에 등록한다. 초기 view_revision 0은 snapshot이 없는 등록 상태에만 사용한다. 새 가시 변경은 범위 내에서 +1이다. 숫자는 기존 JSON 안전 정수 상한을 넘지 않아야 한다.
+범위 예약은 기동 또는 범위 소진 시 해당 구역의 처리 게이트를 잠깐 닫고, 진행 중 쓰기를 끝낸 뒤 수행한다. 파일 잠금 획득 → 현재 manifest 확인 → 다음 상한을 임시 파일 쓰기/fsync/rename/디렉터리 fsync와 최신 별도 사본으로 영속화 → 그 다음 짧은 DB 트랜잭션에서 zone_view range를 갱신한다. 파일 I/O 중 DB 행 잠금을 보유하지 않는다. 새 범위를 DB에 반영하기 전에는 그 범위의 revision을 외부로 노출하지 않는다.
+파일 예약 뒤 DB 반영 전 종료는 번호 범위를 건너뛰어도 된다. 반대로 파일 예약 실패를 무시하고 DB가 번호를 쓰는 것은 금지한다. 일반 프로세스 재시작은 DB 범위가 manifest 상한 안에 있는지 검사하고 계속 쓴다. DB 복원 때는 사용 중이던 범위를 재사용하지 않고 최신 manifest 상한 다음의 새 범위를 예약하여 시작값부터 복원 전 값보다 크게 한다.
+복원 순서: 외부 API/SSE·MQTT 수신/발행 gate 닫기 → 기존 웹 세션 종료 → 백업 DB·필요 사진 복원 → 최신 manifest 검증/새 범위 예약 → 모든 구역 recovery_hold=true, 옛 outbox 자동 재발행 차단 → 상태 대조용 MQTT 수신 경로만 열기(새 heartbeat/config-reported와 보류한 durable 수신 기록은 수용하되 일반 제어·외부 API/SSE·desired/commands 발행은 계속 차단) → 장치 상태·정책·중복 표식 대조 → 정책/미확인 사건·명령 차이 기록 → 운영자가 인수 후 API/SSE·발행 재개. recovery_hold는 서버 내부 운영 플래그이며 wire enum을 추가하지 않는다.
+manifest가 유실됐거나 최신 상한임을 입증할 수 없으면 임의 큰 수를 추정하여 재개하지 않는다. 정상 상태의 최신 파일을 복구하거나, 별도 설계 변경/재등록 절차가 승인될 때까지 중지한다. 단일 호스트와 별도 사본을 모두 잃었는데도 무중단·무손실 복원을 보장하지 않는다.
+이미 서버 ACK를 받고 보드에서 지운 이력은 오래된 DB 백업만으로 복원할 수 없다. 복원은 실제 데이터 손실 범위와 미확인 상태를 보고해야 한다. 장치가 백업보다 새 정책을 적용 중이면 예전 retained desired를 덮어 발행하지 않고 새 정책 원본부터 복구한다. 오래된 웹 요청/명령은 자동 재시도하지 않고 사용자가 현재 상태를 다시 확인한다.
+
+10. 인수해야 할 DB 시험
+DB01: 새 heartbeat, 과거 사건 종료, STOP POST를 동시에 넣어 현재 snapshot/사건 이력/명령이 분리되고 revision만 증가하는지 확인.
+DB02: 커밋 전 종료·커밋 후 ACK 유실·같은 ID 다른 body 각각 롤백/중복/격리되는지 확인.
+DB03: command outbox claim 후 종료, publish 후 기록 전 종료, 오래된 lease 콜백과 실제 결과 역전에서 새 ID·APPLIED 추정이 생기지 않는지 확인.
+DB04: 사진 A/B/C 각 단계 종료와 HTTP 응답 유실, 늦은 FAILED, 파일 삭제 중 종료를 주입해 재조정과 410/201/200을 확인.
+DB05: 7일/30일 경계 이후 같은 메시지·HTTP 요청·사진을 재전송해 보관기간 연장·사건 재생성·중복 명령이 없는지 확인.
+DB06: 과거 DB 복원, 최신 manifest 유지, manifest 유실, 장치가 더 최신 정책인 경우를 나눠 과거 revision 노출이나 옛 명령 자동 재발행이 없는지 확인.
+이 시험은 설계 항목이며 PostgreSQL·Spring·실제 파일시스템에서 수행한 결과가 아니다.
+
+근거
+- PostgreSQL Explicit Locking: https://www.postgresql.org/docs/current/explicit-locking.html
+  행 잠금과 잠금 순서를 확인했다. 구역별 직렬화 방식·타임아웃은 프로젝트 선택이다.
+- PostgreSQL Transaction Isolation: https://www.postgresql.org/docs/current/transaction-iso.html
+  READ COMMITTED의 snapshot 범위를 확인했다. 다중 SELECT 조회는 같은 snapshot으로 묶어야 한다.
+- PostgreSQL Constraints: https://www.postgresql.org/docs/current/ddl-constraints.html
+  기본키·유일·참조 제약 문법의 근거다. 어떤 컬럼을 보관할지는 프로젝트 결정이다.
+- PostgreSQL Continuous Archiving: https://www.postgresql.org/docs/current/continuous-archiving.html
+  백업만으로 모든 이후 변경을 복원할 수 있다는 주장을 하지 않는다. WAL/PITR은 이번 최소 설계에 추가하지 않았다.
+- RFC8785 JCS: https://www.rfc-editor.org/rfc/rfc8785.html
+  동일 JSON 내용의 hash 비교 방식을 맞추는 근거다. 기존 wire 자체를 JCS로 강제하거나 새로운 필드를 추가하지 않는다.

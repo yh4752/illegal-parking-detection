@@ -1,0 +1,34 @@
+# v1.4 design example. Not deployed or tested on the actual board.
+# Mount valid TLS certificate/key, generated password hashes and exact-topic ACL.
+# Do not use an empty password file or expose plaintext MQTT 1883.
+per_listener_settings false
+allow_anonymous false
+password_file /mosquitto/config/passwords
+acl_file /mosquitto/config/acl
+
+listener 8883
+protocol mqtt
+certfile /mosquitto/certs/server-fullchain.pem
+keyfile /mosquitto/certs/server-key.pem
+tls_version tlsv1.2
+# Server-authenticated TLS + distinct username/password credentials.
+require_certificate false
+use_username_as_clientid true
+
+persistence true
+persistence_location /mosquitto/data/
+persistence_file mosquitto.db
+autosave_interval 30
+
+message_size_limit 65536
+max_packet_size 131072
+max_inflight_messages 8
+max_queued_messages 64
+max_queued_bytes 1048576
+queue_qos0_messages false
+
+log_dest stdout
+log_type error
+log_type warning
+log_type notice
+connection_messages true

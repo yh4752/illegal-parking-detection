@@ -1,0 +1,205 @@
+{
+  "document_version": "1.4",
+  "internal_contract_version": 1,
+  "network_contract": "04 schema_version=2 / parking/v2; unchanged payloads",
+  "status": "설계 명세. SDK·시뮬레이터·서버가 구현 또는 시험 완료되었다는 뜻이 아님.",
+  "composition": "One edge application process with an AI control module and a backend-owned communication/storage SDK. No new network service or local IPC protocol is required. Worker threads perform network I/O outside the control loop.",
+  "ownership": {
+    "Data": [
+      "datasets",
+      "ground_truth",
+      "split_manifest",
+      "evaluation_records"
+    ],
+    "AI": [
+      "board_environment",
+      "vision",
+      "tracking",
+      "decision_state",
+      "output_driver",
+      "clock_source_adapter",
+      "frame_and_jpeg_provider",
+      "platform_binding",
+      "real_board_acceptance"
+    ],
+    "BACKEND": [
+      "wire_contract",
+      "device_sdk",
+      "local_transaction_store",
+      "mqtt_client",
+      "https_uploader",
+      "simulator",
+      "broker",
+      "spring_backend",
+      "server_deployment",
+      "integration_acceptance"
+    ],
+    "FRONTEND": [
+      "administrator_ui",
+      "rest_sse_client",
+      "display_acceptance"
+    ]
+  },
+  "runtime_gate": {
+    "owner": "AI",
+    "target_day": 5,
+    "evidence": [
+      "exact board product / QCS610",
+      "OS and CPU ABI",
+      "compiler/interpreter and SDK versions",
+      "TLS / MQTT5 / SQLite availability",
+      "camera/audio/GPIO interfaces",
+      "clock synchronization source"
+    ],
+    "decision": "Choose SDK implementation language and binding jointly from verified board support. Backend can implement protocol fixtures, simulator and server immediately on PC; no unverified Python/C++ board support is claimed."
+  },
+  "interfaces": [
+    {
+      "name": "restore",
+      "caller": "AI",
+      "implementation": "BACKEND",
+      "input": "registered device/zone IDs; protected storage configuration",
+      "output": "last checkpoint and checkpoint_version, local_revision, persisted event/count/pauses/policies; pending messages remain SDK-owned",
+      "rule": "AI validates its checkpoint codec. Restart clears continuous stop accumulation and requires existing RESTART/resume flow. Unknown checkpoint version blocks automatic output."
+    },
+    {
+      "name": "commit_transition",
+      "caller": "AI",
+      "implementation": "BACKEND",
+      "input": "operation_id; expected_local_revision; checkpoint_version and serialized AI checkpoint; EventRecord / DeviceSnapshot drafts; event/result/image-job/attempt changes",
+      "output": "COMMITTED | DUPLICATE | CONFLICT | FAILED; committed local_revision and generated IDs",
+      "rule": "One SQLite transaction saves checkpoint, attempt/count changes, immutable message envelope+payload and outbox, photo-job intents. SDK is sole DB writer. Same operation_id+same request returns original result; different body conflicts. Uncertain commit is queried/retried under same ID. operation_id is created by the caller and retained until the result is known. Allocation of device_seq and message IDs is in the same SDK transaction; retry returns the original IDs."
+    },
+    {
+      "name": "publish_current_state",
+      "caller": "AI",
+      "implementation": "BACKEND",
+      "input": "fresh DeviceSnapshot draft and measured fps, with original observation time",
+      "output": "latest cached snapshot; heartbeat every5000ms using network contract",
+      "rule": "Does not invent new camera observation time or extrapolate continuous_stop_ms when AI stalls. SDK supplies pending_message_count/storage_ok. Serialize heartbeat snapshots with state updates and device_seq allocation."
+    },
+    {
+      "name": "take_command",
+      "caller": "AI control loop",
+      "implementation": "BACKEND",
+      "input": "nonblocking poll of bounded, deduplicated command inbox",
+      "output": "canonical Command or none, with remaining transport expiry",
+      "rule": "SDK checks identity/schema/transport expiry/dedup. AI owns final event/mode/policy/clock/pause/token checks and physical execution. STOP handling must not wait for network or photo work; no silent command drop on full queue."
+    },
+    {
+      "name": "commit_command_result",
+      "caller": "AI",
+      "implementation": "BACKEND",
+      "input": "command_id and actual result/error/data; resulting checkpoint and snapshot",
+      "output": "same durable receipt as commit_transition",
+      "rule": "Uses the same atomic state/result/outbox transaction. Resume/close/new play effects require durable authorization first; immediate safety stop is the exception and must not wait for DB availability. Never report APPLIED from transport receipt alone. Repeated or interrupted execution is reconciled without replay."
+    },
+    {
+      "name": "provide_photo",
+      "caller": "AI JPEG provider",
+      "implementation": "BACKEND SDK uploader",
+      "input": "image_id, metadata and owned JPEG bytes/file handle in private spool; source capture time",
+      "output": "job queued or explicit existing image error; eventual HTTP/image status",
+      "rule": "AI owns valid frame and encoding/profile; SDK owns bounded disk/queue, hashing verification, retry and HTTPS transfer. Commit photo-job intent with trigger; failure does not block guidance or closure."
+    },
+    {
+      "name": "clock_and_output_ports",
+      "caller": "AI / SDK",
+      "implementation": "AI real adapters; BACKEND fake adapters",
+      "input": "clock status sample; play(attempt_id,audio_asset_id), stop(attempt_id), setLED(on)",
+      "output": "ClockStatus evidence; start/completion/stop/failure/unknown callbacks with monotonic time",
+      "rule": "New play / LED-on requires local COMMITTED and a final live guard check. Safety stop / LED-off takes priority even when storage is delayed or unavailable. Immediate STOP APPLIED requires driver stop acknowledgement and durable state/result; scheduled STOP APPLIED means durable registration. Other commands use their own defined completion evidence. UTC/monotonic and physical A5 acceptance remain unchanged."
+    }
+  ],
+  "durability_rules": [
+    "AI alone defines domain transitions; backend SDK alone implements local atomic persistence and transport. Backend cannot generate a successful AI decision or output result.",
+    "A durable local COMMITTED receipt is enough to continue local control; do not wait for broker PUBACK or server acks before output. Server acks only complete message delivery.",
+    "play(attempt_id) is at-most-once per persisted attempt; reserve before output. Duplicate commit must not replay it. Crash or uncertainty consumes the attempt as existing A5 specifies.",
+    "On local storage failure, no new automatic output; AI fault path stops current output using A5. Network/photo workers must not hold control-loop locks during slow I/O.",
+    "Runtime checkpoint, local_revision and operation_id are private internal data and are not added to the MQTT schema. device_seq remains the persistent network snapshot order.",
+    "Use one authoritative checkpoint encoding owned by AI with a version. Backend stores it atomically with contract projections and checks ID/count/version consistency; separate independently committed AI DB is prohibited.",
+    "local_revision increases only when an AI checkpoint/domain transition is committed; heartbeat and transport retry do not change it. device_seq is independently allocated durably by the SDK under the existing wire ordering rules.",
+    "Pending COMMITTED completion is not unconditional permission to play. Before a new output, AI rechecks the live stop generation and all current guards; a newer stop invalidates the old permit. See detailed SDK queue and recovery rules."
+  ],
+  "acceptance": [
+    {
+      "id": "BC01",
+      "owner": "백엔드",
+      "environment": "PC 가상 장치",
+      "scenario": "같은 SDK로 사건·heartbeat·사진·명령 결과를 송수신",
+      "pass": "서버 DB·REST/SSE의 사건 ID·상태·명령 결과가 공통 예제와 일치. 실보드 성능 통과로 표시하지 않음."
+    },
+    {
+      "id": "BC02",
+      "owner": "백엔드",
+      "environment": "PC 저장 장애 주입",
+      "scenario": "로컬 커밋 전/후 종료, 서버 ACK 유실, 같은 operation_id 및 message_id 재시도",
+      "pass": "로컬 상태·outbox가 함께 남거나 함께 취소. 중복 부작용 없음. 재시작은 출력을 재생하지 않음."
+    },
+    {
+      "id": "BC03",
+      "owner": "백엔드",
+      "environment": "PC 가짜 출력·시계",
+      "scenario": "늦은 RESUME, 중복 STOP, 실행 회신 누락, 만료·다른 사건 명령",
+      "pass": "접수·실행·미확인을 구분. SDK가 성공을 만들어내지 않음. AI 대역의 실행 호출은 명령당 허용된 횟수만 발생."
+    },
+    {
+      "id": "BC04",
+      "owner": "백엔드",
+      "environment": "PC 사진·관측 대역",
+      "scenario": "JPEG 업로드 실패·지연, 오래된 관측 snapshot과 새 heartbeat",
+      "pass": "사진 실패가 사건 저장을 막지 않음. 이전 관측의 시각을 새 시각으로 바꾸지 않음. 정상 영상으로 오표시하지 않음."
+    },
+    {
+      "id": "BC05",
+      "owner": "백엔드",
+      "environment": "PC 부하·저장 실패",
+      "scenario": "브로커 차단·사진 지연·SDK 저장 불가 중 가짜 이동/STOP 입력",
+      "pass": "네트워크 I/O가 제어 루프를 막지 않음. 새 출력은 영속화 성공 전 금지. 모의 응답시간을 실물 500ms 성능으로 주장하지 않음."
+    },
+    {
+      "id": "BC06",
+      "owner": "AI",
+      "collaborators": [
+        "백엔드"
+      ],
+      "environment": "실제 QCS610",
+      "scenario": "동일 SDK를 보드 런타임에 연결해 TLS·사진·명령·재시작·출력 및 저장 검증",
+      "pass": "AI가 버전·빌드·실행·물리 출력 증거 제공. 백엔드는 수신/복구 결과 대조. BC01~05 성공만으로 대체 불가."
+    }
+  ],
+  "sources": [
+    {
+      "title": "MQTT 5.0 OASIS Standard",
+      "url": "https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html",
+      "use": "Pub/sub and transport semantics; role assignment is our design choice."
+    },
+    {
+      "title": "Eclipse Paho C",
+      "url": "https://github.com/eclipse-paho/paho.mqtt.c",
+      "use": "ARM/Linux, MQTT and TLS client implementation path; current borrowed-board compatibility untested."
+    },
+    {
+      "title": "SQLite atomic commit",
+      "url": "https://www.sqlite.org/atomiccommit.html",
+      "use": "Single transaction for state and outbox; actual storage behavior still requires tests."
+    },
+    {
+      "title": "GStreamer messages",
+      "url": "https://gstreamer.freedesktop.org/documentation/additional/design/messages.html",
+      "use": "Software playback state/error reporting; not proof of physical sound."
+    },
+    {
+      "title": "Spring Integration MQTT",
+      "url": "https://docs.spring.io/spring-integration/reference/mqtt.html",
+      "use": "Backend inbound/outbound MQTT5 adapters."
+    },
+    {
+      "title": "YOLOv7 class configuration",
+      "url": "https://github.com/WongKinYiu/yolov7/blob/main/data/coco.yaml",
+      "use": "COCO car/bus/truck classes; seminar Vehicle weights are distinct."
+    }
+  ],
+  "revision": "2026-11-05 역할 분담 및 상세 설계 개정",
+  "detail_spec": "09_구현설계/mqtt_sdk/sdk_processing_v1.4.json"
+}

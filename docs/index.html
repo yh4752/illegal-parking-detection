@@ -1,0 +1,119 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 시작 자료 v0.2 · 업무 기능 미구현</span></header>
+<nav aria-label="문서 메뉴"><a class="active" href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="first-slice.html">첫 구현</a><a href="status.html">현재 상태</a><a href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선은 목표 설계입니다. 현재는 기동 코드·설정·문서만 작성했고 MQTT 수신·DB 저장·조회 기능은 다음에 구현합니다.</p></aside><article class="page"><h1>팀이 먼저 알아야 할 구조</h1>
+<p>제품 기준 v1.43 · 시작 자료 v0.2 · 2026-11-11</p>
+<h2>1. 무엇을 만들고, 지금 어디까지 하나요?</h2>
+<p>현장 보드가 차량의 정차를 판단해 LED·음성으로 안내하고, 관리자는 웹에서 상태와 이력을 확인하는 시스템입니다. 한 모의 구역·한 차량으로 시작하며 법적 단속·과태료 부과는 하지 않습니다.</p>
+<p><strong>지금의 목표는 실제 보드 대신 PC가 보낸 차량 상태를 서버에서 받아 저장하고 조회하는 것입니다.</strong> 현재는 서버 기동 코드와 설정만 작성됐습니다. 기능별 실제 진행 상황은 <a href="status.html">현재 상태</a>를 봅니다.</p>
+<h2>2. 각 부분은 어떻게 연결되나요?</h2>
+<figure class="figure"><img src="diagrams/02-containers.svg" alt="C4 L2 — 첫 개발에 필요한 핵심 구조"><a href="diagrams/02-containers.svg" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
+<p>브로커는 메시지를 중계하는 프로그램입니다. 보드는 현장 판단을, 서버는 받은 정보의 저장·조회를 맡습니다. 프론트는 서버 API를 사용하며 보드에 직접 연결하지 않습니다. 그림의 실선도 구현 완료를 뜻하지 않습니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>담당</th>
+<th>맡을 일</th>
+<th>다른 담당에게 전달할 것</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Data</td>
+<td>영상·정답·평가 입력 준비</td>
+<td>AI에게 영상과 정답 파일</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>차량 판단·실물 보드·출력</td>
+<td>보드 환경 정보, SDK에 전달할 상태</td>
+</tr>
+<tr>
+<td>백엔드</td>
+<td>장치 SDK·가상 장치·서버·저장</td>
+<td>AI에게 SDK, 프론트에게 API·상태</td>
+</tr>
+<tr>
+<td>프론트</td>
+<td>관리자 화면</td>
+<td>API 요청, 상태·결과를 구분하는 화면</td>
+</tr>
+</tbody></table></div>
+<p>C4의 컨테이너는 앱 또는 저장소를 뜻하며 Docker 컨테이너와는 다릅니다. 사진 저장·장치 로컬 저장 같은 후속 세부는 이 그림에서 생략했습니다. 필요할 때 <a href="diagrams/01-context.svg">사용자 관계 그림</a>이나 <a href="backend.html">서버 내부 설명</a>을 확인합니다.</p>
+<h2>3. 메시지 한 건은 어떻게 처리되나요?</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>순서</th>
+<th>처리</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>가상 장치가 기존 계약 형식으로 사건 메시지를 발행합니다.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>MQTT 브로커가 구독 중인 백엔드로 전달합니다.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>백엔드가 메시지를 검증하고, 중복·순서를 확인해 DB에 저장합니다.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>DB 커밋 후</strong> 장치에 저장 결과를 회신합니다. 브로커의 수신 확인과는 다릅니다.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>조회 API로 해당 구역의 상태를 확인합니다. 화면 자동 갱신은 이후에 붙입니다.</td>
+</tr>
+</tbody></table></div>
+<p>같은 메시지가 두 번 와도 이력을 중복 생성하지 않고, 오래된 메시지가 뒤늦게 와도 현재 상태를 되돌리지 않아야 합니다. 구현 순서와 시험은 <a href="first-slice.html">첫 기능 작업표</a>에 있습니다.</p>
+<h2>4. 지금 유지할 결정은 무엇인가요?</h2>
+<ul>
+<li><strong>백엔드는 Kotlin + Spring Boot 서버 하나로 만듭니다.</strong> 수신·업무 처리·저장·조회는 코드 안에서 책임을 나눕니다.</li>
+<li><strong>실물과 가상 장치는 같은 계약을 사용합니다.</strong> 필드·API를 새로 축약하지 않고 <a href="contracts.html">기존 계약</a>을 따릅니다.</li>
+<li><strong>서버가 정차 여부를 다시 판단하지 않습니다.</strong> AI의 판단과 장치 제어는 현장 보드가 담당합니다.</li>
+<li><strong>문서와 코드를 한 GitHub 저장소에서 관리하는 것을 기본안으로 합니다.</strong> 변경은 브랜치와 PR로 확인합니다. 원격 저장소는 아직 만들지 않았습니다.</li>
+</ul>
+<h2>5. 각자 어디서 시작하고, 무엇이 남았나요?</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>담당</th>
+<th>바로 할 일</th>
+<th>아직 확인할 것</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>백엔드</td>
+<td>골격 실행 확인 → 가상 사건 수신·저장·조회</td>
+<td>첫 빌드 결과, 개발 DB 적용</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>보드 환경 조사·샘플 영상 추론</td>
+<td>실제 OS·런타임·SDK 언어와 결합 방식</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>소량 영상과 정답 작성</td>
+<td>촬영 장소·카메라·자료 확보 조건</td>
+</tr>
+<tr>
+<td>프론트</td>
+<td>기존 응답 예제로 상태 화면</td>
+<td>실제 API 연결은 백엔드 첫 기능 이후</td>
+</tr>
+</tbody></table></div>
+<p>보드 미결정 사항 때문에 서버·모의 화면 개발을 기다릴 필요는 없습니다. 사고·가림·재진입 등 정밀 동작은 <a href="../reference/v1.43/START_HERE.md">v1.43</a>에 남겨 두고 해당 기능을 구현할 때 확인합니다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>
