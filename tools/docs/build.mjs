@@ -8,7 +8,8 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const docs = path.join(root, 'docs');
 const viz = await instance();
 const diagramDir = path.join(docs, 'diagrams');
-for (const file of (await readdir(diagramDir)).filter(f => f.endsWith('.dot')).sort()) {
+const diagrams = (await readdir(diagramDir)).filter(f => f.endsWith('.dot')).sort();
+for (const file of diagrams) {
   const dot = await readFile(path.join(diagramDir, file), 'utf8');
   const svg = viz.renderString(dot, { format: 'svg', engine: 'dot' });
   await writeFile(path.join(diagramDir, file.replace(/\.dot$/, '.svg')), svg);
@@ -57,4 +58,4 @@ for (const [source, target] of pages) {
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>`;
   await writeFile(path.join(docs, target), doc);
 }
-console.log(`C4 SVG 3개와 HTML ${pages.size}개 생성 완료. 제품 계약은 수정하지 않았습니다.`);
+console.log(`구조 그림 SVG ${diagrams.length}개와 HTML ${pages.size}개 생성 완료. 제품 계약은 수정하지 않았습니다.`);

@@ -61,7 +61,7 @@ for name, expected in baseline['sha256'].items():
         errors.append(f'v1.43 원본 변경: {name}')
     counts['baseline_files'] += 1
 
-for name in ('01-context','02-containers','03-components'):
+for name in ('00-overview','01-context','02-containers','03-components'):
     for ext in ('dot','svg'):
         if not (ROOT/'docs/diagrams'/f'{name}.{ext}').is_file():
             errors.append(f'C4 원본/생성물 누락: {name}.{ext}')

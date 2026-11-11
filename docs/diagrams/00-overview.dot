@@ -1,0 +1,16 @@
+digraph Overview {
+  graph [rankdir=LR, bgcolor="#ffffff", pad="0.3", nodesep="0.45", ranksep="0.65", fontname="Apple SD Gothic Neo", fontsize=14];
+  node [shape=box, style="rounded,filled", fontname="Apple SD Gothic Neo", fontsize=16, margin="0.25,0.2", color="#b7cbd7", fillcolor="#f0f5f8", fontcolor="#19354a", width=2.5];
+  edge [fontname="Apple SD Gothic Neo", fontsize=12, color="#55798d", fontcolor="#405e70", arrowsize=0.7];
+  board [label="현장 보드 · QCS610\n카메라 영상 분석·정차 판단", fillcolor="#e0f0f7", color="#3784a3"];
+  output [label="LED · 스피커\n운전자에게 이동 안내", fillcolor="#e0f0f7", color="#3784a3"];
+  server [label="백엔드 · Spring Boot\n상태·이력 관리", fillcolor="#e8edf9", color="#6d84b5"];
+  db [shape=cylinder, label="PostgreSQL\n사건·상태 저장", fillcolor="#e8edf9", color="#6d84b5"];
+  web [label="관리자 웹\n현황 확인·제어 요청", fillcolor="#fff1db", color="#b08b48"];
+  { rank=same; board; output; }
+  { rank=same; server; db; }
+  board -> output [label="안내·종료"];
+  board -> server [label="사건·상태 / 명령\nMQTT · Mosquitto 중계", dir=both];
+  server -> db [label="저장·조회"];
+  server -> web [label="조회·제어 / 실시간 갱신\nREST · SSE", dir=both];
+}
