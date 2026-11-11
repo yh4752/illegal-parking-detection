@@ -22,12 +22,14 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <li>기동 골격과 로컬 인프라 설정부터 만들고 첫 업무 기능은 별도 작업으로 수행한다. 빈 업무 클래스는 만들지 않는다.</li>
 <li>C4 L1/L2/L3는 목표 구조, 상태표는 실제 구현 범위를 설명한다. 코드 수준 클래스도는 필요할 때 작성한다.</li>
 <li>초기에는 arc42 12항목을 짧게 채웠으나, 2026-11-11 검토 후 필요한 목표·경계·구성·흐름·결정·막힌 항목만 선택했다. 팀 본문은 다섯 질문과 C4 L2 한 장으로 정리하고 L3는 백엔드 문서로 분리한다. 원격 배포·공통 설계·품질 트리·용어집을 별도 장으로 새로 채우지 않는다.</li>
-<li>JDK 17, Spring Boot 3.5.16, Kotlin 1.9.25, Gradle 8.14.3을 개발 시작 버전으로 고정한다. Boot 3.5 공식 호환 범위와 BOM의 Kotlin 버전을 따른다. 기존 설계의 라이브러리 계열을 유지하며 최신 메이저로 바꾸는 작업을 이번 범위에 넣지 않는다.</li>
+<li>JDK 17, Spring Boot 3.5.16, Kotlin 2.1.21, Gradle 8.12.1을 개발 시작 버전으로 고정한다. Boot 3.5 요구 사항과 실제 의존성 해석 결과, Kotlin의 Gradle 호환 범위를 함께 확인한다. 기존 설계의 라이브러리 계열을 유지하며 최신 메이저로 바꾸는 작업을 이번 범위에 넣지 않는다.</li>
 <li>로컬 DB·브로커는 루프백에만 노출한다. 평문·익명 MQTT 개발 설정과 운영 TLS·ACL 설정을 구분한다.</li>
 </ol>
 <h2>결과와 비용</h2>
 <p>보드 준비 전에 서버 개발을 진행할 수 있고, 가상 장치는 이후 재현 도구로 유지된다. 반면 골격 기동만으로 MQTT/DB 연동이 되지는 않는다. 첫 기능에서 의존성·마이그레이션·인증 개발 설정·실제 통합 시험을 추가해야 한다. 버전 고정이 보안·장기 지원을 보장하지 않으므로 배포 전 지원 상태와 패치를 검토한다.</p>
 <h2>재검토 조건</h2>
 <p>실제 모듈 경계가 반복적으로 충돌하거나, 독립 배포가 필요한 기능이 생기거나, 선택 버전의 지원·호환 문제가 확인되면 변경 ADR을 작성한다. 추측만으로 시스템을 분할하지 않는다.</p>
+<h2>첫 CI에서 확인한 버전 수정</h2>
+<p>2026-11-11 첫 <a href="https://github.com/yh4752/parking-system/actions/runs/42994869519">CI 실행</a>에서 Kotlin 1.9.25 컴파일러와 실제로 해석된 kotlin-reflect/stdlib 2.1.21의 메타데이터가 충돌했다. 컴파일러를 2.1.21로 맞추고, <a href="https://kotlinlang.org/docs/gradle-configure-project.html">Kotlin 공식 호환 표</a>에 명시된 Gradle 8.12.1로 Wrapper를 정렬했다. 메타데이터 검사를 끄거나 테스트를 생략하지 않는다. Wrapper JAR와 배포 ZIP의 SHA-256은 <a href="https://gradle.org/release-checksums/">공식 체크섬</a>과 대조했다. 최종 실행 결과는 status.md에 기록한다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

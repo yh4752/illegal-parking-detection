@@ -65,3 +65,5 @@ Markdown·DOT 원본을 고친 뒤 생성된 HTML·SVG도 커밋합니다. `git 
 | 문서 검사에서 원본 해시 불일치 | reference 파일 변경 여부. 검사를 끄거나 해시만 재작성하지 않음 |
 
 AI 도구를 쓰는 경우 [루트 AGENTS.md](AGENTS.md)와 작업 경로의 추가 지침을 읽게 합니다. 개인에게 설치된 스킬·플러그인이 없어도 이 저장소의 문서와 명령으로 개발할 수 있어야 합니다.
+
+README·협업 절차·AI 지침을 나눈 이유는 [ADR-002](docs/adr/002-repository-onboarding.md)에 기록했습니다.

@@ -14,4 +14,4 @@ Kotlin + Spring Boot 애플리케이션 하나다. 현재 구현은 `ParkingAppl
 
 Actuator health의 UP는 애플리케이션 기동만 뜻한다. DB·브로커 연결 및 제품 API는 아직 없다. 모든 제품 경로는 차단되어 있으며 기존 세션·CSRF·권한은 이후 구현한다.
 
-선택 버전: Spring Boot 3.5.16, Kotlin 1.9.25, Gradle 8.14.3. 다음 작업에서 Spring Integration MQTT·JDBC·Flyway·PostgreSQL 의존성을 같은 Boot BOM 기준으로 추가하고 실제 호환성을 검증한다.
+선택 버전: Spring Boot 3.5.16, Kotlin 2.1.21, Gradle 8.12.1. 다음 작업에서 Spring Integration MQTT·JDBC·Flyway·PostgreSQL 의존성을 같은 Boot BOM 기준으로 추가하고 실제 호환성을 검증한다.

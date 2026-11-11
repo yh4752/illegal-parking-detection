@@ -5,11 +5,11 @@
 | 항목 | 작성 여부 | 실행 확인 |
 |---|---|---|
 | 팀 요약·C4·첫 작업 안내 | 작성 | 생성·참조 검증 기록은 validation/report.json |
-| Spring Boot 엔트리포인트·설정 | 작성 | Java 네트워크 제한으로 빌드·기동 미완료 |
+| Spring Boot 엔트리포인트·설정 | 작성 | 첫 GitHub CI에서 Kotlin 버전 충돌 확인. 수정 후 재검증 중 |
 | 기동 확인만 공개하는 접근 제한 | 작성 | 테스트 소스 작성, 실행 미완료 |
-| Gradle Wrapper·버전 고정 | 작성 | 최초 다운로드가 네트워크 제한으로 실패 |
+| Gradle Wrapper·버전 고정 | 작성 | GitHub CI 다운로드 성공. Kotlin 2.1.21·Gradle 8.12.1로 호환 버전 정렬 |
 | PostgreSQL·Mosquitto Compose | 작성 | 설정 검증과 실제 기동을 분리. Docker 기동 미수행 |
-| PR 양식·GitHub Actions 검사 설정 | 작성 | 원격 저장소 연결·CI 실행은 아직 안 함 |
+| PR 양식·GitHub Actions 검사 설정 | 작성 | 개인 비공개 yh4752/parking-system 생성·push 완료. 첫 CI 문서 검사 통과, 백엔드 버전 충돌 수정 후 재검증 중 |
 | MQTT 수신·DB 저장·제품 조회 API | 미구현 | 미수행 |
 | 가상 장치 실행 코드 | 미구현 | 미수행 |
 | React·SSE·명령·사진·로그인 | 미구현 | 미수행 |
