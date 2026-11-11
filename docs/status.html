@@ -10,7 +10,8 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 시작 자료 v0.2 · 업무 기능 미구현</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="first-slice.html">첫 구현</a><a class="active" href="status.html">현재 상태</a><a href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선은 목표 설계입니다. 현재는 기동 코드·설정·문서만 작성했고 MQTT 수신·DB 저장·조회 기능은 다음에 구현합니다.</p></aside><article class="page"><h1>현재 구현 범위</h1>
-<p>2026-11-11 · 이 파일이 이번 개발 시작점의 현황입니다. reference/v1.43의 상태표는 설계 작성 당시 기록입니다.</p>
+<p>2026-11-11 · 이 파일이 현재 개발 저장소의 현황입니다. reference/v1.43의 상태표는 설계 작성 당시 기록입니다.</p>
+<p>개인 비공개 저장소 <a href="https://github.com/yh4752/parking-system">yh4752/parking-system</a>에 코드·설계·협업 지침을 올렸습니다. 팀원 초대와 브랜치 보호는 별도 설정입니다.</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
@@ -20,34 +21,34 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tr>
 </thead>
 <tbody><tr>
-<td>팀 요약·C4·첫 작업 안내</td>
-<td>작성</td>
-<td>생성·참조 검증 기록은 validation/report.json</td>
+<td>README·협업 절차·AI 지침·C4·첫 작업 안내</td>
+<td>작성·독립 검토 반영</td>
+<td>새 클론에서 문서 생성·링크·SVG·원본 보존 검사 통과</td>
 </tr>
 <tr>
 <td>Spring Boot 엔트리포인트·설정</td>
 <td>작성</td>
-<td>첫 GitHub CI에서 Kotlin 버전 충돌 확인. 수정 후 재검증 중</td>
+<td>GitHub CI의 test·bootJar 통과. 로컬 bootRun의 실제 HTTP 접속은 별도 미수행</td>
 </tr>
 <tr>
 <td>기동 확인만 공개하는 접근 제한</td>
 <td>작성</td>
-<td>테스트 소스 작성, 실행 미완료</td>
+<td>애플리케이션 컨텍스트를 사용하는 MockMvc 테스트 통과: health 공개, 제품·관리 상세 경로 차단</td>
 </tr>
 <tr>
 <td>Gradle Wrapper·버전 고정</td>
 <td>작성</td>
-<td>GitHub CI 다운로드 성공. Kotlin 2.1.21·Gradle 8.12.1로 호환 버전 정렬</td>
+<td>Kotlin 2.1.21·Gradle 8.12.1로 수정 후 CI 다운로드·컴파일·패키징 통과</td>
 </tr>
 <tr>
 <td>PostgreSQL·Mosquitto Compose</td>
 <td>작성</td>
-<td>설정 검증과 실제 기동을 분리. Docker 기동 미수행</td>
+<td>로컬·CI 설정 검사 통과. 컨테이너 기동·DB 연결은 미수행</td>
 </tr>
 <tr>
-<td>PR 양식·GitHub Actions 검사 설정</td>
+<td>PR 양식·GitHub Actions</td>
 <td>작성</td>
-<td>개인 비공개 yh4752/parking-system 생성·push 완료. 첫 CI 문서 검사 통과, 백엔드 버전 충돌 수정 후 재검증 중</td>
+<td>개인 저장소 생성·push 완료. 문서/설정·백엔드 두 작업 통과</td>
 </tr>
 <tr>
 <td>MQTT 수신·DB 저장·제품 조회 API</td>
@@ -70,6 +71,12 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <td>언어·장소·카메라 등 확인 필요</td>
 </tr>
 </tbody></table></div>
-<p>‘작성’과 ‘실행 통과’는 다릅니다. 제품 기능이 완성됐다고 해석하지 마세요. 다음 구현은 <a href="first-slice.html">첫 기능 작업표</a>부터 시작합니다.</p>
+<h2>확인 근거</h2>
+<ul>
+<li><a href="https://github.com/yh4752/parking-system/actions/runs/42995478170">성공한 CI</a>: 커밋 <code>b22f3b88fb92f2be6aba02c93b010ac9aae1a1dd</code>, JDK 17, <code>./gradlew test bootJar --no-daemon</code>와 문서·Compose 검사.</li>
+<li><a href="../validation/onboarding-2026-11-11.json">이번 검증 기록</a>: 새 클론 재현, 독립 검토, 첫 CI 실패 원인과 수정, 미검증 범위.</li>
+<li><a href="adr/001-start-small.html">첫 CI 실패와 버전 수정 이유</a>: Kotlin 컴파일러·라이브러리 메타데이터 충돌을 수정했다. 이전 validation/report.json·bootstrap-v0.1.json은 당시 기록으로 보존한다.</li>
+</ul>
+<p>기동 테스트 통과는 제품 기능 완성을 뜻하지 않습니다. 다음 구현은 <a href="first-slice.html">첫 기능 작업표</a>의 가상 사건 수신 → 저장 → 조회입니다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

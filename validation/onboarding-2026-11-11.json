@@ -1,0 +1,67 @@
+{
+  "checked_at": "2026-11-11T09:31:19.470993+00:00",
+  "scope": "개인 저장소·협업 및 AI 온보딩·실제 빌드 검증",
+  "repository": {
+    "url": "https://github.com/yh4752/parking-system",
+    "owner": "yh4752",
+    "private": true
+  },
+  "tested_commit": "b22f3b88fb92f2be6aba02c93b010ac9aae1a1dd",
+  "ci": {
+    "url": "https://github.com/yh4752/parking-system/actions/runs/42995478170",
+    "conclusion": "success",
+    "jobs": [
+      "Documents and local configuration",
+      "Backend bootstrap tests and build"
+    ]
+  },
+  "checks": [
+    {
+      "name": "별도 설계·최종 문서 검토",
+      "result": "PASS",
+      "resolution": "보존 계약 변경 안내 충돌 수정. 최종 중요 지적 없음"
+    },
+    {
+      "name": "별도 빌드 수정 검토",
+      "result": "PASS",
+      "resolution": "Kotlin·Gradle·Wrapper·문서 정렬, 중요 지적 없음"
+    },
+    {
+      "name": "새 클론 문서 검사",
+      "result": "PASS",
+      "detail": "npm ci, 문서 재생성, 상대 링크·SVG 검사, reference 127개 해시, 생성물 git diff 없음. 기본 npm 캐시 쓰기 제한은 임시 캐시로 재실행"
+    },
+    {
+      "name": "Compose config",
+      "result": "PASS",
+      "detail": "기동 시험 아님"
+    },
+    {
+      "name": "Gradle test bootJar",
+      "result": "PASS",
+      "environment": "GitHub Actions ubuntu-24.04, Temurin17"
+    },
+    {
+      "name": "Wrapper JAR SHA256",
+      "result": "PASS",
+      "sha256": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046"
+    }
+  ],
+  "first_ci_failure": {
+    "url": "https://github.com/yh4752/parking-system/actions/runs/42994869519",
+    "reason": "Kotlin1.9.25 compiler vs resolved reflect/stdlib2.1.21 metadata",
+    "fix": "Kotlin2.1.21 and Gradle8.12.1; no disabled checks"
+  },
+  "not_verified": [
+    "로컬 bootRun 실제 HTTP 접속",
+    "DB·브로커 컨테이너 기동",
+    "MQTT·DB·조회 통합",
+    "실물 보드·실차"
+  ],
+  "not_performed": [
+    "협업자 초대",
+    "브랜치 보호 설정",
+    "실서비스 배포"
+  ],
+  "note": "이 기록의 tested_commit을 기준으로 한다. 이후 문서 기록 커밋의 CI 결과는 Actions에서 별도 확인한다."
+}
