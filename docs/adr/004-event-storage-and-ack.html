@@ -8,8 +8,8 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 @media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
 </style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
-<nav aria-label="문서 메뉴"><a href="../index.html">팀 요약</a><a href="../backend.html">서버 구조</a><a href="../first-slice.html">첫 구현</a><a href="../status.html">현재 상태</a><a href="../review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선만으로 구현 완료를 판단하지 않습니다. 사건 저장·커밋 후 ACK의 코드와 DB 시험을 마쳤으며, 정상 1건의 실제 MQTT 왕복도 확인했습니다. 중복 재전송의 DUPLICATE 수신도 확인했습니다. SQL로 원문 1건도 확인했습니다. 추가 시험·조회 API는 다음 단계입니다. 자세한 근거는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>ADR-004 사건 저장과 커밋 후 ACK</h1>
+<nav aria-label="문서 메뉴"><a href="../index.html">팀 요약</a><a href="../backend.html">서버 구조</a><a href="../public-demo.html">웹 인계 계획</a><a href="../status.html">현재 상태</a><a href="../review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 다음 목표는 로그인·조회·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>ADR-004 사건 저장과 커밋 후 ACK</h1>
 <p>2026-11-13 · 채택 · v1.43 및 ADR-003의 저장 단계 구현</p>
 <h2>결정</h2>
 <p>별도 <code>mqtt-ingest-local</code> 프로필에서 사건 저장을 활성화한다. 기존 검증 전용 프로필은 유지한다. 토픽·wire DTO·ACK 필드와 schema_version=2는 바꾸지 않는다. <code>inbound_quarantine</code>을 V2로 추가하며 적용된 V1과 보존본은 그대로 둔다.</p>

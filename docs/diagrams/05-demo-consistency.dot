@@ -1,0 +1,24 @@
+digraph Consistency {
+  graph [rankdir=TB, bgcolor="transparent", pad="0.3", nodesep="0.35", ranksep="0.45", fontname="Apple SD Gothic Neo", label="저장과 전달의 경계 · 목표 동작\n응용 ACK는 사건만 / 화면 갱신은 전체 ZoneView", labelloc=t, fontsize=18, fontcolor="#19354a"];
+  node [shape=box, style="rounded,filled", fontname="Apple SD Gothic Neo", fontsize=12, margin="0.18,0.13", color="#216582", fillcolor="#e0f0f7", fontcolor="#19354a"];
+  edge [fontname="Apple SD Gothic Neo", fontsize=10, color="#326e8a", fontcolor="#486478", arrowsize=0.7];
+  input [label="검증한 사건 / heartbeat\n또는 최신성·보관 정리 작업"];
+  subgraph cluster_tx {
+    label="DB 트랜잭션 · 같은 구역 잠금 / 네트워크 전송 없음"; labeljust=l; color="#b7cad6"; style=rounded;
+    lock [label="구역 → 장치 → 정렬된 사건\n중복·순서·정책·보관 검사"];
+    writes [label="해당 이력·현재 상태 갱신\n화면 값이 바뀌면 revision 증가"];
+    capture [label="그 revision의 전체 ZoneView 고정\nDB 커밋"];
+    lock -> writes -> capture;
+  }
+  ack [label="사건 ACK 전송\nSTORED / DUPLICATE / REJECTED", fillcolor="#fff0d5", color="#af7c2f"];
+  sse [label="바뀐 구역의 SSE 전송\n실패 시 최신값으로 다시 수렴"];
+  rest [label="REST 현재 상태 재조회\nSSE 연결·재연결 시"];
+  reducer [label="브라우저 공통 reducer\nrevision=0도 최초 수용\n그 뒤 더 큰 revision만 반영"];
+  rollback [label="롤백 / 결과 불명\n성공 ACK·새 SSE 없음", fillcolor="#f9e8e4", color="#b37666"];
+  input -> lock;
+  capture -> ack [label="커밋 성공 · 사건만"];
+  capture -> sse [label="커밋 성공 · 값 변경 시"];
+  capture -> rollback [label="실패", style=dashed];
+  sse -> reducer;
+  rest -> reducer;
+}

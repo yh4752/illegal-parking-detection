@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-13",
+  "scope": "documentation and design contract only",
+  "status": "PASS_DESIGN_CHECKS_ONLY",
+  "baseline_commit": "6c6c172318f8e00dee9e2701b4e91616f5115957",
+  "checks": {
+    "overlay_base_sha256": "PASS",
+    "json_patch_targets": "PASS",
+    "local_contract_refs_resolve": "PASS",
+    "mqtt_schemas_and_error_enum_unchanged": "PASS",
+    "successful_rest_response_schemas_unchanged": "PASS",
+    "rest_error_examples_shape_and_types": "PASS",
+    "workplan_dag_and_20_acceptance_links": "PASS",
+    "documentation_build": "PASS",
+    "structure_links_svg_and_baseline": "PASS",
+    "git_diff_whitespace": "PASS"
+  },
+  "notes": [
+    "Patch applied to in-memory copies only; no runtime contract or application source changed",
+    "Example fields and types checked explicitly; no general JSON Schema engine was available in the default Python",
+    "All M0-M6 and PD01-PD20 feature acceptance tests remain planned; this is not an implementation test report"
+  ],
+  "functional_tests": "not_run_design_only",
+  "external_deployment": "not_performed",
+  "reference_preservation": "127 baseline files verified unchanged",
+  "structure_check": {
+    "status": "PASS",
+    "scope": "문서 구조·링크·SVG·v1.43 원본 보존",
+    "counts": {
+      "markdown": 34,
+      "html": 17,
+      "svg": 6,
+      "local_links": 383,
+      "baseline_files": 127
+    },
+    "errors": []
+  },
+  "commands_executed": [
+    "npm --prefix tools/docs run build",
+    "python3 tools/check_structure.py",
+    "git diff --check"
+  ],
+  "limitations": [
+    "No runtime or deployment implementation in this change",
+    "Functional acceptance checks are planned, not passed",
+    "Quick Look visual preview was unavailable in the sandbox; SVG generation and XML structure checked"
+  ]
+}
