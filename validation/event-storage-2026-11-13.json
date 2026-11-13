@@ -1,0 +1,451 @@
+{
+  "date": "2026-11-13",
+  "status": "PASS",
+  "scope": "Event ingestion persistence and post-commit application ACK boundary",
+  "design": [
+    "reference/v1.43",
+    "docs/design/event-ingest-v1.md",
+    "docs/adr/004-event-storage-and-ack.md"
+  ],
+  "wire_contract_changed": false,
+  "standard_command": "cd backend && ./gradlew test databaseTest bootJar",
+  "actual_environment": {
+    "java": "17",
+    "gradle": "8.12.1",
+    "postgresql": "17.11 at local 15432",
+    "gradle_user_home": "/tmp/parking-gradle-validation",
+    "read_only_dependency_cache": "existing user Gradle cache",
+    "temporary_dependency_repository": "/tmp/parking-validation-maven (networknt, ethlo.time, JCS Maven Central artifacts)",
+    "test_agent": "Mockito loaded as JVM startup javaagent instead of dynamic attach",
+    "flags": [
+      "--no-daemon",
+      "--no-watch-fs",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-I /tmp/parking-validation.init.gradle"
+    ],
+    "reason": "Writable temporary Gradle cache and startup agent work around host sandbox limitations; project default command unchanged"
+  },
+  "results": {
+    "test": {
+      "totals": {
+        "tests": 126,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "suites": [
+        {
+          "suite": "kr.ac.sejong.parking.BootstrapHttpTest",
+          "timestamp_utc": "2026-11-13T07:29:39",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "미구현 제품 API를 공개하지 않는다()",
+            "기본 실행은 MQTT 학습 연결을 활성화하지 않는다()",
+            "관리 상세 정보를 공개하지 않는다()",
+            "기동 상태만 공개한다()"
+          ]
+        },
+        {
+          "suite": "kr.ac.sejong.parking.configuration.MqttLearningMessageHandlerTest",
+          "timestamp_utc": "2026-11-13T07:29:40",
+          "tests": 27,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "JSON 문법은 맞지만 객체가 아닌 입력을 구분한다(CapturedOutput)",
+            "JSON 항목을 읽어 구분해서 출력한다(CapturedOutput)",
+            "[1] value=\"\"",
+            "[2] value=10",
+            "[3] value=null",
+            "[4] value=[]",
+            "[1] sequence=-1",
+            "[2] sequence=\"10\"",
+            "[3] sequence=true",
+            "[4] sequence=null",
+            "[5] sequence=1.5",
+            "[6] sequence=9007199254740992",
+            "[7] sequence=9007199254740991.1",
+            "[8] sequence=999999999999999999999999999999999999",
+            "파싱만으로 필수 필드 검증까지 통과한 것은 아니다(CapturedOutput)",
+            "문법 오류 뒤에도 다음 정상 메시지를 처리한다(CapturedOutput)",
+            "ID 길이는 유니코드 문자 수로 경계를 검사한다(CapturedOutput)",
+            "[1] sequence=0",
+            "[2] sequence=10",
+            "[3] sequence=1.0",
+            "[4] sequence=9007199254740991",
+            "데이터 검증 실패 이후 정상 메시지를 계속 처리한다(CapturedOutput)",
+            "[1] field=device_id",
+            "[2] field=zone_id",
+            "[3] field=device_seq",
+            "512자 이후의 필드도 원문에서 파싱한다(CapturedOutput)",
+            "빈 입력과 뒤에 붙은 추가 JSON 값을 거절한다(CapturedOutput)"
+          ]
+        },
+        {
+          "suite": "kr.ac.sejong.parking.device.EventMessageSemanticsTest",
+          "timestamp_utc": "2026-11-13T07:29:40",
+          "tests": 56,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "운영 중지와 현재 사건 표시의 모순을 거부하되 중단 중 출력은 허용한다()",
+            "[1] eventType=EVENT_CLOSED_EXIT",
+            "[2] eventType=EVENT_CLOSED_MANUAL",
+            "의미 모순은 등록 DB 조회 전에 거부하며 뒤의 정상 입력은 그대로 검사한다()",
+            "[1] id=E09",
+            "[2] id=E10",
+            "순번 점프와 부팅 세대 변경은 메시지 자체의 모순이 아니다()",
+            "[1] id=E01, field=incident_state, value=\"HELD\"",
+            "[2] id=E01, field=event_policy_version, value=4",
+            "[3] id=E01, field=guidance_count, value=2",
+            "[4] id=E01, field=continuous_stop_ms, value=0",
+            "[5] id=E01, field=body_type, value=\"BUS\"",
+            "[6] id=E01, field=use_type, value=\"TAXI\"",
+            "[7] id=E23, field=overdue, value=false",
+            "활성 중지는 재개 확인 대기보다 우선하고 해제되면 대기 모드로 남는다()",
+            "현재 정책과 사건이 없어도 과거 사건 보고는 허용한다()",
+            "과거 요약의 미해소 상태 모순도 현재 snapshot과 별도로 거부한다()",
+            "정수와 소수 표기가 다른 동일 수치는 모순이 아니다()",
+            "[1] state=OBSERVING",
+            "[2] state=STOP_CONFIRMED",
+            "[3] state=GUIDING",
+            "[4] state=GUIDED",
+            "[5] state=LONG_UNRESOLVED",
+            "[1] field=camera_health, value=SUSPECT",
+            "[2] field=camera_health, value=BLOCKED",
+            "[3] field=camera_health, value=NO_FRAME",
+            "[4] field=camera_health, value=RECONFIGURE",
+            "[5] field=output_status, value=FAILED",
+            "[6] field=output_status, value=UNKNOWN",
+            "E01: 원본 안내 완료 예제",
+            "E02: 원본 수동 종료 예제",
+            "E03: 원본 사진 상태 예제",
+            "E04: 현재 snapshot과 다른 과거 사건",
+            "E05: 안내 이력을 유지한 정차 후보 초기화",
+            "E06: GUIDING 선저장 뒤 실제 출력 시작 전",
+            "E07: 10분 도달 때 이미 재생 중인 출력 유지",
+            "E08: 시간 정책 적용 대기",
+            "E09: 시각 불신이어도 과거 started_at 보존",
+            "E10: 시각 신뢰 회복 뒤 정상 5초 대기",
+            "E11: 시각 불신인데 정차시간을 유지",
+            "E12: 시각 불신인데 사유 코드 누락",
+            "E13: ACTIVE 중지인데 AUTO",
+            "E14: ACK_REQUIRED 중지인데 AUTO",
+            "E15: 활성 정책 없이 현재 사건 표시",
+            "E16: received보다 큰 active 정책",
+            "E17: GUIDED인데 안내 시도 0회",
+            "E18: LONG_UNRESOLVED인데 overdue=false",
+            "E19: overdue인데 GUIDED 우선 표시",
+            "E20: 수동 종료 요약인데 이탈 종료 event_type",
+            "E21: 동일 사건의 요약 횟수 모순",
+            "E22: 서로 다른 사건의 횟수는 달라도 됨",
+            "E23: 보류 우선 상태에서 미해소 사실 유지",
+            "E24: 현재 카메라 이상인데 GUIDED로 표시",
+            "E25: 같은 pause_id를 중복 포함",
+            "E26: 미래 예약 중지만 있으면 현재 mode는 AUTO",
+            "적용한 정책이 있으면 받은 정책이 필요하되 사건 버전은 다를 수 있다()"
+          ]
+        },
+        {
+          "suite": "kr.ac.sejong.parking.device.EventMessageValidatorTest",
+          "timestamp_utc": "2026-11-13T07:29:40",
+          "tests": 31,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "사건과 사진의 참조 ID를 검사하되 현재 사건과 과거 사건을 강제로 같게 하지 않는다()",
+            "계약 위반 메시지는 DB 조회 전에 거부한다()",
+            "64KiB 경계는 허용하고 넘으면 거부한다()",
+            "[1] name=guidance_complete",
+            "[2] name=manual_close_event",
+            "[3] name=automatic_photo_available",
+            "알 수 없는 필드와 지원하지 않는 버전을 거부한다()",
+            "JSON Schema의 정수는 소수 표기라도 수학적으로 정수이면 허용한다()",
+            "envelope와 snapshot의 순번 및 부팅 ID를 비교한다()",
+            "[1] text={",
+            "[2] text=",
+            "[3] text=[]",
+            "[4] text={} {}",
+            "[5] text={\"x\":NaN}",
+            "[6] text={\"x\":Infinity}",
+            "[1] sequence=-1",
+            "[2] sequence=9007199254740992",
+            "[3] sequence=9007199254740991.1",
+            "[4] sequence=true",
+            "[5] sequence=null",
+            "[6] sequence=\"10\"",
+            "[1] field=device_id",
+            "[2] field=event_id",
+            "[3] field=image_update",
+            "[4] field=snapshot",
+            "[5] field=occurred_at",
+            "중복 키와 UTF8이 아닌 바이트와 크기 초과를 거부한다()",
+            "토픽 장치와 본문 장치 및 DB 등록을 구분한다()",
+            "[1] timestamp=2026-02-30T00:00:00Z",
+            "[2] timestamp=2026-11-03T12:00:00+09:00",
+            "사건 없음과 시각 불신 및 종료 이유 조합을 검사한다()"
+          ]
+        },
+        {
+          "suite": "kr.ac.sejong.parking.device.EventValidationMessageHandlerTest",
+          "timestamp_utc": "2026-11-13T07:29:40",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "의미 모순의 규칙 ID를 기록하고 다음 정상 메시지 수신을 계속한다(CapturedOutput)",
+            "DB 장애는 입력 오류와 구별하고 회복 뒤 다음 메시지를 검사한다(CapturedOutput)",
+            "오류 뒤 정상 메시지를 계속 검사하고 저장했다고 로그하지 않는다(CapturedOutput)",
+            "QoS0와 retained 사건은 검증 통과로 처리하지 않는다(CapturedOutput)"
+          ]
+        },
+        {
+          "suite": "kr.ac.sejong.parking.device.application.EventCanonicalizerTest",
+          "timestamp_utc": "2026-11-13T07:29:40",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "짝 없는 유니코드 surrogate를 거부한다()",
+            "객체 순서 공백과 동일한 수 표기는 동일성에 영향이 없다()",
+            "반올림으로 정상 정수와 충돌할 수 있는 입력을 거부한다()",
+            "배열 순서나 값이 달라지면 다른 hash다()"
+          ]
+        }
+      ]
+    },
+    "databaseTest": {
+      "totals": {
+        "tests": 30,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "suites": [
+        {
+          "suite": "kr.ac.sejong.parking.storage.DatabaseMigrationTest",
+          "timestamp_utc": "2026-11-13T07:29:43",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "같은 장치와 메시지 ID의 수신 기록을 중복 저장하지 못한다()",
+            "등록 조회는 장치 구역 활성 여부를 모두 검사한다()",
+            "빈 스키마에 전체 테이블을 생성하고 다시 적용해도 변경하지 않는다()",
+            "장치가 속하지 않은 구역의 현재 상태를 만들지 못한다()",
+            "수신 이력 없이 원문만 저장하지 못한다()",
+            "설계의 트랜잭션 격리 수준과 제한 시간을 사용한다()",
+            "처음 등록한 구역은 미확인 상태를 유지한다()"
+          ]
+        },
+        {
+          "suite": "kr.ac.sejong.parking.storage.EventIngestionDatabaseTest",
+          "timestamp_utc": "2026-11-13T07:29:44",
+          "tests": 23,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "cases": [
+            "ACK 전송 실패는 커밋을 취소하지 않으며 재전송은 DUPLICATE다()",
+            "오류 격리 커밋이 실패해도 거부 ACK를 먼저 보내지 않는다()",
+            "같은 사건의 모순과 지원하지 않는 버전은 별도 오류로 격리한다()",
+            "내용이 다른 동일 ID는 원래 receipt를 보존하고 충돌을 격리한다()",
+            "과거 사건 종료와 다른 현재 사건을 독립 갱신한다()",
+            "역순 메시지는 원문만 남기고 현재 상태를 되돌리지 않는다()",
+            "커밋 시점 실패는 모든 저장을 취소하고 ACK하지 않는다()",
+            "사진 메타데이터는 아직 저장 성공으로 응답하지 않는다()",
+            "snapshot만 받은 사건은 알 수 없는 시각을 null로 보존한다()",
+            "키 순서 공백 숫자 표기가 다른 동일 메시지는 한 번만 저장한다()",
+            "동시 재전송은 하나만 저장한다()",
+            "이미 거부된 메시지는 정책을 나중에 등록해도 같은 거부 결과를 재현한다()",
+            "사건 정책은 최신 보고로 바꾸지 못한다()",
+            "종료한 사건의 재개와 안내 횟수 감소는 전체 메시지를 거부한다()",
+            "최신 snapshot의 pause 전체 목록을 반영하고 빠진 항목은 해제한다()",
+            "상관 불가 토픽 불일치 비활성 장치에는 ACK가 없다()",
+            "번호 예약은 재시작에 재사용하고 소진하면 다음 범위를 먼저 확보한다()",
+            "만료 원문을 지워도 영수증과 tombstone은 중복과 부활을 막는다()",
+            "예약 파일 유실과 복사본 불일치는 새 번호를 추정하지 않고 중단한다()",
+            "DB만 이전 번호 범위로 되돌리면 재시작을 거부한다()",
+            "사용자용 등록 SQL은 원본 정책과 같고 반복해도 기존 데이터를 바꾸지 않는다()",
+            "다른 장치의 사건 ID는 덮어쓰지 않는다()",
+            "원자 저장 후 트랜잭션 밖에서 ACK를 만들며 온라인 상태를 추정하지 않는다()"
+          ]
+        }
+      ]
+    }
+  },
+  "boot_jar": "PASS",
+  "database_isolation": "Fresh it_<UUID> schema per test class, real commits, only own schema removed. Public application schema and running user server unchanged.",
+  "tested": [
+    "DB01–DB12 acceptance scenarios",
+    "Concurrent duplicate ingestion",
+    "Event ownership and immutable policy",
+    "Historical event vs current snapshot",
+    "Terminal and guidance count preservation",
+    "Pause full-list reconciliation",
+    "Schema and semantic error quarantine",
+    "Commit-time failure and quarantine commit-time failure rollback",
+    "ACK publisher exception followed by duplicate replay",
+    "30-day purge without receipt loss or terminal resurrection",
+    "Revision reservation, range exhaustion, normal restart, missing/mismatched files and DB range rollback",
+    "User-facing SQL fixture idempotence and canonical policy hash"
+  ],
+  "ack_boundary": "Real DB transaction -> MQTT message handler -> injected publisher; no broker used in these tests",
+  "not_tested": [
+    "Failure scenarios over real Mosquitto",
+    "Real board SDK and hardware",
+    "100/500-message load and sustained throughput",
+    "Multi-instance ingestion",
+    "Host-loss durability or operator restore workflow",
+    "Query API, authorization deployment, TLS/ACL",
+    "Photo side effects, heartbeat and commands"
+  ],
+  "broker_test_limitation": "Isolated Docker broker could not be started because Docker socket access was denied in agent environment. Existing user broker/server left running.",
+  "implementation_limits": {
+    "unsupported_event_type": "IMAGE_STATUS_CHANGED: no receipt / no application ACK",
+    "revision_restore": "Fail closed on detectable file/range mismatch. Same-range old DB restore not automatically detected. Operator recovery and skip-range recovery pending.",
+    "retention": "Keep minimal receipts/quarantine fingerprints/tombstones; raw payloads expire after 30 days. User-facing expired-summary filtering belongs to upcoming query API."
+  },
+  "migrations_sha256": {
+    "V1__initial_parking_schema.sql": "44c79d5ce3d9466c2e798fdeeb11e660fde898f36911f93807c579711f749877",
+    "V2__inbound_quarantine.sql": "a72bb3ee94b5c094a3dee009a629f696c7d8ec1ad60de0348f8d5e15f6018394"
+  },
+  "public_migration_applied_by_agent": false,
+  "fixes_verified": [
+    "Persisted manifest numeric-node representation normalized before comparison",
+    "Explicit timestamptz casts for PostgreSQL interval expressions",
+    "Storage tests use valid canonical event types and frozen retransmission payloads"
+  ],
+  "git_push_performed": false,
+  "documentation_checks": {
+    "build": "PASS: 4 SVG and 13 HTML",
+    "structure": "PASS: 30 Markdown, 13 HTML, 4 SVG, 280 local links",
+    "reference_preservation": "PASS: 127 original files unchanged",
+    "git_diff_check": "PASS",
+    "fixture_cli": "PASS: canonical example, all 26 frozen cases, ID and sequence overrides"
+  },
+  "user_mqtt_observation": {
+    "source": "User-supplied Spring Boot and mosquitto_sub logs",
+    "date": "2026-11-13",
+    "timezone": "Asia/Seoul",
+    "pid": 48082,
+    "ready_at": "2026-11-13T16:40:28.828+09:00",
+    "committed_log_at": "2026-11-13T16:51:42.637+09:00",
+    "ack_published_log_at": "2026-11-13T16:51:42.642+09:00",
+    "subscriber_topic": "parking/v2/devices/edge-01/acks",
+    "subscriber_payload": {
+      "schema_version": 2,
+      "device_id": "edge-01",
+      "message_id": "storage-001",
+      "status": "STORED",
+      "error_code": null,
+      "committed_at": "2026-11-13T07:51:42.638607Z"
+    },
+    "confirmed_scope": "One normal message: real MQTT ingestion, commit log, application ACK publish, subscriber receipt",
+    "duplicate_broker_test": "PASS: user supplied DUPLICATE subscriber response and direct SQL count of one event_message row for storage-001",
+    "direct_sql_inspection": {
+      "source": "User-supplied psql result",
+      "query": "SELECT COUNT(*) AS stored_rows FROM event_message WHERE device_id = 'edge-01' AND message_id = 'storage-001';",
+      "stored_rows": 1,
+      "confirmed_scope": "One stored event_message row after original STORED and identical retransmission DUPLICATE; other tables not inspected by this query"
+    },
+    "real_board": "not performed",
+    "duplicate_subscriber_payload": {
+      "schema_version": 2,
+      "device_id": "edge-01",
+      "message_id": "storage-001",
+      "status": "DUPLICATE",
+      "error_code": null,
+      "committed_at": "2026-11-13T07:54:14.508581Z"
+    },
+    "conflict_subscriber_payload": {
+      "schema_version": 2,
+      "device_id": "edge-01",
+      "message_id": "storage-001",
+      "status": "REJECTED",
+      "error_code": "MESSAGE_ID_CONFLICT",
+      "committed_at": "2026-11-13T07:57:46.952358Z"
+    },
+    "conflict_broker_test": "PASS: REJECTED/MESSAGE_ID_CONFLICT subscriber response plus user SQL confirmation of original seq=10, receipt STORED, one conflict quarantine row",
+    "conflict_sql_inspection": {
+      "source": "User-supplied psql results after MESSAGE_ID_CONFLICT response",
+      "device_id": "edge-01",
+      "message_id": "storage-001",
+      "event_message": {
+        "device_seq": 10,
+        "returned_rows": 1
+      },
+      "inbound_receipt": {
+        "outcome": "STORED",
+        "returned_rows": 1
+      },
+      "inbound_quarantine": {
+        "error_code": "MESSAGE_ID_CONFLICT",
+        "returned_rows": 1
+      },
+      "scope": "Original event sequence and receipt outcome preserved; one conflict quarantine row observed. Full payload and hash not queried."
+    },
+    "out_of_order": {
+      "source": "User-supplied Spring Boot and mosquitto_sub logs",
+      "pid": 48082,
+      "messages": [
+        {
+          "message_id": "storage-012",
+          "device_seq": 12,
+          "status": "STORED",
+          "error_code": null,
+          "server_commit_log_at": "2026-11-13T17:02:32.185+09:00",
+          "server_ack_publish_log_at": "2026-11-13T17:02:32.186+09:00",
+          "ack_committed_at": "2026-11-13T08:02:32.185887Z"
+        },
+        {
+          "message_id": "storage-011",
+          "device_seq": 11,
+          "status": "STORED",
+          "error_code": null,
+          "server_commit_log_at": "2026-11-13T17:02:38.914+09:00",
+          "server_ack_publish_log_at": "2026-11-13T17:02:38.916+09:00",
+          "ack_committed_at": "2026-11-13T08:02:38.915496Z"
+        }
+      ],
+      "confirmed_scope": "New message IDs with seq 12 then 11 both committed and acknowledged STORED over real MQTT",
+      "direct_sql_latest_state_verification": {
+        "source": "User-supplied psql results",
+        "event_message": [
+          {
+            "message_id": "storage-012",
+            "device_seq": 12
+          },
+          {
+            "message_id": "storage-011",
+            "device_seq": 11
+          }
+        ],
+        "incident": {
+          "event_id": "evt-001",
+          "last_device_seq": 12
+        },
+        "zone_view": {
+          "zone_id": "zone-01",
+          "last_device_seq": 12
+        },
+        "result": "PASS: both historical messages persisted; incident and zone snapshot sequence retained at 12"
+      }
+    },
+    "completed_cases": [
+      "Normal STORED and subscriber receipt",
+      "Identical retransmission DUPLICATE and one original row",
+      "Different content with same ID REJECTED/MESSAGE_ID_CONFLICT; original seq/outcome preserved and separate quarantine row",
+      "Out-of-order 12 then 11 both STORED; both history rows retained and incident/zone last_device_seq=12"
+    ]
+  }
+}

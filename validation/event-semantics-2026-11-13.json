@@ -1,0 +1,111 @@
+{
+  "date": "2026-11-13",
+  "scope": "V04-V12 single-message semantic validation through EventMessageValidator and local MQTT handler; no event persistence or application ACK",
+  "result": "PASS",
+  "tests": [
+    {
+      "suite": "kr.ac.sejong.parking.BootstrapHttpTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T05:48:23"
+    },
+    {
+      "suite": "kr.ac.sejong.parking.configuration.MqttLearningMessageHandlerTest",
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T05:48:24"
+    },
+    {
+      "suite": "kr.ac.sejong.parking.device.EventMessageSemanticsTest",
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T05:48:24"
+    },
+    {
+      "suite": "kr.ac.sejong.parking.device.EventMessageValidatorTest",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T05:48:24"
+    },
+    {
+      "suite": "kr.ac.sejong.parking.device.EventValidationMessageHandlerTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T05:48:24"
+    }
+  ],
+  "general_tests": 122,
+  "semantic_tests": 56,
+  "design_cases_executed": 26,
+  "tasks": [
+    "test",
+    "bootJar"
+  ],
+  "execution": "Existing Gradle 8.12.1 distribution with writable /tmp cache, read-only existing dependencies, in-process Kotlin compiler, temporary init script supplying unchanged cached Maven artifacts and Mockito startup javaagent. Standard project commands unchanged.",
+  "fixture_cli": "All 26 --design-case outputs equal documented patches; default output equals canonical guidance_complete",
+  "not_executed": [
+    "Full semantic case matrix over a live broker; only E11 and E09 confirmed through user-provided logs",
+    "Database stateful scenarios D01-D08 and 12 DB acceptance scenarios",
+    "Application ACK, quarantine persistence, revision reservation, API query",
+    "Actual board, physical output, performance or concurrency load",
+    "databaseTest not rerun because JDBC lookup and schema unchanged"
+  ],
+  "preserved": [
+    "Original v1.43 reference files",
+    "Flyway V1",
+    "Wire fields, topic and schema_version=2",
+    "Previously sent AI handoff ZIP"
+  ],
+  "code": [
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/application/EventMessageSemantics.kt",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/application/EventMessageValidator.kt"
+  ],
+  "design": "docs/design/event-ingest-v1.md",
+  "documentation_checks": [
+    "npm --prefix tools/docs run build: 4 SVG and 11 HTML generated",
+    "python3 tools/check_structure.py: PASS (237 links, 127 reference files)",
+    "git diff --check: PASS",
+    "127 reference source hashes match the sent AI handoff archive"
+  ],
+  "user_reported_broker_validation": {
+    "source": "User-provided Spring logs and explicit E11/E09 identification; not an agent-run broker test",
+    "profile": "mqtt-validation-local",
+    "pid": 38291,
+    "result": "PASS for E11 rejection followed by E09 acceptance in the same process",
+    "observations": [
+      {
+        "time": "2026-11-13T15:48:49.121+09:00",
+        "event": "EVENT_VALIDATION_READY",
+        "topic": "parking/v2/devices/+/events"
+      },
+      {
+        "time": "2026-11-13T15:53:45.927+09:00",
+        "fixture": "E11",
+        "event": "EVENT_INVALID",
+        "reason": "clock_untrusted_stop_time",
+        "rule_id": "V04",
+        "ack_sent": false
+      },
+      {
+        "time": "2026-11-13T15:57:52.453+09:00",
+        "fixture": "E09",
+        "event": "EVENT_CONTRACT_VALIDATED",
+        "device_id": "edge-01",
+        "message_id": "msg-010",
+        "device_seq": 10,
+        "stored": false,
+        "ack_sent": false
+      }
+    ]
+  }
+}

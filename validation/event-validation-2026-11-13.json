@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-13",
+  "scope": "EventMessage validation + registration lookup; no event persistence, application ACK, or live broker test",
+  "result": "PASS",
+  "tests": [
+    {
+      "task": "databaseTest",
+      "suite": "kr.ac.sejong.parking.storage.DatabaseMigrationTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T02:58:21"
+    },
+    {
+      "task": "test",
+      "suite": "kr.ac.sejong.parking.BootstrapHttpTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T02:58:19"
+    },
+    {
+      "task": "test",
+      "suite": "kr.ac.sejong.parking.configuration.MqttLearningMessageHandlerTest",
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T02:58:20"
+    },
+    {
+      "task": "test",
+      "suite": "kr.ac.sejong.parking.device.EventMessageValidatorTest",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T02:58:20"
+    },
+    {
+      "task": "test",
+      "suite": "kr.ac.sejong.parking.device.EventValidationMessageHandlerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp_utc": "2026-11-13T02:58:20"
+    }
+  ],
+  "tasks": [
+    "test",
+    "databaseTest",
+    "bootJar"
+  ],
+  "environment": {
+    "java": "17.0.18",
+    "postgresql": "17.11, existing local development container; isolated it_ schema",
+    "gradle": "8.12.1",
+    "execution": "Existing Gradle distribution, writable GRADLE_USER_HOME in /tmp, read-only existing dependency cache, --no-daemon --no-watch-fs -Pkotlin.compiler.execution.strategy=in-process",
+    "temporary_init": "Two new dependency artifacts downloaded unchanged from Maven Central using curl and exposed through temporary local repository; Mockito 5.17.0 startup javaagent avoids blocked self-attach. No test excluded beyond ordinary task tag split. These temporary settings are not project requirements."
+  },
+  "prior_failures": [
+    "Default cache lock file inaccessible in agent environment.",
+    "Isolated Gradle JVM could not resolve Maven DNS; used curl for missing artifacts.",
+    "Kotlin daemon location and Mockito self-attachment restricted; used in-process compiler and startup javaagent.",
+    "Boundary test constructed large decimal through Double and rounded it; corrected test input to BigDecimal, then all tests passed."
+  ],
+  "unverified": [
+    "Actual broker delivery for new profile, including retained flag propagation",
+    "Event transactional storage, duplicate/order handling and application ACK",
+    "Production authentication, TLS and ACL; actual board"
+  ]
+}

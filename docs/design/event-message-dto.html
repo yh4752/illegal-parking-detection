@@ -1,0 +1,463 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<nav aria-label="문서 메뉴"><a href="../index.html">팀 요약</a><a href="../backend.html">서버 구조</a><a href="../first-slice.html">첫 구현</a><a href="../status.html">현재 상태</a><a href="../review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선만으로 구현 완료를 판단하지 않습니다. 사건 저장·커밋 후 ACK의 코드와 DB 시험을 마쳤으며, 정상 1건의 실제 MQTT 왕복도 확인했습니다. 중복 재전송의 DUPLICATE 수신도 확인했습니다. SQL로 원문 1건도 확인했습니다. 추가 시험·조회 API는 다음 단계입니다. 자세한 근거는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>사건 메시지 DTO 필드 명세</h1>
+<p>기준: v1.43 EventMessage · 통신 schema_version=2 · 2026-11-13</p>
+<p><strong>현재 실행 코드는 JsonNode + JSON Schema 검증이다. 아래 Kotlin 타입명은 DTO로 옮길 때의 설계이며 아직 해당 data class가 구현된 것은 아니다.</strong> 필드·허용값은 기존 Schema에서 가져온다. 새 wire 필드는 없다.</p>
+<p>한 사건 메시지는 최상위 EventMessageDto와 그 안의 event/EventRecordDto, snapshot/DeviceSnapshotDto, image_update/ImageUpdateDto로 구성한다. snapshot은 ClockStatusDto와 ActivePauseDto 목록을 포함한다.</p>
+<h2>공통 표기</h2>
+<ul>
+<li>모든 표의 JSON 키는 필수다. <code>?</code>는 값에 null을 허용한다는 의미이며 키를 생략해도 된다는 뜻이 아니다.</li>
+<li>JSON 키는 snake_case, Kotlin 속성은 camelCase로 대응한다. 실제 클래스 구현 시 명시적 매핑을 적용한다.</li>
+<li>시각 필드는 wire DTO에서 UTC Z 형식의 String/String?로 보존한다. DB 시각 변환과 정밀도 처리는 저장 계층에서 명시하며, 메시지 동일성은 원본의 canonical JSON을 기준으로 한다.</li>
+<li>ID는 Unicode 문자 기준 길이 1<del>128. Long 범위의 양수라는 것만으로 충분하지 않으며 순번·ms는 0</del>9,007,199,254,740,991, 정책 버전은 1부터 같은 상한까지 검사한다. guidance_count는 Int 0~2다.</li>
+<li>DTO 기본값으로 누락을 0·false·빈 배열·null로 채우지 않는다. 엄격한 파싱·Schema 확인 뒤 DTO로 변환하고 의미 검사를 진행한다. 원문과 해시는 별도로 보존한다.</li>
+</ul>
+<h2>1. EventMessageDto — 최상위 메시지</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>JSON 필드</th>
+<th>Kotlin 타입</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>schema_version</code></td>
+<td><code>Int</code></td>
+<td>통신 형식 버전. 값은 2</td>
+</tr>
+<tr>
+<td><code>device_id</code></td>
+<td><code>String</code></td>
+<td>발신 장치 ID</td>
+</tr>
+<tr>
+<td><code>zone_id</code></td>
+<td><code>String</code></td>
+<td>해당 구역 ID</td>
+</tr>
+<tr>
+<td><code>message_id</code></td>
+<td><code>String</code></td>
+<td>전송 메시지 식별자. 동일 재전송에서 유지</td>
+</tr>
+<tr>
+<td><code>boot_id</code></td>
+<td><code>String</code></td>
+<td>장치 프로그램 실행 세대를 구분하는 ID</td>
+</tr>
+<tr>
+<td><code>device_seq</code></td>
+<td><code>Long</code></td>
+<td>장치가 새 상태 메시지를 만들 때 증가시키는 순번</td>
+</tr>
+<tr>
+<td><code>occurred_at</code></td>
+<td><code>String?</code></td>
+<td>발생 UTC 시각. 시각 불신이면 null</td>
+</tr>
+<tr>
+<td><code>clock_synced</code></td>
+<td><code>Boolean</code></td>
+<td>장치 UTC 시각 신뢰 여부</td>
+</tr>
+<tr>
+<td><code>event_id</code></td>
+<td><code>String?</code></td>
+<td>이 메시지가 보고하는 사건 ID</td>
+</tr>
+<tr>
+<td><code>event_type</code></td>
+<td><code>EventType</code></td>
+<td>발생한 일의 종류. 예: 안내 재생 완료</td>
+</tr>
+<tr>
+<td><code>event</code></td>
+<td><code>EventRecordDto?</code></td>
+<td>보고 대상 사건 요약</td>
+</tr>
+<tr>
+<td><code>snapshot</code></td>
+<td><code>DeviceSnapshotDto</code></td>
+<td>메시지를 만들 당시 장치의 전체 현재 상태</td>
+</tr>
+<tr>
+<td><code>image_update</code></td>
+<td><code>ImageUpdateDto?</code></td>
+<td>사진 상태 변화. JPEG 본문 아님</td>
+</tr>
+</tbody></table></div>
+<h2>2. EventRecordDto — 보고 대상 사건 요약</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>JSON 필드</th>
+<th>Kotlin 타입</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>event_id</code></td>
+<td><code>String</code></td>
+<td>이 메시지가 보고하는 사건 ID</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td><code>IncidentState</code></td>
+<td>사건 또는 시계 상태</td>
+</tr>
+<tr>
+<td><code>event_policy_version</code></td>
+<td><code>Long</code></td>
+<td>사건 생성 때 고정한 정책 버전</td>
+</tr>
+<tr>
+<td><code>started_at</code></td>
+<td><code>String?</code></td>
+<td>사건 시작 시각. 당시 시각을 신뢰하지 못하면 null</td>
+</tr>
+<tr>
+<td><code>closed_at</code></td>
+<td><code>String?</code></td>
+<td>사건 종료 시각. 미종료 또는 종료 시각 불신이면 null</td>
+</tr>
+<tr>
+<td><code>close_reason</code></td>
+<td><code>CloseReason?</code></td>
+<td>관측 이탈 / 관리자 종료. 미종료이면 null</td>
+</tr>
+<tr>
+<td><code>guidance_count</code></td>
+<td><code>Int</code></td>
+<td>안내 시도 횟수. 성공 재생 횟수와 다름</td>
+</tr>
+<tr>
+<td><code>body_type</code></td>
+<td><code>BodyType</code></td>
+<td>차체 종류: CAR/BUS/TRUCK/UNKNOWN</td>
+</tr>
+<tr>
+<td><code>use_type</code></td>
+<td><code>UseType</code></td>
+<td>용도: TAXI/SCHOOL/DELIVERY/OTHER/UNKNOWN</td>
+</tr>
+<tr>
+<td><code>continuous_stop_ms</code></td>
+<td><code>Long</code></td>
+<td>현재 연속 정차 후보 시간(ms)</td>
+</tr>
+<tr>
+<td><code>overdue</code></td>
+<td><code>Boolean</code></td>
+<td>미해소 기준시간 도달 여부. 단순 정차 후보 시간과 별도</td>
+</tr>
+</tbody></table></div>
+<h2>3. DeviceSnapshotDto — 장치의 전체 현재 상태</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>JSON 필드</th>
+<th>Kotlin 타입</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>current_event_id</code></td>
+<td><code>String?</code></td>
+<td>snapshot이 나타내는 현재 사건 ID</td>
+</tr>
+<tr>
+<td><code>incident_state</code></td>
+<td><code>IncidentState?</code></td>
+<td>현재 사건의 상태</td>
+</tr>
+<tr>
+<td><code>event_policy_version</code></td>
+<td><code>Long?</code></td>
+<td>사건 생성 때 고정한 정책 버전</td>
+</tr>
+<tr>
+<td><code>guidance_count</code></td>
+<td><code>Int</code></td>
+<td>안내 시도 횟수. 성공 재생 횟수와 다름</td>
+</tr>
+<tr>
+<td><code>continuous_stop_ms</code></td>
+<td><code>Long</code></td>
+<td>현재 연속 정차 후보 시간(ms)</td>
+</tr>
+<tr>
+<td><code>body_type</code></td>
+<td><code>BodyType?</code></td>
+<td>차체 종류: CAR/BUS/TRUCK/UNKNOWN</td>
+</tr>
+<tr>
+<td><code>use_type</code></td>
+<td><code>UseType?</code></td>
+<td>용도: TAXI/SCHOOL/DELIVERY/OTHER/UNKNOWN</td>
+</tr>
+<tr>
+<td><code>camera_health</code></td>
+<td><code>CameraHealth</code></td>
+<td>영상 관측 품질 상태</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td><code>OperatingMode</code></td>
+<td>중지 목록으로 결정되는 운영 모드</td>
+</tr>
+<tr>
+<td><code>output_status</code></td>
+<td><code>OutputStatus</code></td>
+<td>재생·중단 등 출력 상태</td>
+</tr>
+<tr>
+<td><code>reason_codes</code></td>
+<td><code>List&lt;ReasonCode&gt;</code></td>
+<td>관측·출력·시각 문제 사유 목록</td>
+</tr>
+<tr>
+<td><code>pauses</code></td>
+<td><code>List&lt;ActivePauseDto&gt;</code></td>
+<td>해제되지 않은 중지/예약 목록. 빈 목록은 []</td>
+</tr>
+<tr>
+<td><code>received_policy_version</code></td>
+<td><code>Long?</code></td>
+<td>장치가 검증하고 저장한 정책 버전</td>
+</tr>
+<tr>
+<td><code>active_policy_version</code></td>
+<td><code>Long?</code></td>
+<td>장치가 현재 적용 중인 정책 버전</td>
+</tr>
+<tr>
+<td><code>mode_revision</code></td>
+<td><code>Long</code></td>
+<td>운영 상태의 변경 순번. 서버 view_revision과 별개</td>
+</tr>
+<tr>
+<td><code>rearm_required</code></td>
+<td><code>Boolean</code></td>
+<td>종료 후 빈 구역 확인·명시 재개가 필요한지</td>
+</tr>
+<tr>
+<td><code>device_seq</code></td>
+<td><code>Long</code></td>
+<td>장치가 새 상태 메시지를 만들 때 증가시키는 순번</td>
+</tr>
+<tr>
+<td><code>boot_id</code></td>
+<td><code>String</code></td>
+<td>장치 프로그램 실행 세대를 구분하는 ID</td>
+</tr>
+<tr>
+<td><code>clock_synced</code></td>
+<td><code>Boolean</code></td>
+<td>장치 UTC 시각 신뢰 여부</td>
+</tr>
+<tr>
+<td><code>observed_at</code></td>
+<td><code>String?</code></td>
+<td>snapshot 관측 UTC 시각</td>
+</tr>
+<tr>
+<td><code>overdue</code></td>
+<td><code>Boolean</code></td>
+<td>미해소 기준시간 도달 여부. 단순 정차 후보 시간과 별도</td>
+</tr>
+<tr>
+<td><code>clock_status</code></td>
+<td><code>ClockStatusDto</code></td>
+<td>시각 신뢰의 상태와 근거 수치</td>
+</tr>
+</tbody></table></div>
+<h2>4. ClockStatusDto — 시각 신뢰 정보</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>JSON 필드</th>
+<th>Kotlin 타입</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>state</code></td>
+<td><code>ClockState</code></td>
+<td>SYNCED/HOLDOVER/UNTRUSTED</td>
+</tr>
+<tr>
+<td><code>error_bound_ms</code></td>
+<td><code>Long?</code></td>
+<td>시계 오차 상한 추정(ms). 근거 없으면 null</td>
+</tr>
+<tr>
+<td><code>last_sync_at</code></td>
+<td><code>String?</code></td>
+<td>마지막 외부 시각 동기 기준점</td>
+</tr>
+<tr>
+<td><code>sync_age_ms</code></td>
+<td><code>Long?</code></td>
+<td>그 동기 기준점 이후 단조 경과시간(ms)</td>
+</tr>
+</tbody></table></div>
+<h2>5. ActivePauseDto — 해제되지 않은 중지·예약</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>JSON 필드</th>
+<th>Kotlin 타입</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pause_id</code></td>
+<td><code>String</code></td>
+<td>중지 기록 ID</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td><code>PauseSource</code></td>
+<td>중지 원인</td>
+</tr>
+<tr>
+<td><code>scope</code></td>
+<td><code>Scope</code></td>
+<td>DEVICE/ZONE/EVENT 적용 범위</td>
+</tr>
+<tr>
+<td><code>target_event_id</code></td>
+<td><code>String?</code></td>
+<td>EVENT 범위의 대상 사건. 다른 범위면 null</td>
+</tr>
+<tr>
+<td><code>starts_at</code></td>
+<td><code>String?</code></td>
+<td>중지 시작 UTC 시각</td>
+</tr>
+<tr>
+<td><code>expires_at</code></td>
+<td><code>String?</code></td>
+<td>중지 만료 UTC 시각. 무기한이면 null</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>ActivePauseStatus</code></td>
+<td>SCHEDULED/ACTIVE/ACK_REQUIRED. CLEARED는 snapshot에서 제외</td>
+</tr>
+<tr>
+<td><code>reason</code></td>
+<td><code>String</code></td>
+<td>중지 사유 설명</td>
+</tr>
+</tbody></table></div>
+<h2>6. ImageUpdateDto — 사진 상태 변화</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>JSON 필드</th>
+<th>Kotlin 타입</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>image_id</code></td>
+<td><code>String</code></td>
+<td>사진 ID</td>
+</tr>
+<tr>
+<td><code>image_kind</code></td>
+<td><code>ImageKind</code></td>
+<td>사진 용도</td>
+</tr>
+<tr>
+<td><code>event_id</code></td>
+<td><code>String?</code></td>
+<td>이 메시지가 보고하는 사건 ID</td>
+</tr>
+<tr>
+<td><code>captured_at</code></td>
+<td><code>String?</code></td>
+<td>사진 촬영 UTC 시각</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>ImageStatus</code></td>
+<td>PENDING/AVAILABLE/FAILED/EXPIRED</td>
+</tr>
+<tr>
+<td><code>error_code</code></td>
+<td><code>ImageErrorCode?</code></td>
+<td>사진 실패·만료 사유. 정상 상태이면 null</td>
+</tr>
+</tbody></table></div>
+<h2>값 사이의 핵심 관계</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>관계</th>
+<th>조건</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>envelope ↔ snapshot</td>
+<td>device_seq, boot_id, clock_synced 일치</td>
+</tr>
+<tr>
+<td>envelope ↔ event/image_update</td>
+<td>해당 객체가 있으면 event_id 일치</td>
+</tr>
+<tr>
+<td>event ↔ snapshot</td>
+<td>같은 사건이면 공통 요약 값 일치. 서로 다른 사건이면 별도로 해석</td>
+</tr>
+<tr>
+<td>현재 사건 없음</td>
+<td>사건 관련 ID·상태·버전·차종/용도는 null, 횟수·정차시간은 0, overdue=false</td>
+</tr>
+<tr>
+<td>사진 상태 사건</td>
+<td>event_type=IMAGE_STATUS_CHANGED일 때 event=null, image_update 필수 객체. 그 외 image_update=null</td>
+</tr>
+<tr>
+<td>시각 불신</td>
+<td>occurred_at/observed_at=null. 과거에 신뢰했던 event.started_at 등을 소급해 지우지 않음</td>
+</tr>
+<tr>
+<td>일반 상태와 예외</td>
+<td>중지 목록·모드·시각 불신·정차시간 등의 전체 조건은 아래 검증 설계를 따름</td>
+</tr>
+</tbody></table></div>
+<h2>Enum 허용값</h2>
+<p>유형명은 Kotlin 구현용 이름이며 wire 문자열은 아래 대문자 값을 그대로 사용한다.</p>
+<ul>
+<li><code>EventType</code>: <code>EVENT_STARTED</code>, <code>STOP_CONFIRMED</code>, <code>GUIDANCE_ATTEMPTED</code>, <code>GUIDANCE_PLAYBACK_COMPLETED</code>, <code>GUIDANCE_PLAYBACK_STOPPED</code>, <code>GUIDANCE_PLAYBACK_FAILED</code>, <code>OBSERVATION_HELD</code>, <code>OBSERVATION_RECOVERED</code>, <code>LONG_UNRESOLVED</code>, <code>EVENT_CLOSED_EXIT</code>, <code>EVENT_CLOSED_MANUAL</code>, <code>PAUSE_CHANGED</code>, <code>CONFIG_RECEIVED</code>, <code>CONFIG_ACTIVATED</code>, <code>DEVICE_RESTARTED</code>, <code>IMAGE_STATUS_CHANGED</code></li>
+<li><code>IncidentState</code>: <code>OBSERVING</code>, <code>STOP_CONFIRMED</code>, <code>GUIDING</code>, <code>GUIDED</code>, <code>LONG_UNRESOLVED</code>, <code>HELD</code>, <code>CLOSED_EXIT</code>, <code>CLOSED_MANUAL</code></li>
+<li><code>CameraHealth</code>: <code>OK</code>, <code>SUSPECT</code>, <code>BLOCKED</code>, <code>NO_FRAME</code>, <code>RECONFIGURE</code></li>
+<li><code>OperatingMode</code>: <code>AUTO</code>, <code>PAUSED</code>, <code>AWAITING_RESUME</code></li>
+<li><code>OutputStatus</code>: <code>IDLE</code>, <code>PLAYING</code>, <code>STOPPING</code>, <code>FAILED</code>, <code>UNKNOWN</code></li>
+<li><code>BodyType</code>: <code>CAR</code>, <code>BUS</code>, <code>TRUCK</code>, <code>UNKNOWN</code></li>
+<li><code>UseType</code>: <code>TAXI</code>, <code>SCHOOL</code>, <code>DELIVERY</code>, <code>OTHER</code>, <code>UNKNOWN</code></li>
+<li><code>ReasonCode</code>: <code>FRAME_STALE</code>, <code>FRAME_GAP</code>, <code>INVALID_FRAME</code>, <code>OBSERVATION_MISSING</code>, <code>OCCLUSION_SUSPECT</code>, <code>IMAGE_DARK</code>, <code>IMAGE_BRIGHT</code>, <code>IMAGE_BLUR</code>, <code>BACKGROUND_UNRELIABLE</code>, <code>CAMERA_SHIFT</code>, <code>CALIBRATION_REQUIRED</code>, <code>IDENTITY_UNCERTAIN</code>, <code>MULTIPLE_TARGETS</code>, <code>ROI_BOUNDARY</code>, <code>VEHICLE_MOVING</code>, <code>OUTPUT_FAULT</code>, <code>CLOCK_UNTRUSTED</code></li>
+<li><code>PauseSource</code>: <code>USER</code>, <code>SCHEDULE</code>, <code>PHYSICAL</code>, <code>RESTART</code>, <code>RECONFIGURE</code>, <code>REARM_REQUIRED</code>, <code>OUTPUT_FAULT</code>, <code>OBSERVATION_REVIEW</code></li>
+<li><code>Scope</code>: <code>DEVICE</code>, <code>ZONE</code>, <code>EVENT</code></li>
+<li><code>ImageKind</code>: <code>FIRST_GUIDANCE</code>, <code>EVENT_CLOSE</code>, <code>VIEW</code>, <code>RESUME_CONFIRM</code>, <code>CLOSE_CONFIRM</code></li>
+<li><code>ImageStatus</code>: <code>PENDING</code>, <code>AVAILABLE</code>, <code>FAILED</code>, <code>EXPIRED</code></li>
+<li><code>ImageErrorCode</code>: <code>QUEUE_FULL</code>, <code>IMAGE_STORAGE_FULL</code>, <code>NO_VALID_FRAME</code>, <code>ENCODE_FAILED</code>, <code>IMAGE_TOO_LARGE</code>, <code>HTTP_REJECTED</code>, <code>IMAGE_ID_CONFLICT</code>, <code>RETRY_EXHAUSTED</code>, <code>AGE_UNKNOWN</code>, <code>RETENTION_EXPIRED</code>, <code>RESTART_INCOMPLETE</code></li>
+<li><code>ClockState</code>: <code>SYNCED</code>, <code>HOLDOVER</code>, <code>UNTRUSTED</code></li>
+<li><code>CloseReason</code>: <code>OBSERVED_EXIT</code>, <code>MANUAL</code> (필드 자체는 nullable)</li>
+<li><code>ActivePauseStatus</code>: <code>SCHEDULED</code>, <code>ACTIVE</code>, <code>ACK_REQUIRED</code></li>
+</ul>
+<p>전체 조건: <a href="event-ingest-v1.html">사건 수신·저장 전 검증</a>. 원본: <a href="../../reference/v1.43/%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A3%8C/09_%EA%B5%AC%ED%98%84%EC%84%A4%EA%B3%84/contracts/parking.schema.json">parking.schema.json</a>.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

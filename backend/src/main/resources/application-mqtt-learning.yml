@@ -1,0 +1,6 @@
+# 이 프로필은 같은 PC의 Mosquitto에 연결하는 학습용이다.
+learning:
+  mqtt:
+    broker-url: tcp://127.0.0.1:11883
+    topic: learning/hello
+    client-id: parking-learning-${random.uuid}

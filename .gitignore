@@ -28,3 +28,4 @@ docs/site/
 /data/raw/
 /data/videos/
 /models/weights/
+/.local-state/

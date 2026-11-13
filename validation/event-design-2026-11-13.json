@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-13",
+  "scope": "Event ingest design addendum and fixture structural/schema checks only",
+  "status": "PASS",
+  "single_message_cases": 26,
+  "stateful_acceptance_scenarios": 12,
+  "checks": [
+    "26 base example references and existing JSON Pointer update targets resolved",
+    "26 expected original EventMessage Draft 2020-12 Schema outcomes matched, format assertions enabled",
+    "Design rule ownership and normal counterexamples manually reviewed against A2/C1/C2/C3/C5/C9/C12/D5/D6/D7",
+    "Documentation generation, links, SVG and 127 archive hashes checked",
+    "git diff --check"
+  ],
+  "fixture_checker": "Temporary Java source checker with networknt 1.5.9 from built application dependencies; not a production semantic validator",
+  "not_executed": [
+    "Additional V04-V12 application validators",
+    "12 stateful acceptance scenarios",
+    "Quarantine V2 and revision manifest implementation"
+  ],
+  "preserved": [
+    "reference/v1.43",
+    "Applied Flyway V1",
+    "Backend runtime implementation"
+  ],
+  "decisions": "docs/design/event-ingest-v1.md",
+  "fixtures": "docs/design/event-validation-cases.json"
+}

@@ -1,0 +1,165 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="first-slice.html">첫 구현</a><a href="status.html">현재 상태</a><a href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선만으로 구현 완료를 판단하지 않습니다. 사건 저장·커밋 후 ACK의 코드와 DB 시험을 마쳤으며, 정상 1건의 실제 MQTT 왕복도 확인했습니다. 중복 재전송의 DUPLICATE 수신도 확인했습니다. SQL로 원문 1건도 확인했습니다. 추가 시험·조회 API는 다음 단계입니다. 자세한 근거는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>사건 저장과 저장 완료 응답 실습</h1>
+<p>2026-11-13 · v1.43 계약 + <a href="design/event-ingest-v1.html">저장 전 검증 기준</a></p>
+<p>이제 서버가 검증을 통과한 사건을 PostgreSQL에 저장하고, <strong>커밋이 끝난 뒤</strong> 장치의 <code>/acks</code> 토픽으로 결과를 보낸다. 실제 차량 판단은 하지 않는다. 이번 단계에는 조회 API가 없으므로 저장 결과는 SQL로 확인한다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>실행 프로필</th>
+<th>하는 일</th>
+<th>응용 ACK</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mqtt-learning</code></td>
+<td><code>learning/hello</code> 수신·학습용 검사</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>mqtt-validation-local</code></td>
+<td>정식 메시지의 형식·의미·장치 등록 검사</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>mqtt-ingest-local</code></td>
+<td>검증·중복 처리·사건 저장·결과 회신</td>
+<td>있음</td>
+</tr>
+</tbody></table></div>
+<p>새 프로필은 <code>database</code>를 함께 켠다. 기존 검증/학습 프로필과 동시에 실행하지 않는다. 검증 모드와 저장 모드의 수신 client ID가 같으므로 서버 프로세스도 하나만 실행한다.</p>
+<h2>1. 예제 정책 등록</h2>
+<p>기존 Spring 서버 터미널에서 <code>Ctrl+C</code>로 종료한다. Docker Desktop·PostgreSQL·Mosquitto는 켜 둔다. 아래 명령은 저장소 루트에서 시작한다. 처음 실행하는 사람은 먼저 <a href="database.md">DB 준비</a>를 완료해야 한다.</p>
+<pre><code class="language-sh">cd infra
+docker compose --env-file .env.example up -d postgres mosquitto
+docker compose --env-file .env.example exec -T postgres \
+  psql -v ON_ERROR_STOP=1 -U parking -d parking &lt; sql/register-local-device.sql
+docker compose --env-file .env.example exec -T postgres \
+  psql -v ON_ERROR_STOP=1 -U parking -d parking &lt; sql/register-local-policy.sql
+</code></pre>
+<p>원본 <code>guidance_complete</code>는 <code>zone-01</code>의 정책 3을 참조한다. 따라서 해당 정책이 DB에 있어야 한다. SQL은 원본 <code>config_desired.desired_policy</code>를 등록하며 다른 내용의 기존 정책을 덮어쓰지 않는다. 정책 작성자 외래키를 위한 비활성 fixture 계정은 로그인이 불가능하다. 예제 좌표는 실험 장소의 보정값이 아니다.</p>
+<h2>2. 저장 모드로 시작</h2>
+<p>같은 터미널에서 다음을 실행한다. 비밀번호를 바꿨다면 실제 로컬 DB 설정과 맞춘다.</p>
+<pre><code class="language-sh">cd ../backend
+export POSTGRES_PASSWORD=replace-with-your-local-password
+./gradlew bootRun --args=&#39;--spring.profiles.active=mqtt-ingest-local&#39;
+</code></pre>
+<p>처음에는 Flyway가 <code>V2__inbound_quarantine.sql</code>을 추가 적용한다. 기존 V1은 수정하지 않았다. 구역 상태에 사용할 revision 범위도 먼저 확보한다. 아래 로그가 수신 준비를 뜻한다.</p>
+<pre><code class="language-text">EVENT_INGEST_READY topic=parking/v2/devices/+/events mode=local_persistence
+</code></pre>
+<p><code>bootRun</code>은 서버가 실행되는 동안 끝나지 않는다. health의 UP만으로 MQTT 저장 완료를 판단하지 않는다.</p>
+<h2>3. 응답을 먼저 구독</h2>
+<p>두 번째 터미널의 <code>parking-system/infra</code>에서 실행하고 대기한다.</p>
+<pre><code class="language-sh">docker compose --env-file .env.example exec mosquitto \
+  mosquitto_sub -h localhost -p 1883 -V mqttv5 -q 1 \
+  -t parking/v2/devices/edge-01/acks -v
+</code></pre>
+<p>응용 ACK는 retained 메시지가 아니다. <strong>발행 전에 구독해야</strong> 이번 응답을 볼 수 있다. 출력 후에도 구독 명령은 다음 응답을 기다린다.</p>
+<h2>4. 정상 발행과 재전송</h2>
+<p>세 번째 터미널의 <code>parking-system/infra</code>에서 실행한다. <code>-s</code>는 표준 입력 전체를 메시지 본문으로 읽는 옵션이며 <code>-r</code>은 사용하지 않는다.</p>
+<pre><code class="language-sh">python3 ../tools/event_fixture.py --message-id storage-001 --device-seq 10 |
+  docker compose --env-file .env.example exec -T mosquitto \
+  mosquitto_pub -h localhost -p 1883 -V mqttv5 -q 1 \
+  -t parking/v2/devices/edge-01/events -s
+</code></pre>
+<p>최초 처리라면 다음 형태의 응답을 받는다. <code>committed_at</code>은 실제 서버 시각이다.</p>
+<pre><code class="language-json">{
+  &quot;schema_version&quot;: 2,
+  &quot;device_id&quot;: &quot;edge-01&quot;,
+  &quot;message_id&quot;: &quot;storage-001&quot;,
+  &quot;status&quot;: &quot;STORED&quot;,
+  &quot;error_code&quot;: null,
+  &quot;committed_at&quot;: &quot;2026-11-13T07:00:00Z&quot;
+}
+</code></pre>
+<p>동일 명령을 한 번 더 실행하면 <code>DUPLICATE</code>다. 이미 이 실습을 실행했다면 첫 발행부터 DUPLICATE일 수 있다. 새 사건 보고는 새 message_id를 사용하고, 재전송은 ID·본문을 그대로 유지한다. 예전 E09/E11 예제는 같은 <code>msg-010</code>을 재사용하므로 서로 다른 신규 시험에 그대로 쓰면 충돌한다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>입력</th>
+<th>기대 결과</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>새 ID·정상 메시지</td>
+<td><code>STORED</code></td>
+</tr>
+<tr>
+<td>같은 ID·같은 내용 재전송</td>
+<td><code>DUPLICATE</code>, 이력·상태 재갱신 없음</td>
+</tr>
+<tr>
+<td><code>storage-001</code>을 유지하고 순번을 11로 바꿔 발행</td>
+<td><code>REJECTED / MESSAGE_ID_CONFLICT</code>, 원래 기록 보존</td>
+</tr>
+<tr>
+<td>새 ID의 seq 12 → 다른 새 ID의 seq 10</td>
+<td>두 원문 저장, 현재 상태는 12 유지</td>
+</tr>
+<tr>
+<td>이미 거부된 메시지를 그대로 재전송</td>
+<td>최초 <code>REJECTED</code>와 오류 코드 유지</td>
+</tr>
+<tr>
+<td>DB 저장·커밋 실패</td>
+<td>응용 ACK 없음, 동일 메시지를 나중에 재전송</td>
+</tr>
+</tbody></table></div>
+<p>브로커가 MQTT 메시지를 받았다는 <strong>PUBACK</strong>와 서버가 보낸 <strong>저장 결과 ACK</strong>는 다르다. <code>mosquitto_pub</code> 종료만으로 DB 저장을 확정하지 않는다. 서버의 <code>EVENT_COMMITTED</code>는 커밋, <code>EVENT_ACK_PUBLISHED</code>는 ACK 발행 완료다. 후자는 장치 애플리케이션이 ACK를 처리했다는 증명까지 포함하지 않는다.</p>
+<h2>5. SQL로 확인</h2>
+<p><code>infra</code>에서 실행한다.</p>
+<pre><code class="language-sh">docker compose --env-file .env.example exec postgres \
+  psql -U parking -d parking -c &quot;SELECT device_id,message_id,outcome,error_code FROM inbound_receipt ORDER BY first_received_at;&quot;
+docker compose --env-file .env.example exec postgres \
+  psql -U parking -d parking -c &quot;SELECT event_id,state,last_device_seq FROM incident;&quot;
+docker compose --env-file .env.example exec postgres \
+  psql -U parking -d parking -c &quot;SELECT zone_id,current_event_id,last_device_seq,view_revision,connection_state FROM zone_view;&quot;
+</code></pre>
+<p>기존 예제를 처음 정상 저장했다면 사건은 GUIDED, 구역의 last_device_seq는 10이다. <code>connection_state=OFFLINE</code>은 정상이다. 사건 보고만으로 장치의 현재 연결 상태를 온라인으로 추정하지 않으며 heartbeat는 후속 구현이다.</p>
+<h2>구현 위치와 남은 범위</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>책임</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>EventIngestionService</code></td>
+<td>엄격한 파싱·상관 ID·canonical hash, 저장 업무 호출</td>
+</tr>
+<tr>
+<td><code>EventTransactionStore</code></td>
+<td>구역/장치 잠금, 정책·소유권·중복·역순 검사, 원자 저장</td>
+</tr>
+<tr>
+<td><code>RevisionReservations</code></td>
+<td>DB 트랜잭션 밖에서 상태 번호 범위 예약</td>
+</tr>
+<tr>
+<td><code>EventIngestionMessageHandler</code></td>
+<td>MQTT 전송 조건 검사, 커밋 결과의 ACK 발행</td>
+</tr>
+<tr>
+<td><code>EventRetentionJob</code></td>
+<td>원문 30일 정리, 종료 요약 tombstone, 최소 receipt 보존</td>
+</tr>
+</tbody></table></div>
+<p><code>IMAGE_STATUS_CHANGED</code>는 검증 후 <code>unsupported_image_status</code>로 ACK 없이 남긴다. 사진 저장이 구현되기 전에 이를 STORED로 응답하면 장치가 사진 관련 보고를 지울 수 있기 때문이다. 첫 연동에서는 사진 보고를 활성화하지 않는다. 명령 결과·heartbeat·실제 보드 SDK·API/SSE·로그인·배포는 후속 단계다.</p>
+<p>현재는 단일 서버·로컬 익명 MQTT를 사용하는 개발 프로필이다. 다중 서버나 수백 건 급증에 대한 처리 성능은 측정하지 않았다. 파일 예약 gate는 한 프로세스의 쓰기를 직렬화하며 DB 잠금·고유키도 유지한다. 장치/구역별 병렬화는 별도 부하 시험 뒤 결정한다. 이 모드를 외부 공개용 인증·TLS·ACL 구성으로 간주하지 않는다.</p>
+<h2>revision 파일과 재시작</h2>
+<p>구역 상태의 <code>view_revision</code>은 프론트가 새 상태를 구분할 번호다. 설계에 따라 100만 개 범위를 파일에 먼저 예약하고 DB에 반영한다. 기본 파일은 저장소의 <code>.local-state/revisions/</code>와 <code>.local-state/revisions-copy/</code> 아래에 생기며 Git에 포함하지 않는다. 정상 종료·재시작 시 같은 파일을 유지한다. DB만 남긴 채 파일을 삭제하면 서버는 번호를 추정하지 않고 중단한다.</p>
+<p>두 경로는 같은 PC에 있으므로 재해 복구용 이중화가 아니다. 파일 유실·복사본 불일치·DB 예약 범위 불일치 시 중단하지만, <strong>같은 예약 범위 안의 과거 DB 복원을 모두 자동 감지하지는 못한다.</strong> 복원 시 반드시 수신/발행을 중지해야 한다. D6의 새 범위 건너뛰기·상태 대조·운영자 인수 절차는 아직 구현하지 않았다. 복원 후 이 프로필을 바로 켜거나 파일을 지워 우회하지 않는다.</p>
+<h2>검증</h2>
+<p><code>backend</code>에서 <code>./gradlew test databaseTest bootJar</code>를 실행한다. 일반 126개·실제 PostgreSQL 30개 시험이 통과했다. DB 시험은 전용 <code>it_...</code> 스키마에서 실제 커밋·커밋 실패·ACK 전송 예외를 사용하고, 사용자 public 데이터는 변경하지 않는다. 상세 근거는 <a href="../validation/event-storage-2026-11-13.json">실행 기록</a>에 있다. 이후 사용자 실습에서 정상 1건의 실제 Mosquitto 왕복을 확인했다. 16:51:42.637 KST에 storage-001 커밋, .642에 ACK 발행 로그와 별도 구독자의 STORED 수신 로그를 확인했다. 이어 동일 storage-001의 DUPLICATE 응답(committed_at=2026-11-13T07:54:14.508581Z)을 구독자 로그로 확인했다. 이후 사용자가 event_message를 직접 조회해 edge-01/storage-001의 원문이 1건임을 확인했다. 이어 storage-001의 순번을 11로 변경한 재전송에서 REJECTED/MESSAGE_ID_CONFLICT 응답(07:57:46.952358Z)을 확인했다. 충돌 후 사용자 SQL 조회에서 원문 seq=10, receipt STORED, 격리 오류 MESSAGE_ID_CONFLICT가 각각 1행임을 확인했다. 이어 storage-012(seq 12)와 storage-011(seq 11)의 순서로 발행하여 두 건 모두 커밋·STORED 수신을 확인했다. 사용자 SQL 조회로 두 원문이 모두 존재하고 incident(evt-001)·zone_view(zone-01)의 last_device_seq가 12임을 확인했다. 정상·중복·충돌·역순의 실제 MQTT/SQL 실습을 완료했다. 실패 경로의 실제 브로커 시험은 아직 미확인이다. 다음 구현은 기존 계약의 상태 조회 API다. 자동 시험과 사용자 실습 근거는 구분한다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>
