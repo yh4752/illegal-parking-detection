@@ -100,6 +100,18 @@ class RevisionReservations(
         action()
     }
 
+    /** Read gate only; no DB/file writes and no I/O inside a read transaction. */
+    @Synchronized
+    fun checkReadable(zoneId: String, reservedThrough: Long) {
+        check(!failed && lock?.isValid == true) { "revision_gate_closed" }
+        check(!TransactionSynchronizationManager.isActualTransactionActive()) { "file_io_inside_transaction" }
+        try {
+            check(readPair() == manifest) { "manifest_changed" }
+        } catch (error: Exception) { failed = true; throw error }
+        val zone = manifest!!["zones"][zoneId]
+        check(zone != null && zone["reserved_through"].longValue() == reservedThrough) { "read_reservation_mismatch" }
+    }
+
     private fun ensureRange(zoneId: String) {
         val rows = jdbc.queryForList("SELECT * FROM zone_view WHERE zone_id=?", zoneId)
         if (rows.isEmpty()) return

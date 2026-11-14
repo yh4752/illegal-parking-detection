@@ -1,12 +1,13 @@
 # 백엔드
 
-Kotlin + Spring Boot 애플리케이션 하나다. 학습·검증 전용 프로필과 실제 사건 저장용 `mqtt-ingest-local`을 구분한다. 새 프로필은 v1.43 사건을 검증·저장하고 DB 커밋 후 응용 ACK를 보낸다. 일반·PostgreSQL 자동 시험을 마쳤으며 사용자 로그로 정상 1건의 실제 MQTT 저장·ACK 수신을 확인했다. 동일 메시지 재전송의 DUPLICATE 응답도 확인했다. SQL 직접 조회로 원문 1건도 확인했다. 조회 API는 아직 없다.
+Kotlin + Spring Boot 애플리케이션 하나다. 사건 저장·응용 ACK와 세션 인증·구역 권한·조회 API를 구현했다. 기본 프로필은 health 확인용이며, 제품 기능은 명시적으로 켠다. [로그인·조회 실행 안내](../docs/authenticated-read.md)에서 신규 데모 준비·계정 생성·서버 실행 순서를 따른다.
 
 | 위치 | 현재 파일 | 향후 책임 |
 |---|---|---|
 | `configuration` | SecurityConfiguration, MQTT 학습·검증·저장 구성 | 빈 조립·연결·보안 설정 |
 | `device` | 검증기, EventIngestionService, EventTransactionStore, MQTT 핸들러 | MQTT 입출력, 수신 업무, 순서 규칙, JDBC 저장 |
-| `zone` | README만 있음 | 상태 조회 서비스·HTTP API |
+| `zone` | ReadController, ReadQueries, JdbcReadStore, EventCursor | 상태·사건 조회와 페이지 처리 |
+| `auth`, `web` | 세션·로그인 필터, WebIdentity, RestErrors | 사용자 재검사·CSRF·실패 제한·공통 오류 |
 | `operations` | FreshDemoInitializer | 신규 단일 구역 데모의 검사·명시 초기화 |
 
 초기화 명령의 엔트리포인트는 `kr.ac.sejong.parkingtools`에 분리했다. 웹 애플리케이션의 컴포넌트 검색에 포함하지 않으며, HTTP·MQTT를 시작하지 않는다. [신규 데모 초기화 안내](../docs/demo-foundation.md)를 따르고 기존 사건 데이터가 있는 DB에는 적용하지 않는다.
@@ -15,7 +16,7 @@ Kotlin + Spring Boot 애플리케이션 하나다. 학습·검증 전용 프로�
 
 `./gradlew test bootJar` → `./gradlew bootRun` 순으로 실행한다. Wrapper가 Gradle을 내려받으므로 전역 설치는 필요 없다. JDK 17이 필요하다. 기본 바인딩은 127.0.0.1:8080이다.
 
-Actuator health의 UP는 애플리케이션 기동만 뜻한다. `database` 프로필에서는 DB 연결도 점검한다. 제품 API는 아직 없다. 학습용 MQTT 연결 성공은 별도의 READY·수신 로그로 확인한다. 모든 제품 경로는 차단되어 있으며 기존 세션·CSRF·권한은 이후 구현한다.
+Actuator health의 UP는 애플리케이션 기동만 뜻한다. `database` 프로필에서는 DB 연결도 점검한다. `web-api`는 database를 포함하고 세션·CSRF·구역 권한을 적용한다. `app-local`은 로컬 HTTP 실행용이다. `app-local,mqtt-ingest-local`은 같은 앱에서 수신·조회를 함께 켠다. 기본 프로필과 학습/검증 모드에서는 제품 조회를 열지 않는다.
 
 선택 버전: Spring Boot 3.5.16, Kotlin 2.1.21, Gradle 8.12.1. Spring Integration MQTT는 Boot BOM 버전을 사용하며 Paho MQTT 5는 1.2.5로 고정한다. JDBC·Flyway·PostgreSQL 드라이버도 Boot BOM 버전을 사용한다.
 

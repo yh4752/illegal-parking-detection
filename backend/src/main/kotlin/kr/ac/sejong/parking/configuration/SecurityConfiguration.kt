@@ -2,11 +2,13 @@ package kr.ac.sejong.parking.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.SecurityFilterChain
 
 /** 기동 확인만 공개한다. 제품 로그인·세션·CSRF·역할은 후속 구현 대상이다. */
 @Configuration
+@Profile("!web-api")
 class SecurityConfiguration {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {

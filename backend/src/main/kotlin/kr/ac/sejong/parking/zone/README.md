@@ -1,7 +1,7 @@
-# 구역 조회 기능의 위치
+# 구역·사건 조회
 
-현재 코드 없음. 첫 조회 기능을 만들 때 `adapter/http`, `application`을 실제 코드와 함께 생성한다.
+`adapter/http/ReadController`가 인증된 사용자 요청을 받고 `application/ReadQueries`가 조회 및 revision gate를 조정한다. `adapter/jdbc/JdbcReadStore`가 구역 권한·보관 규칙을 SQL에 반영한다. 목록 cursor는 `application/EventCursor`가 검증한다.
 
-`GET /api/zones/{id}/status`는 기존 OpenAPI의 ZoneView를 반환한다. 한 시점의 snapshot·명령·사진 정보를 읽고 view_revision을 전달한다. 편의상 임의의 축약 DTO를 제품 API로 노출하지 않는다.
+ZoneView는 snapshot·명령·사진·revision을 한 statement에서 읽는다. 목록과 상세는 읽기 전용 REPEATABLE READ다. DTO를 축약하지 않으며 이미지 확인 토큰은 공개 조회에 노출하지 않는다.
 
-조회는 JDBC 저장 접근 경계로 연결한다. SSE는 후속 작업이며 별도 서버를 만들지 않는다. 현재 부트스트랩 보안 설정에서 제품 API는 막혀 있으므로 첫 기능에서 명시적인 개발 조회 인증을 마련한다.
+`web-api`의 정식 세션 인증을 사용한다. SSE는 다음 M2이며 별도 서버로 만들지 않는다. 루트의 `docs/authenticated-read.md`와 ADR-007을 함께 읽는다.

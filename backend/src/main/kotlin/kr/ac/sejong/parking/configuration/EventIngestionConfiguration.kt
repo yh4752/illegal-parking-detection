@@ -12,10 +12,8 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
-import org.springframework.core.env.Environment
 import org.springframework.integration.channel.DirectChannel
 import org.springframework.integration.dsl.IntegrationFlow
 import org.springframework.integration.mqtt.event.MqttSubscribedEvent
@@ -29,27 +27,12 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
-import java.nio.file.Path
 
 @Configuration
 @Profile("mqtt-ingest-local")
 @EnableScheduling
 class EventIngestionConfiguration(@Value("\${parking.mqtt.broker-url}") private val brokerUrl: String) {
     private val log = LoggerFactory.getLogger(javaClass)
-
-    @Bean(destroyMethod = "close")
-    @DependsOn("flywayInitializer")
-    fun revisionReservations(
-        jdbc: JdbcTemplate, manager: PlatformTransactionManager, mapper: ObjectMapper, environment: Environment,
-        @Value("\${parking.revision.primary}") primary: String,
-        @Value("\${parking.revision.backup}") backup: String,
-    ): RevisionReservations {
-        check(environment.activeProfiles.none { it in setOf("mqtt-validation-local", "mqtt-learning") }) {
-            "Run mqtt-ingest-local without validation or learning profiles"
-        }
-        return RevisionReservations(jdbc, TransactionTemplate(manager), mapper, Path.of(primary).toAbsolutePath().normalize(),
-            Path.of(backup).toAbsolutePath().normalize()).apply { initialize() }
-    }
 
     @Bean
     fun eventTransactionStore(jdbc: JdbcTemplate, manager: PlatformTransactionManager, revisions: RevisionReservations, mapper: ObjectMapper) =

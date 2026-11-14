@@ -9,10 +9,10 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a class="active" href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 다음 목표는 로그인·조회·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>백엔드 담당이 볼 구조</h1>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>백엔드 담당이 볼 구조</h1>
 <p>팀 공통 설명은 <a href="index.html">전체 구조</a>, 실제 다음 작업은 <a href="first-slice.html">첫 기능</a>에 있습니다. 여기서는 서버 내부의 책임과 코드 위치만 설명합니다.</p>
 <figure class="figure"><img src="diagrams/03-components.svg" alt="C4 L3 — 서버 내부 책임"><a href="diagrams/03-components.svg" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
-<p>현재 사건 검증·저장·응용 ACK 코드와 실제 PostgreSQL 시험까지 완료했습니다. <a href="event-storage.html">저장 실습</a>에서 정상 1건의 실제 MQTT 저장·ACK 수신을 확인했습니다. 동일 메시지의 DUPLICATE 수신도 확인했으며, SQL 직접 조회로 원문 1건을 확인했습니다. 그림의 조회 부분은 아직 미구현입니다. 예약 파일은 DB와 별도이며, 각 내부 상자는 별도 서버가 아닙니다.</p>
+<p>현재 사건 검증·저장·응용 ACK 코드와 실제 PostgreSQL 시험까지 완료했습니다. <a href="event-storage.html">저장 실습</a>에서 정상 1건의 실제 MQTT 저장·ACK 수신을 확인했습니다. 동일 메시지의 DUPLICATE 수신도 확인했으며, SQL 직접 조회로 원문 1건을 확인했습니다. 로그인·권한·상태/사건 조회도 구현했습니다. 실행은 <a href="authenticated-read.html">M1 안내</a>를 따릅니다. 예약 파일은 DB와 별도이며, 각 내부 상자는 별도 서버가 아닙니다.</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
@@ -42,9 +42,14 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <td>기존 SQL·제약·행 잠금·이력·현재 상태 저장, revision 예약</td>
 </tr>
 <tr>
-<td>상태 조회</td>
-<td><code>zone/application</code></td>
-<td>동일 시점의 ZoneView 읽기</td>
+<td>상태·이력 조회</td>
+<td><code>zone/application</code>, <code>zone/adapter/jdbc</code></td>
+<td>한 시점의 ZoneView, REPEATABLE READ 목록·상세</td>
+</tr>
+<tr>
+<td>인증·오류</td>
+<td><code>auth</code>, <code>web</code></td>
+<td>세션·CSRF·계정 재검사·공통 RestError</td>
 </tr>
 <tr>
 <td>HTTP 입출력</td>
@@ -63,7 +68,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <li>메시지 원본·사건 이력·현재 snapshot·view_revision의 관계는 기존 C1/C2/D5를 따릅니다. 과거 이력 저장과 현재 상태 갱신은 다릅니다.</li>
 <li>성공 ACK는 DB 커밋 뒤에 보냅니다. 네트워크 I/O를 DB 행 잠금 안에 넣지 않습니다.</li>
 <li>조회 결과는 기존 OpenAPI의 ZoneView를 사용합니다. <code>null</code>·키 생략·0·false를 임의로 바꾸지 않습니다.</li>
-<li>현재 제품 API는 차단돼 있습니다. 첫 조회 시험에 필요한 개발 인증을 명시적으로 추가하고 운영 세션·CSRF·권한 계약과 구분합니다.</li>
+<li><code>web-api</code>에서만 제품 조회를 엽니다. 로그인한 사용자도 user_zone_access에 없는 구역은 읽을 수 없습니다. 복구 hold와 manifest 불일치에서는 503으로 중단합니다.</li>
 </ul>
 <h2>필요할 때 볼 자료</h2>
 <div class="table-scroll"><table>

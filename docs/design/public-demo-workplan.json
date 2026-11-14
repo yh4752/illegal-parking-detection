@@ -1,7 +1,7 @@
 {
   "plan_id": "public-demo-1",
   "date": "2026-11-13",
-  "status": "M0_completed_M1_in_progress",
+  "status": "M0_M1_completed_M2_next",
   "baseline_commit": "6c6c172318f8e00dee9e2701b4e91616f5115957",
   "read_first": [
     "AGENTS.md",
@@ -41,7 +41,7 @@
     {
       "id": "M1",
       "name": "인증·조회",
-      "status": "in_progress",
+      "status": "completed_rest_scope",
       "depends_on": [
         "M0"
       ],
@@ -57,7 +57,8 @@
         "PD05",
         "PD06",
         "PD07"
-      ]
+      ],
+      "evidence": "validation/authenticated-read-2026-11-14.json"
     },
     {
       "id": "M2",
@@ -181,57 +182,63 @@
     {
       "id": "PD03",
       "area": "authentication",
-      "status": "planned",
+      "status": "passed",
       "expectation": "CSRF 없는 login/logout 거부, 성공 시 session ID/CSRF 회전, Secure/HttpOnly/SameSite 및 401/403 JSON",
       "evidence_required": [
         "environment and commit",
         "command or reproducible steps",
         "observed result"
-      ]
+      ],
+      "evidence": "validation/authenticated-read-2026-11-14.json"
     },
     {
       "id": "PD04",
       "area": "authorization",
-      "status": "planned",
+      "status": "partial_rest_passed",
       "expectation": "두 사용자·두 구역으로 REST/SSE 교차 접근 거부; 비활성/권한 회수·기존 SSE 종료",
       "evidence_required": [
         "environment and commit",
         "command or reproducible steps",
         "observed result"
-      ]
+      ],
+      "evidence": "validation/authenticated-read-2026-11-14.json",
+      "remaining": "SSE 접근·전송 전 권한 재검사·기존 스트림 종료는 M2"
     },
     {
       "id": "PD05",
       "area": "pagination",
-      "status": "planned",
+      "status": "passed",
       "expectation": "동일 수신 시각 정렬, cursor 변조/필터 불일치/길이 제한, UTC from 포함/to 제외, limit 1~100",
       "evidence_required": [
         "environment and commit",
         "command or reproducible steps",
         "observed result"
-      ]
+      ],
+      "evidence": "validation/authenticated-read-2026-11-14.json"
     },
     {
       "id": "PD06",
       "area": "read_consistency",
-      "status": "planned",
+      "status": "passed",
       "expectation": "동시 쓰기 중 revision과 ZoneView 내용 일치; 최초 null; 배열 필수키 유지; confirmation_token 마스킹",
       "evidence_required": [
         "environment and commit",
         "command or reproducible steps",
         "observed result"
-      ]
+      ],
+      "evidence": "validation/authenticated-read-2026-11-14.json"
     },
     {
       "id": "PD07",
       "area": "retention",
-      "status": "planned",
+      "status": "passed",
       "expectation": "30일 기한 직전/정각/직후, 배치 전 접근 차단, tombstone 410/미존재 404, 오래된 snapshot은 빈 구역으로 조작하지 않음",
       "evidence_required": [
         "environment and commit",
         "command or reproducible steps",
         "observed result"
-      ]
+      ],
+      "evidence": "validation/authenticated-read-2026-11-14.json"
     },
     {
       "id": "PD08",
@@ -280,13 +287,15 @@
     {
       "id": "PD12",
       "area": "session_stream",
-      "status": "planned",
+      "status": "partial_rest_passed",
       "expectation": "idle 30분/absolute 8시간, keepalive가 세션 연장하지 않음, logout 즉시 닫기, 계정/권한 회수 검사 후 전송 금지",
       "evidence_required": [
         "environment and commit",
         "command or reproducible steps",
         "observed result"
-      ]
+      ],
+      "evidence": "validation/authenticated-read-2026-11-14.json",
+      "remaining": "SSE 접근·전송 전 권한 재검사·기존 스트림 종료는 M2"
     },
     {
       "id": "PD13",
@@ -391,9 +400,10 @@
   ],
   "do_not_claim": [
     "planned checks passed",
-    "UI or APIs already implemented",
+    "UI, SSE or public deployment already implemented",
     "all v1.43 features complete",
     "hardware or real traffic tests complete",
     "zero data loss on host loss"
-  ]
+  ],
+  "updated_at": "2026-11-14"
 }

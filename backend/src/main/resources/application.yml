@@ -3,6 +3,10 @@ spring:
     name: parking-backend
   profiles:
     group:
+      web-api:
+        - database
+      app-local:
+        - web-api
       mqtt-validation-local:
         - database
       mqtt-ingest-local:
