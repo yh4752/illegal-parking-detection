@@ -74,6 +74,46 @@ test('fresh clone: real login, MQTT persistence, SSE, history, reconnect, offlin
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
+  // A delayed raw message does not change the current zone revision. Detail history must
+  // still refresh through its own REST timer; this route has no ZoneStream subscription.
+  await page.getByRole('link', { name: '사건 자세히 보기' }).click();
+  await expect(page.getByRole('heading', { name: '사건 상세' })).toBeVisible();
+  const beforeLate = await (await page.request.get('/api/zones/zone-01/status')).json();
+  const late = structuredClone(detail.messages[0]);
+  late.message_id = `late-ui-${eventId}`;
+  late.device_seq = 0;
+  late.snapshot.device_seq = 0;
+  const probe = execFileSync(
+    'docker',
+    [
+      'compose',
+      '--env-file',
+      '.local-state/handoff/.env',
+      '-f',
+      'infra/handoff/compose.yaml',
+      'run',
+      '--rm',
+      '-T',
+      '--no-deps',
+      '--entrypoint',
+      'python',
+      'simulator',
+      'simulator/transport_probe.py',
+    ],
+    {
+      cwd: root,
+      input: JSON.stringify({ messages: [{ payload: late, expected: ['STORED'] }] }),
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 30000,
+    },
+  );
+  expect(JSON.parse(probe.toString())[0].status).toBe('STORED');
+  await expect(page.getByText(`#0 · ${late.message_id}`, { exact: true })).toBeVisible({
+    timeout: 12000,
+  });
+  const afterLate = await (await page.request.get('/api/zones/zone-01/status')).json();
+  expect(afterLate.view_revision).toBe(beforeLate.view_revision);
+  expect(afterLate.snapshot.device_seq).toBe(beforeLate.snapshot.device_seq);
   await page.getByRole('button', { name: '로그아웃' }).click();
   await expect(page.getByRole('heading', { name: '로그인', exact: true })).toBeVisible();
   expect((await page.context().cookies()).some((c) => c.name === 'PARKING_HANDOFF_SESSION')).toBe(
