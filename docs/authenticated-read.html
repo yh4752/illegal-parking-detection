@@ -11,6 +11,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>M1 — 로그인해서 상태와 사건 읽기</h1>
 <p>2026-11-14 · 구현 및 실행 안내</p>
+<p>현재 개발 브랜치는 <code>feat/authenticated-read-api</code>, 공유 위치는 <a href="https://github.com/yh4752/parking-system/pull/2">초안 PR #2</a>입니다. 새로 클론한 경우 이 브랜치로 전환한 뒤 아래 명령을 실행합니다. 아직 기본 브랜치에 병합하지 않았습니다.</p>
 <p><strong>저장된 사건을 로그인한 사용자에게 보여주는 API를 구현했습니다.</strong> 사용자에게 허용된 구역만 읽을 수 있습니다. MQTT 메시지와 성공 응답 DTO는 v1.43을 유지하며, 웹 오류 응답은 <a href="contracts.html">REST 유효 계약</a>을 사용합니다.</p>
 <figure class="figure"><img src="diagrams/03-components.svg" alt="로그인·조회와 MQTT 수신을 함께 제공하는 서버"><a href="diagrams/03-components.svg" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
 <h2>사용할 수 있는 기능</h2>

@@ -2,6 +2,8 @@
 
 2026-11-14 · 구현 및 실행 안내
 
+현재 개발 브랜치는 `feat/authenticated-read-api`, 공유 위치는 [초안 PR #2](https://github.com/yh4752/parking-system/pull/2)입니다. 새로 클론한 경우 이 브랜치로 전환한 뒤 아래 명령을 실행합니다. 아직 기본 브랜치에 병합하지 않았습니다.
+
 **저장된 사건을 로그인한 사용자에게 보여주는 API를 구현했습니다.** 사용자에게 허용된 구역만 읽을 수 있습니다. MQTT 메시지와 성공 응답 DTO는 v1.43을 유지하며, 웹 오류 응답은 [REST 유효 계약](contracts.md)을 사용합니다.
 
 ![로그인·조회와 MQTT 수신을 함께 제공하는 서버](diagrams/03-components.svg)

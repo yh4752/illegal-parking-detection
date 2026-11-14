@@ -88,3 +88,5 @@
 Mac에서 일반 테스트 **140개**, 실제 PostgreSQL 테스트 **64개**, 계약 보호 시험 **6개**가 실패·오류·건너뜀 없이 통과했고 bootJar를 생성했습니다. 신규 시험은 일반 10개·DB 18개이며 DB 18개에 웹 통합 17개와 파일 조회 gate 1개가 포함됩니다. 실제 HTTP 쿠키·세션 교체와 별도 계정 CLI 프로세스 4회도 DB 시험 안에서 검증했습니다. 테스트용 스키마·파일만 생성/정리했으며 기존 사용자 public 데이터는 변경하지 않았습니다.
 
 [검증 기록](../validation/authenticated-read-2026-11-14.json)에 실행 환경·실패 수정·코드 해시·범위를 남겼습니다. 현재 계정·세션은 단일 서버용입니다. 공개 HTTPS·실제 MQTT 장애·브라우저·부하·실보드 시험을 완료했다는 뜻은 아닙니다. heartbeat와 SSE는 **다음 M2**, React는 M3입니다. 전체 인계판은 아직 완성되지 않았습니다.
+
+M1 공유 완료: 구현 `36ff6a1`을 `feat/authenticated-read-api`에 푸시했고 [초안 PR #2](https://github.com/yh4752/parking-system/pull/2)를 만들었습니다. 해당 코드의 [GitHub 전체 CI](https://github.com/yh4752/parking-system/actions/runs/43578261661)도 통과했습니다. 기본 브랜치 병합·외부 배포는 수행하지 않았습니다.

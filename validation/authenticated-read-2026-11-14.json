@@ -114,11 +114,16 @@
     "명령/정책 변경·사진 파일·실물 보드/AI"
   ],
   "github_ci": {
-    "status": "initial_code_passed_final_profile_fix_pending",
-    "initial_code_commit": "d30d52114adcbcc389807836045a63f67842d7ff",
-    "initial_run_url": "https://github.com/yh4752/parking-system/actions/runs/43578018045",
-    "initial_conclusion": "success",
-    "pr_url": "https://github.com/yh4752/parking-system/pull/2"
+    "status": "completed",
+    "conclusion": "success",
+    "code_commit": "36ff6a13071d68119e5c0e04981d8f253b7849e3",
+    "run_url": "https://github.com/yh4752/parking-system/actions/runs/43578261661",
+    "backend_job_id": 132397215511,
+    "documents_job_id": 132397215767,
+    "environment": "GitHub ubuntu-24.04 / Temurin 17 / PostgreSQL 17.11 service",
+    "command": "bash ./gradlew test databaseTest bootJar --no-daemon",
+    "pr_url": "https://github.com/yh4752/parking-system/pull/2",
+    "initial_code_run": "https://github.com/yh4752/parking-system/actions/runs/43578018045"
   },
   "source_files_sha256": {
     "backend/src/main/kotlin/kr/ac/sejong/parking/ParkingApplication.kt": "6e6907fa16b804f92d351945599701a59bec100d9c4e09167eb98633d1ff25fa",
@@ -168,5 +173,6 @@
     "backend/src/test/kotlin/kr/ac/sejong/parking/storage/EventIngestionDatabaseTest.kt": "20e66c2a53132a55ca41a5a7109ba13baa8d4edffec5599a8820b06b2d25edf9",
     "backend/src/test/kotlin/kr/ac/sejong/parking/web/WebPolicyTest.kt": "8411f3b8633c56d63da6e1fe775588e8d4409aea7ea81645ef73dc2858c6731e",
     "backend/src/test/kotlin/kr/ac/sejong/parking/web/WebReadDatabaseTest.kt": "d99e87632ac8e3db9ef3075051038107cbd35fbd6852778af2fe03c3bf9440dd"
-  }
+  },
+  "code_commit": "36ff6a13071d68119e5c0e04981d8f253b7849e3"
 }
