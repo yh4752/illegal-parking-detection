@@ -9,7 +9,6 @@ server:
         name: JSESSIONID
         http-only: true
         same-site: lax
-        secure: true
 parking:
   revision:
     primary: ${PARKING_REVISION_PRIMARY:../.local-state/revisions/revision-reservations.json}

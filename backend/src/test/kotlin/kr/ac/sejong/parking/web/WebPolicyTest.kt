@@ -29,6 +29,18 @@ class WebTestClock(var now: Instant = Instant.parse("2026-11-14T00:00:00Z")) : C
 class WebPolicyTest {
     private val mapper = ObjectMapper()
     private fun params(vararg pairs: Pair<String,String>) = LinkedMultiValueMap<String,String>().apply { pairs.forEach { add(it.first,it.second) } }
+    @Test fun `프로필 그룹을 펼쳐도 로컬 HTTP만 Secure 쿠키를 해제한다`() {
+        for ((profile,secure) in listOf("app-local" to false,"web-api" to true,"app-local,mqtt-ingest-local" to false)) {
+            org.springframework.boot.test.context.runner.ApplicationContextRunner()
+                .withInitializer(org.springframework.boot.test.context.ConfigDataApplicationContextInitializer())
+                .withPropertyValues("spring.profiles.active=$profile")
+                .run { context ->
+                    assertThat(context.environment.activeProfiles).contains("web-api","database")
+                    assertThat(context.environment.getProperty("server.servlet.session.cookie.secure",Boolean::class.java))
+                        .describedAs(profile).isEqualTo(secure)
+                }
+        }
+    }
     @Test fun `cursor는 필터와 위치를 서명하고 변조 및 다른 구역을 거부한다`() {
         val codec = EventCursor(mapper, StrictJson(mapper), ByteArray(32) { 31 })
         val filter = EventFilter.parse(params("zone_id" to "zone-01"))

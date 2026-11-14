@@ -4,7 +4,7 @@
   "scope": "M1 세션 인증·구역 권한·7개 auth/REST 경로·계정 CLI",
   "base_commit": "51e951f",
   "branch": "feat/authenticated-read-api",
-  "source_identity": "이 파일을 추가하는 커밋의 backend 소스. 아래 SHA256으로 실행 당시 내용 식별.",
+  "source_identity": "최종 소스는 아래 SHA256으로 식별. 최초 구현 d30d521 이후 로컬 프로필 쿠키 우선순위를 보완했다.",
   "design_continuity": {
     "reference": "reference/v1.43",
     "preserved_files": 127,
@@ -30,7 +30,7 @@
       "result": "BUILD SUCCESSFUL",
       "counts": {
         "test": {
-          "tests": 139,
+          "tests": 140,
           "failures": 0,
           "errors": 0,
           "skipped": 0
@@ -57,10 +57,20 @@
       "cwd": ".",
       "command": "npm --prefix tools/docs run build",
       "result": "PASS: 6 SVG, 21 HTML"
+    },
+    {
+      "cwd": ".",
+      "command": "python3 tools/check_structure.py",
+      "result": "PASS: 39 Markdown, 21 HTML, 6 SVG, 466 local links, 127 preserved reference files"
+    },
+    {
+      "cwd": ".",
+      "command": "git diff --check",
+      "result": "PASS"
     }
   ],
   "new_test_cases": {
-    "WebPolicyTest": 9,
+    "WebPolicyTest": 10,
     "WebReadDatabaseTest": 17,
     "DemoFoundationDatabaseTest_added_read_gate": 1
   },
@@ -77,13 +87,15 @@
     "DB 자료 접근 불능 시 안전한 503; 트랜잭션 연결 실패 오류 매핑·예상 밖 500; SQL/비밀번호 원문 미노출",
     "로그인 5회 실패 후 429/Retry-After; 인증 저장소 장애를 실패 예산에서 제외; 제한 저장소 상한/TTL",
     "복구 hold 및 예약 파일 불일치 거부; 파일 유실을 발견한 프로세스는 복사본 복구만으로 자동 재개하지 않음",
-    "별도 Java 프로세스 계정 CLI 4회: 사용자 생성·grant·회수·비활성; BCrypt 검증·감사 4행·기존 세션 반영"
+    "별도 Java 프로세스 계정 CLI 4회: 사용자 생성·grant·회수·비활성; BCrypt 검증·감사 4행·기존 세션 반영",
+    "Spring ConfigData 실제 프로필 확장: app-local HTTP는 Secure=false, web-api는 true, app-local+mqtt-ingest-local은 false"
   ],
   "attempts_and_fixes": [
     "초기 Wrapper 다운로드는 네트워크/쓰기 환경에서 실패. 기존 배포·읽기 전용 의존성 캐시로 실행.",
     "Spring CSRF 구성 API 사용 오류를 지원 API로 수정한 뒤 컴파일 통과.",
     "초기 새 조회 시험 7개는 fixture snapshot의 event_id 오타로 계약 거부. current_event_id로 고쳐 제품 검증을 유지한 채 통과.",
-    "실행/검토 중 인증 저장소 장애를 로그인 실패 횟수에서 제외하고 트랜잭션 연결 실패를 503으로 보완. 이후 전체 회귀 재실행."
+    "실행/검토 중 인증 저장소 장애를 로그인 실패 횟수에서 제외하고 트랜잭션 연결 실패를 503으로 보완. 이후 전체 회귀 재실행.",
+    "최종 프로필 조합 시험으로 app-local 그룹의 web-api 설정이 Secure=false를 덮는 오류를 재현. Secure=true 기본값을 공통 설정으로 옮기고 app-local만 false로 덮도록 수정. app-local/web-api/app-local+mqtt-ingest-local의 결과 및 전체 회귀 통과."
   ],
   "limits": [
     "HTTP 시험은 loopback이며 실제 HTTPS 프록시·외부 접속 시험이 아님",
@@ -102,7 +114,11 @@
     "명령/정책 변경·사진 파일·실물 보드/AI"
   ],
   "github_ci": {
-    "status": "pending_push"
+    "status": "initial_code_passed_final_profile_fix_pending",
+    "initial_code_commit": "d30d52114adcbcc389807836045a63f67842d7ff",
+    "initial_run_url": "https://github.com/yh4752/parking-system/actions/runs/43578018045",
+    "initial_conclusion": "success",
+    "pr_url": "https://github.com/yh4752/parking-system/pull/2"
   },
   "source_files_sha256": {
     "backend/src/main/kotlin/kr/ac/sejong/parking/ParkingApplication.kt": "6e6907fa16b804f92d351945599701a59bec100d9c4e09167eb98633d1ff25fa",
@@ -137,8 +153,8 @@
     "backend/src/main/resources/application-database.yml": "345a82939e2a381f07783eeb97cec27fc5a0faebf6794fca08b8abbeab50ff58",
     "backend/src/main/resources/application-mqtt-ingest-local.yml": "d23ecc0468561b4c52f75307aa12d4778596e09dbc49425640132387d4d96cde",
     "backend/src/main/resources/application-mqtt-learning.yml": "66d5bec71fe46c96f3125d3a1c133518bb919a5eaa211e4e7770c53fc702b763",
-    "backend/src/main/resources/application-web-api.yml": "1ee815b8d05222274e42a09de18b3dc9ac22e543210eb9f95d19da8bd6193c66",
-    "backend/src/main/resources/application.yml": "489e2b93d71f5eb2c09518264b65a67a5aa0fce3263976179ec0fa02a5ebb205",
+    "backend/src/main/resources/application-web-api.yml": "c44a17e2aeeb7397166c92244a3210a7a6cc9f8dc5e189cd9d4798d1ce725398",
+    "backend/src/main/resources/application.yml": "d25de36f37299632d0530e10c96673f3959f2930f1044ecd3848daddb36bfdee",
     "backend/src/test/kotlin/kr/ac/sejong/parking/BootstrapHttpTest.kt": "08d5907b075a83aae2c047994dda8d61d588e0bb752e993396894abc7492e0e9",
     "backend/src/test/kotlin/kr/ac/sejong/parking/configuration/MqttLearningMessageHandlerTest.kt": "c44bbccc96d6472964d709a47208a36e450a87de574baa4c6173d65bfa472db4",
     "backend/src/test/kotlin/kr/ac/sejong/parking/contracts/RestContractTest.kt": "4e03a56e5cef49e9a8284ac4b6387cc04cfa059a25a6902be1e46cbe00b2f06c",
@@ -150,7 +166,7 @@
     "backend/src/test/kotlin/kr/ac/sejong/parking/storage/DatabaseMigrationTest.kt": "af0bdee553783e0259b57ca9c2f83624466175ce102449b7b656a82688adddc1",
     "backend/src/test/kotlin/kr/ac/sejong/parking/storage/DemoFoundationDatabaseTest.kt": "55abad05c0f9a3615e832260c36a6bd75a55da11a69ca4d75fc50823f7a82219",
     "backend/src/test/kotlin/kr/ac/sejong/parking/storage/EventIngestionDatabaseTest.kt": "20e66c2a53132a55ca41a5a7109ba13baa8d4edffec5599a8820b06b2d25edf9",
-    "backend/src/test/kotlin/kr/ac/sejong/parking/web/WebPolicyTest.kt": "bd2463fc4199a173b8b38ddabac91e62038940119c30a067f1f5276ad6df440a",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/web/WebPolicyTest.kt": "8411f3b8633c56d63da6e1fe775588e8d4409aea7ea81645ef73dc2858c6731e",
     "backend/src/test/kotlin/kr/ac/sejong/parking/web/WebReadDatabaseTest.kt": "d99e87632ac8e3db9ef3075051038107cbd35fbd6852778af2fe03c3bf9440dd"
   }
 }

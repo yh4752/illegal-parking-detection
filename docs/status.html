@@ -143,7 +143,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p>2026-11-14 Mac 작업 재개: 로컬 설계 커밋 <code>052fa95</code>와 원격 M0 <code>7ec0792</code>를 <code>feat/authenticated-read-api</code>에서 통합했다. 아래 후속 작업은 M1이며, 과거 기록의 “설계 병합 필요”는 당시 상황이다. 기존 사용 DB를 초기화하지 않는다.</p>
 <h2>인증·조회 M1 — 2026-11-14</h2>
 <p><strong>로그인·세션·CSRF·구역 권한과 조회 API 7개를 구현했습니다.</strong> 상태·목록·상세는 실제 저장 자료와 유효 계약을 사용합니다. 계정/권한 CLI, 만료 자료 제외, 확인 토큰 마스킹, 서명 cursor, 복구 gate 및 오류 응답을 포함합니다. <a href="authenticated-read.html">실행 안내</a>와 <a href="adr/007-authenticated-read-api.html">ADR-007</a>을 함께 봅니다.</p>
-<p>Mac에서 일반 테스트 <strong>139개</strong>, 실제 PostgreSQL 테스트 <strong>64개</strong>, 계약 보호 시험 <strong>6개</strong>가 실패·오류·건너뜀 없이 통과했고 bootJar를 생성했습니다. 신규 시험은 일반 9개·DB 18개이며 DB 18개에 웹 통합 17개와 파일 조회 gate 1개가 포함됩니다. 실제 HTTP 쿠키·세션 교체와 별도 계정 CLI 프로세스 4회도 DB 시험 안에서 검증했습니다. 테스트용 스키마·파일만 생성/정리했으며 기존 사용자 public 데이터는 변경하지 않았습니다.</p>
+<p>Mac에서 일반 테스트 <strong>140개</strong>, 실제 PostgreSQL 테스트 <strong>64개</strong>, 계약 보호 시험 <strong>6개</strong>가 실패·오류·건너뜀 없이 통과했고 bootJar를 생성했습니다. 신규 시험은 일반 10개·DB 18개이며 DB 18개에 웹 통합 17개와 파일 조회 gate 1개가 포함됩니다. 실제 HTTP 쿠키·세션 교체와 별도 계정 CLI 프로세스 4회도 DB 시험 안에서 검증했습니다. 테스트용 스키마·파일만 생성/정리했으며 기존 사용자 public 데이터는 변경하지 않았습니다.</p>
 <p><a href="../validation/authenticated-read-2026-11-14.json">검증 기록</a>에 실행 환경·실패 수정·코드 해시·범위를 남겼습니다. 현재 계정·세션은 단일 서버용입니다. 공개 HTTPS·실제 MQTT 장애·브라우저·부하·실보드 시험을 완료했다는 뜻은 아닙니다. heartbeat와 SSE는 <strong>다음 M2</strong>, React는 M3입니다. 전체 인계판은 아직 완성되지 않았습니다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>
