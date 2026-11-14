@@ -400,7 +400,7 @@ class WebReadDatabaseTest(
         try {
             opened.forEach {assertThat(it.statusCode()).isEqualTo(200)}
             val limited=client.send(httpGet("/api/stream?zone_id=zone-01",cookie),HttpResponse.BodyHandlers.ofString())
-            assertThat(limited.statusCode()).isEqualTo(429);assertThat(limited.headers().firstValue("Retry-After").orElseThrow()).isEqualTo("10")
+            assertThat(limited.statusCode()).isEqualTo(429);checkSchema("RestError",mapper.readTree(limited.body()));assertThat(limited.headers().firstValue("Retry-After").orElseThrow()).isEqualTo("10")
             clock.now=clock.now.plusSeconds(1800)
             for(response in opened){val reader=response.body().bufferedReader();readFrame(reader);assertThat(readFrame(reader)).isEmpty()}
         } finally {opened.forEach {it.body().close()}}

@@ -78,7 +78,7 @@ jobs:
         with: {node-version: '24', package-manager-cache: false}
       - run: npm ci
         working-directory: frontend
-      - run: npm run generate && npm test && npm run build
+      - run: npm run generate && npm run format:check && npm test && npm run build
         working-directory: frontend
       - run: git diff --exit-code -- frontend/src/api/generated
       - run: pip install -r simulator/requirements.txt

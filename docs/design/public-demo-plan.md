@@ -120,7 +120,7 @@ heartbeat에는 완전한 EventRecord가 없으므로 현재 사건 요약은 �
 
 ## 6. SSE와 React의 일관성
 
-1. 구역 쓰기 트랜잭션 안에서 view_revision 증가와 해당 revision의 **불변 ZoneView 값**을 함께 만든다.
+1. 구역 쓰기 트랜잭션에서 상태와 view_revision을 함께 커밋한다. [ADR-008](../adr/008-frontend-handoff-realtime.md)에 따라 첫 인계판은 1초 주기로 권한·revision·전체 ZoneView를 동일 SQL에서 읽는다. 쓰기 트랜잭션 밖에서 완성된 snapshot을 읽어 전송하며 ID와 본문은 같은 조회 결과를 사용한다.
 2. 커밋 뒤 ACK와 SSE를 각각 처리한다. SSE 실패가 ACK·DB 커밋을 취소하지 않으며 ACK 실패도 SSE 발행을 생략할 이유가 되지 않는다.
 3. SSE는 zone_snapshot, id=revision, data=전체 ZoneView다. 별도 웹용 축약 payload를 만들지 않는다.
 4. 브라우저가 SSE open을 확인한 뒤 REST 상태를 조회한다. 연결 전 데이터가 없어도 첫 revision=0을 수용하도록 로컬 revision 초기값은 -1이다.
@@ -131,13 +131,13 @@ heartbeat에는 완전한 EventRecord가 없으므로 현재 사건 요약은 �
 
 초기 상한은 전체 SSE 50개, 세션당 3개, 연결당 최신 full snapshot 1개 대기다. 더 새 값으로 대체할 수 있으며 SSE를 사건 이력 전달 채널로 쓰지 않는다. executor 4개·전체 대기 100개, 전송 제한 5초를 초기 설정으로 두고 과도한/느린 연결은 종료한다. 수치는 성능 보장이 아닌 시험할 운영 설정이다.
 
-연결 하나에 전송 작업을 중복 예약하지 않는다. 제한 초과는 429 RATE_LIMITED와 Retry-After로 응답한다. SseEmitter의 전체 연결 timeout만 설정하고 개별 쓰기 제한을 구현했다고 보지 않으며 Tomcat/Nginx를 포함한 느린 클라이언트 시험으로 종료·worker 반환을 확인한다.
+연결 하나에 전송 작업을 중복 예약하지 않는다. 제한 초과는 429 RATE_LIMITED와 Retry-After로 응답한다. Servlet 비차단 출력에서 isReady일 때만 쓰고 출력이 5초 이상 진행되지 않으면 종료한다. 상한은 단위 시험으로 검증하며 실제 TCP/Nginx 대규모 느린 클라이언트 부하는 별도 인수 항목으로 남긴다.
 
-1초마다 연결이 있는 구역의 DB revision을 비교하는 보완 작업을 둔다. 커밋 후 SSE callback만 놓쳤을 때 같은 일관된 읽기로 최신값을 다시 전달한다. 정기 비교는 revision을 새로 만들지 않는다. 서로 다른 revision의 값과 ID를 조합하지 않는다. 최종 상태 기준으로 수렴하면 되며 중간 상태 전부의 실시간 전달은 보장하지 않는다.
+첫 인계판의 전달 경로는 1초마다 열린 연결의 권한과 커밋된 전체 상태를 읽는 작업 하나다. 커밋 callback과 별도 fanout은 두지 않는다. 정기 비교는 revision을 새로 만들지 않는다. 서로 다른 revision의 값과 ID를 조합하지 않는다. 최종 상태 기준으로 수렴하면 되며 중간 상태 전부의 실시간 전달은 보장하지 않는다.
 
 SSE 주석 keepalive 15초·프록시 read timeout 60초는 C16을 유지한다. 전송 직전과 최대 15초마다 계정·권한·세션 유효성을 확인하고, 다음 검사에서 회수/만료를 알면 연결을 닫는다. 이미 전송 중인 바이트를 회수할 수 있다고 보장하지 않는다. 로그아웃은 같은 세션의 SSE를 즉시 종료한다. idle 검사용 시각은 keepalive/권한 점검으로 갱신하지 않는다. [Spring MVC 비동기 처리](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc/mvc-ann-async.html)의 disconnect/timeout 정리와 bounded executor를 사용한다.
 
-사건 목록·상세는 SSE 전체 상태에 포함되지 않는다. zone_snapshot 수신, 창 재활성화, 새로고침에서 조회하고 화면이 열린 동안 10초마다 재확인한다. 낮은 seq의 과거 원문은 view_revision을 바꾸지 않을 수 있으므로 SSE만 기다리지 않는다. 이는 이력 조회 보완이며 구역 실시간 갱신을 polling으로 대체하는 것이 아니다.
+사건 목록·상세는 SSE 전체 상태에 포함되지 않는다. zone_snapshot 수신, 창 재활성화, 새로고침에서 조회하고 화면이 열린 동안 10초마다 재확인한다. 낮은 seq의 과거 원문은 view_revision을 바꾸지 않을 수 있으므로 SSE만 기다리지 않는다. 이는 브라우저 이력 조회 보완이며 구역 상태는 SSE로 수신한다. 서버 내부 전달은 위 1초 조회 방식이다.
 
 EventSource 오류에서는 기존 연결을 닫고 auth/me와 구역 status로 원인을 확인한다. 확인용 fetch의 401이면 로그인 화면, 인증 후 403/404이면 자동 재연결 중단과 접근 오류를 표시한다. fetch의 429는 Retry-After를 따르고, 네트워크/503은 1→2→4→8→16→30초·±20% 지연으로 재시도한다. native EventSource는 실패 HTTP 상태·헤더를 노출하지 않으므로 SSE에만 걸린 연결 제한을 정확히 식별한다고 가정하지 않는다. 확인용 API가 정상이어도 SSE 실패는 같은 지연 정책으로 재시도한다.
 

@@ -83,6 +83,7 @@ class WebApiConfiguration {
             errors.write(req, res, ApiProblem(401, "UNAUTHENTICATED", "로그인이 필요합니다."))
         }.accessDeniedHandler { req, res, _ -> errors.write(req, res, ApiProblem(403, "FORBIDDEN", "접근 권한이 없습니다.")) } }
         http.authorizeHttpRequests { it
+            .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.GET, "/actuator/health", "/api/csrf").permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/login").permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/auth/me", "/api/zones/*/status", "/api/events", "/api/events/*", "/api/stream").hasAnyRole("VIEWER", "OPERATOR")

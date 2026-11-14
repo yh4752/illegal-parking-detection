@@ -27,7 +27,7 @@ class ZoneStreams(private val queries: ReadQueries, private val users: JdbcWebUs
         if(!lifetime.valid(session)) throw ApiProblem(401,"UNAUTHENTICATED","다시 로그인해 주세요.")
         val sid=session.id
         if(streams.size >= 50 || streams.values.count { it.sessionId == sid } >= 3)
-            throw ApiProblem(429,"TOO_MANY_REQUESTS","열려 있는 실시간 화면이 많습니다.",10)
+            throw ApiProblem(429,"RATE_LIMITED","열려 있는 실시간 화면이 많습니다.",10)
         response.contentType="text/event-stream"; response.characterEncoding="UTF-8"
         response.setHeader("Cache-Control","no-store");response.setHeader("X-Accel-Buffering","no")
         val async=request.startAsync();async.timeout=0
