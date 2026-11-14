@@ -13,7 +13,7 @@
     },
     "backend": {
       "general_passed": 144,
-      "database_passed": 74,
+      "database_passed": 75,
       "failures": 0,
       "skipped": 0
     },
@@ -66,6 +66,11 @@
       "commit": "c347dbf",
       "run": 43584426101,
       "outcome": "all four jobs passed, including browser delayed-history refresh, distinct cookie logout and broker outage with dependencies kept stopped"
+    },
+    {
+      "commit": "b4f9287",
+      "run": 43585232829,
+      "outcome": "browser flow passed; broker recovery failed the 50-second bound. Actual Paho 1.2.5 reconnect property corrected; threshold unchanged, two outage cycles now required."
     }
   ],
   "verified_code_commit": "c347dbf86a398895eb03e70842d37d17eae2caba",
@@ -146,5 +151,34 @@
         }
       ]
     }
+  },
+  "public_repository": {
+    "visibility": "public",
+    "requested_by_user": true,
+    "verified_anonymous_http": 200,
+    "git_history_blob_versions_scanned": 646,
+    "high_signal_secret_or_sensitive_filename_hits": 0,
+    "scope": "pattern and filename review, not a complete security audit",
+    "website_publication": false
+  },
+  "reverification": {
+    "state": "local_backend_and_docs_passed_ci_pending",
+    "reason": "Paho reconnect setting and EventSource error content negotiation fixes",
+    "backend": {
+      "test": {
+        "tests": 144,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "databaseTest": {
+        "tests": 75,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "broker_outage_cycles_required": 2,
+    "broker_cycle_timeout_seconds": 50
   }
 }

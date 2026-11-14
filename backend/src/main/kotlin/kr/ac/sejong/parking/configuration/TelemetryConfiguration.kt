@@ -21,7 +21,8 @@ class TelemetryConfiguration(@Value("\${parking.mqtt.broker-url}") private val b
     @Bean fun telemetryInbound(receiver: HeartbeatReceiver): IntegrationFlow {
         val options = MqttConnectionOptions().apply {
             setServerURIs(arrayOf(broker)); setCleanStart(true); setSessionExpiryInterval(0L)
-            setKeepAliveInterval(15); setConnectionTimeout(10); setAutomaticReconnect(true); setAutomaticReconnectDelay(1,30)
+            setKeepAliveInterval(15); setConnectionTimeout(10); setAutomaticReconnect(true)
+            setMaxReconnectDelay(8_000) // Paho 1.2.5 reconnect loop uses this millisecond property.
         }
         val adapter = Mqttv5PahoMessageDrivenChannelAdapter(options,"servertelemetry0001",
             MqttSubscription("parking/v2/devices/+/heartbeat",0).apply { setRetainAsPublished(true) },

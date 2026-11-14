@@ -22,7 +22,7 @@
 
 ## 1. 처음 실행하기
 
-필요한 것은 GitHub 저장소 접근 권한, Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24.13.0도 필요합니다(`frontend/.nvmrc`).
+필요한 것은 Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24.13.0도 필요합니다(`frontend/.nvmrc`).
 
 ```sh
 git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git
@@ -135,7 +135,7 @@ npm run test:e2e
 | 증상 | 먼저 확인할 것 |
 |---|---|
 | Docker daemon 연결 오류 | Docker Desktop/Engine 실행 후 같은 명령 재실행 |
-| GitHub clone 거부 | 비공개 저장소 협업자 초대 수락·Git 인증 |
+| GitHub clone 거부 | 공개 저장소 URL·브랜치 이름·네트워크 확인. 직접 push는 별도 쓰기 권한 필요 |
 | 18080/18081/5173 사용 중 | 다른 프로세스인지 확인. 사용 중인 프로세스를 무작정 종료하지 않음 |
 | 첫 관측 전 화면 | `simulate`를 실행했는지, 서버/브로커 로그 확인 |
 | 사건만 보이고 연결 미확인 | 유효한 새 heartbeat 수신 여부 확인. 사건 수신만으로 ONLINE이 되지 않음 |
@@ -146,7 +146,7 @@ npm run test:e2e
 ## 7. 인계할 때 함께 전달할 것
 
 1. GitHub 브랜치/PR와 이 문서 링크.
-2. 상대방의 저장소 접근 권한(협업자 초대는 별도).
+2. 공개 저장소는 누구나 열람·클론 가능. 직접 push할 팀원만 협업자 초대 필요.
 3. 로컬 실행판인지 공개 HTTPS 운영판인지.
 4. 검증된 커밋·검사 기록·남은 제한.
 

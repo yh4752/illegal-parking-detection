@@ -26,3 +26,10 @@ DB 단절 검증에서 예약 파일을 변경하기 **전**의 DB 조회 실패
 - [React Router 선언형 라우팅](https://reactrouter.com/start/declarative/routing)
 - [Spring MVC 비동기 요청](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc/mvc-ann-async.html)
 - 유효 REST 계약, 기존 원본 MQTT 계약과 ADR-006/007
+
+
+## 2026-11-14 인계 재검증 보완
+
+문서 커밋 b4f9287의 반복 CI에서 브로커 복귀 50초 검사가 실패했다. 고정 버전 [Paho 1.2.5 재접속 구현](https://github.com/eclipse-paho/paho.mqtt.java/blob/v1.2.5/org.eclipse.paho.mqttv5.client/src/main/java/org/eclipse/paho/mqttv5/client/MqttAsyncClient.java)은 `getMaxReconnectDelay()`를 사용하므로, 기존 `setAutomaticReconnectDelay` 설정만으로 실제 루프의 최대 지연이 바뀌지 않는 것을 확인했다. 수신·ACK·telemetry·검증 클라이언트에 실제 사용되는 밀리초 설정 `setMaxReconnectDelay(8000)`을 적용했다. 통합 검사의 50초 기준은 유지하고 두 번의 중단/복귀를 검사한다.
+
+EventSource의 `Accept: text/event-stream` 요청에서 스트림을 열기 전 발생한 오류도 정식 JSON으로 반환하도록 Content-Type을 명시했다. 실제 HTTP 시험에 해당 Accept 헤더를 사용하며 400/403/404/429 오류 응답을 검사한다. 대기 시간을 늘리거나 실패 검사를 제거해 통과시키지 않는다.

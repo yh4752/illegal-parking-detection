@@ -55,7 +55,10 @@ class StrictJson(mapper: ObjectMapper) {
 class RestExceptionAdvice(private val errors: RestErrors) {
     @ExceptionHandler(ApiProblem::class)
     fun problem(error: ApiProblem, request: HttpServletRequest): ResponseEntity<*> {
-        val result = ResponseEntity.status(error.status).header("Cache-Control", "no-store")
+        // EventSource requests Accept: text/event-stream, but pre-stream failures
+        // still use the JSON error contract rather than negotiating an empty 500.
+        val result = ResponseEntity.status(error.status).contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .header("Cache-Control", "no-store")
             .header("X-Request-ID", errors.requestId(request))
         error.retryAfter?.let { result.header("Retry-After", it.toString()) }
         return result.body(errors.body(request, error))

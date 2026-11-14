@@ -40,7 +40,7 @@ def main():
     elif args.command=='pause-simulator':compose('stop','simulator')
     elif args.command=='stop':compose('--profile','simulation','stop')
     elif args.command=='status':compose('--profile','simulation','ps')
-    elif args.command=='logs':compose('logs','--tail','250','backend','web')
+    elif args.command=='logs':compose('logs','--tail','250','backend','web','mosquitto','simulator')
 if __name__=='__main__':
     try:main()
     except subprocess.CalledProcessError as e:sys.exit(e.returncode)

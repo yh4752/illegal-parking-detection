@@ -8,7 +8,7 @@
 
 ## 바로 실행하기
 
-현재 인계 코드는 **`feat/frontend-handoff`** 브랜치에 있습니다. `main`에는 아직 병합하지 않았습니다. GitHub 저장소 접근 권한, Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2가 필요합니다. Windows는 WSL2를 사용합니다.
+저장소는 공개되어 누구나 열람·클론할 수 있습니다. [팀 전달 자료](docs/team-handoff.md)에서 시작하세요. 현재 인계 코드는 **`feat/frontend-handoff`** 브랜치에 있습니다. `main`에는 아직 병합하지 않았습니다. Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2가 필요합니다. Windows는 WSL2를 사용합니다.
 
 ```sh
 git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git

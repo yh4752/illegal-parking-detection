@@ -10,6 +10,7 @@
   "delivery": "local_executable_handoff",
   "public_url": null,
   "read_first": [
+    "docs/team-handoff.md",
     "AGENTS.md",
     "frontend/AGENTS.md",
     "docs/frontend-handoff.md",
@@ -113,5 +114,7 @@
     "public URL live",
     "real vehicle experiment",
     "large-scale capacity or zero host-loss data loss"
-  ]
+  ],
+  "repository_visibility": "public",
+  "access": "Anonymous read/clone; direct push needs collaborator permission or contribute through a fork/PR."
 }

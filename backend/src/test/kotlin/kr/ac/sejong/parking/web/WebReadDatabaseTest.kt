@@ -357,7 +357,8 @@ class WebReadDatabaseTest(
         assertThat(login.statusCode()).isEqualTo(200)
         return client to login.headers().firstValue("set-cookie").orElseThrow().substringBefore(';')
     }
-    private fun httpGet(path:String,cookie:String)=HttpRequest.newBuilder(URI.create("http://127.0.0.1:$port$path")).header("Cookie",cookie).GET().build()
+    private fun httpGet(path:String,cookie:String)=HttpRequest.newBuilder(URI.create("http://127.0.0.1:$port$path"))
+        .header("Cookie",cookie).header("Accept",if(path.startsWith("/api/stream")) "text/event-stream" else "application/json").GET().build()
     private fun readFrame(reader:java.io.BufferedReader):String {
         val executor=Executors.newSingleThreadExecutor()
         try { return executor.submit<String> { buildString { while(true) {val line=reader.readLine()?:break; if(line.isEmpty())break;append(line).append('\n')} } }.get(5,TimeUnit.SECONDS) }
@@ -392,6 +393,15 @@ class WebReadDatabaseTest(
             assertThat(readFrame(reader)).isEmpty()
             val denied=client.send(httpGet("/api/stream?zone_id=zone-01",cookie),HttpResponse.BodyHandlers.ofString())
             assertThat(denied.statusCode()).isEqualTo(403);checkSchema("RestError",mapper.readTree(denied.body()))
+        }
+    }
+    @Test fun `EventSource Accept header preserves JSON 400 and 404 before the stream opens`() {
+        val (client,cookie)=httpSession()
+        for((path,status) in listOf("/api/stream" to 400,"/api/stream?zone_id=unknown-zone" to 404)) {
+            val response=client.send(httpGet(path,cookie),HttpResponse.BodyHandlers.ofString())
+            assertThat(response.statusCode()).isEqualTo(status)
+            assertThat(response.headers().firstValue("content-type").orElseThrow()).contains("application/json")
+            checkSchema("RestError",mapper.readTree(response.body()))
         }
     }
     @Test fun `SSE enforces per session quota and stops at idle expiry without touching the session`() {

@@ -27,5 +27,8 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <li><a href="https://docs.spring.io/spring-framework/reference/6.2/web/webmvc/mvc-ann-async.html">Spring MVC 비동기 요청</a></li>
 <li>유효 REST 계약, 기존 원본 MQTT 계약과 ADR-006/007</li>
 </ul>
+<h2>2026-11-14 인계 재검증 보완</h2>
+<p>문서 커밋 b4f9287의 반복 CI에서 브로커 복귀 50초 검사가 실패했다. 고정 버전 <a href="https://github.com/eclipse-paho/paho.mqtt.java/blob/v1.2.5/org.eclipse.paho.mqttv5.client/src/main/java/org/eclipse/paho/mqttv5/client/MqttAsyncClient.java">Paho 1.2.5 재접속 구현</a>은 <code>getMaxReconnectDelay()</code>를 사용하므로, 기존 <code>setAutomaticReconnectDelay</code> 설정만으로 실제 루프의 최대 지연이 바뀌지 않는 것을 확인했다. 수신·ACK·telemetry·검증 클라이언트에 실제 사용되는 밀리초 설정 <code>setMaxReconnectDelay(8000)</code>을 적용했다. 통합 검사의 50초 기준은 유지하고 두 번의 중단/복귀를 검사한다.</p>
+<p>EventSource의 <code>Accept: text/event-stream</code> 요청에서 스트림을 열기 전 발생한 오류도 정식 JSON으로 반환하도록 Content-Type을 명시했다. 실제 HTTP 시험에 해당 Accept 헤더를 사용하며 400/403/404/429 오류 응답을 검사한다. 대기 시간을 늘리거나 실패 검사를 제거해 통과시키지 않는다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

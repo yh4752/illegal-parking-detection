@@ -19,8 +19,7 @@
     "hardware outputs",
     "commands and policy mutation",
     "review mutation",
-    "photos",
-    "GitHub repository visibility change"
+    "photos"
   ],
   "stages": [
     {
@@ -433,5 +432,6 @@
     "external recipient accepted"
   ],
   "updated_at": "2026-11-14",
-  "handoff_decision": "ADR-008: committed full-state polling every 1 second replaces after-commit fanout for this single-instance handoff; public deployment not complete."
+  "handoff_decision": "ADR-008: committed full-state polling every 1 second replaces after-commit fanout for this single-instance handoff; public deployment not complete.",
+  "repository_visibility": "public: explicitly requested and verified 2026-11-14; website publication remains pending"
 }

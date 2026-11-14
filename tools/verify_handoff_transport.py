@@ -51,20 +51,23 @@ try:probe({'payload':failed,'expected':None,'timeout':4})
 finally:compose('up','-d','--wait','postgres')
 probe({'payload':failed,'expected':['STORED','DUPLICATE'],'timeout':40})
 records=api.get('/api/events/'+event_id)['messages'];assert sum(x['message_id']==failed['message_id'] for x in records)==1
-print('TRANSPORT: broker down keeps simulator outbox; reconnect gets real application ACK',flush=True)
-compose('stop','mosquitto')
-try:
-    compose('--profile','simulation','up','-d','--no-deps','simulator')
-    time.sleep(3)
-    code='import sqlite3; c=sqlite3.connect("/state/device.sqlite"); print(c.execute("SELECT count(*) FROM outbox WHERE status=\'PENDING\'").fetchone()[0])'
-    assert int(capture('exec','-T','simulator','python','-c',code))>0
-finally:compose('up','-d','mosquitto')
-end=time.monotonic()+50
-while time.monotonic()<end:
-    if int(capture('exec','-T','simulator','python','-c',code))==0 and api.zone()['connection_state']=='ONLINE':break
-    time.sleep(1)
-else:raise AssertionError('simulator did not receive stored ACK after broker restart')
-assert api.zone()['connection_state']=='ONLINE'
+print('TRANSPORT: two broker outage cycles retain outbox and recover real application ACKs',flush=True)
+for cycle in range(1,3):
+    compose('stop','simulator')
+    compose('stop','mosquitto')
+    try:
+        compose('--profile','simulation','up','-d','--no-deps','simulator')
+        time.sleep(3)
+        code='import sqlite3; c=sqlite3.connect("/state/device.sqlite"); print(c.execute("SELECT count(*) FROM outbox WHERE status=\'PENDING\'").fetchone()[0])'
+        assert int(capture('exec','-T','simulator','python','-c',code))>0
+    finally:compose('up','-d','mosquitto')
+    started=time.monotonic();end=started+50
+    while time.monotonic()<end:
+        if int(capture('exec','-T','simulator','python','-c',code))==0 and api.zone()['connection_state']=='ONLINE':break
+        time.sleep(1)
+    else:raise AssertionError(f'broker cycle {cycle}: no stored ACK and ONLINE recovery within 50 seconds')
+    print(f'BROKER_RECOVERY_CYCLE={cycle} elapsed_seconds={time.monotonic()-started:.1f}',flush=True)
+    assert api.zone()['connection_state']=='ONLINE'
 compose('stop','simulator')
 print('TRANSPORT: backend restart preserves history and invalidates old sessions',flush=True)
 compose('restart','backend');wait_ready()

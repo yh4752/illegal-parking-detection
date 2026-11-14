@@ -2,7 +2,7 @@
 
 ## 처음 참여할 때
 
-개인 계정 `yh4752`의 비공개 [parking-system](https://github.com/yh4752/parking-system)을 하나의 개발 저장소로 사용합니다. 소유자에게 GitHub 사용자명을 전달해 초대를 받고, 초대 수락 후 본인 계정으로 클론합니다. 팀원 초대와 브랜치 보호 설정은 저장소 생성과 별개의 작업입니다.
+개인 계정 `yh4752`의 공개 [parking-system](https://github.com/yh4752/parking-system)을 하나의 개발 저장소로 사용합니다. 누구나 열람·클론할 수 있습니다. 원본 저장소에 직접 push할 팀원은 소유자에게 GitHub 사용자명을 전달해 협업자 초대를 받습니다. 쓰기 권한이 없으면 fork에서 작업한 뒤 PR로 제안할 수 있습니다. 공개 전환이 쓰기 권한을 부여하지는 않습니다.
 
 [README](README.md)의 도구·클론·기동 절차부터 따라 하세요. 백엔드 기동만 확인한다면 Docker나 Node.js 설치는 필요하지 않습니다. GitHub CLI를 사용한다면 `gh auth login`으로 인증할 수 있습니다. 토큰을 URL·명령 예제·설정 파일에 적어 공유하지 않습니다.
 
@@ -62,7 +62,7 @@ Markdown·DOT 원본을 고친 뒤 생성된 HTML·SVG도 커밋합니다. `git 
 
 | 증상 | 먼저 확인할 것 |
 |---|---|
-| Repository not found | 비공개 저장소 초대 수락 여부와 인증된 GitHub 계정 |
+| Repository not found | 저장소 URL·브랜치 이름·네트워크 확인. push 거부는 협업자 권한 또는 fork 사용 여부 확인 |
 | JDK를 찾지 못함·버전 오류 | `java -version`이 17인지, IDE의 Gradle JVM도 같은지 |
 | Gradle 다운로드 실패 | 인터넷·프록시·방화벽. 실패한 주소와 오류를 공유하되 비밀값 제외 |
 | macOS/Linux에서 gradlew 실행 권한 오류 | `bash ./gradlew test bootJar`로 확인 |
