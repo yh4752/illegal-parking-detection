@@ -38,6 +38,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p>사람은 이 문서부터 읽습니다. 코딩 AI에는 <a href="frontend-handoff-context.json">인계 컨텍스트 JSON</a>과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 현재 브랜치는 <a href="https://github.com/yh4752/parking-system/pull/3">PR #3</a>에서 확인하고, main에 미병합된 상태임에 유의합니다.</p>
 <figure class="figure"><img src="screenshots/zone-desktop.png" alt="실제 가상 장치 데이터로 실행한 구역 현황"><a href="screenshots/zone-desktop.png" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
 <h2>1. 처음 실행하기</h2>
+<p>팀 개발은 <strong>ZIP 다운로드 대신 클론</strong>으로 시작합니다. ZIP으로 받은 <code>parking-system-feat-frontend-handoff</code>는 Git 이력·원격 연결이 없는 사본입니다. 아래 명령으로 만든 <code>parking-system</code> 폴더를 개발 도구에서 엽니다. 기존 ZIP 폴더에서 수정한 내용이 있다면 먼저 보존하고 변경 파일만 작업 브랜치로 옮깁니다.</p>
 <p>필요한 것은 Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24.13.0도 필요합니다(<code>frontend/.nvmrc</code>).</p>
 <pre><code class="language-sh">git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git
 cd parking-system

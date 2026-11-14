@@ -5,6 +5,14 @@
   "product_design": "v1.43",
   "repository": "https://github.com/yh4752/parking-system",
   "branch": "feat/frontend-handoff",
+  "checkout": {
+    "method": "git_clone",
+    "clone_command": "git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git",
+    "working_directory": "parking-system",
+    "work_branch_example": "git switch -c feat/console-ui",
+    "pull_request_base": "feat/frontend-handoff",
+    "zip_usage": "Reference attachment for AI only; use a Git clone for collaborative development. Preserve any edits made in a ZIP folder before copying changed files into a work branch."
+  },
   "pull_request": "https://github.com/yh4752/parking-system/pull/3",
   "purpose": "프론트 담당자와 코딩 AI가 실행되는 실제 API 연결 화면을 인수하고 UI를 개선하기 위한 시작 정보",
   "delivery": "local_executable_handoff",

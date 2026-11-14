@@ -6,6 +6,8 @@
 
 [README](README.md)의 도구·클론·기동 절차부터 따라 하세요. 백엔드 기동만 확인한다면 Docker나 Node.js 설치는 필요하지 않습니다. GitHub CLI를 사용한다면 `gh auth login`으로 인증할 수 있습니다. 토큰을 URL·명령 예제·설정 파일에 적어 공유하지 않습니다.
 
+팀 개발은 `git clone`으로 시작합니다. ZIP은 Git 이력·원격 연결이 없는 코드 사본이므로 AI에 첨부하거나 내용을 살펴보는 용도로만 사용합니다. ZIP 폴더에서 이미 수정했다면 보존한 뒤, 별도로 클론한 저장소의 작업 브랜치에 변경 파일만 비교해 옮깁니다.
+
 ## 작업 하나를 끝내는 흐름
 
 **이번 프론트 인계의 기준은 `feat/frontend-handoff`입니다.** `main`은 아직 초기 골격이므로 아래 일반 절차 대신 `git switch feat/frontend-handoff` → `git pull --ff-only` → `git switch -c feat/console-ui`로 시작하고, PR의 기준 브랜치도 `feat/frontend-handoff`로 지정합니다. 인계 PR들이 main에 병합된 뒤에는 아래 일반 절차를 사용합니다. 미커밋 변경이 있으면 먼저 보존합니다.
