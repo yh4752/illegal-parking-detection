@@ -9,7 +9,7 @@
 python3 tools/handoff.py prepare
 python3 tools/handoff.py simulate
 
-# frontend/: Node 24
+# frontend/: Node 24.13.0 (frontend/.nvmrc)
 npm ci
 npm run generate
 PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev
@@ -25,5 +25,7 @@ PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev
 | 생성 타입·검증기 | `src/api/generated/` — 직접 편집 금지 |
 
 검사: `npm test`, `npm run build`. 깨끗한 별도 환경의 브라우저 검사: `npx playwright install chromium`, `npm run test:e2e`.
+
+현재 코드는 `feat/frontend-handoff`에 있으며 main에 미병합 상태입니다. 본인 작업 브랜치는 이 브랜치에서 만들고, 코딩 AI에는 [인계 컨텍스트](../docs/frontend-handoff-context.json)도 함께 읽게 합니다.
 
 미구현 제어·사진·지도를 넣지 않습니다. [AGENTS.md](AGENTS.md)의 계약·상태 표시 규칙을 유지합니다. 프론트 담당자는 UI/사용성을 개선하고, 계약·인증·배포 변경은 백엔드 담당자와 협의합니다.

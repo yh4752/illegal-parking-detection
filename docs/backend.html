@@ -57,12 +57,23 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <td>정식 조회 API·접근 제어 경계</td>
 </tr>
 <tr>
+<td>실시간 화면</td>
+<td><code>zone/adapter/sse</code></td>
+<td>커밋된 전체 상태 조회·권한 재검사·비차단 SSE 출력</td>
+</tr>
+<tr>
+<td>장치 생존 확인</td>
+<td>HeartbeatReceiver·TelemetryConfiguration</td>
+<td>유효 heartbeat 반영·15/30초 통신 상태 판정</td>
+</tr>
+<tr>
 <td>조립·설정</td>
 <td><code>configuration</code></td>
 <td>Spring Bean·연결·보안 설정</td>
 </tr>
 </tbody></table></div>
 <p>HTTP/MQTT 어댑터가 업무 서비스를 호출하고, SQL은 JDBC 어댑터에 둡니다. 도메인 규칙은 Spring에 의존하지 않게 작성합니다. 저장 포트 등의 인터페이스는 실제 사용처가 생길 때 추가하며 빈 계층을 미리 만들지 않습니다.</p>
+<p>React와 함께 실행하려면 <a href="frontend-handoff.html">인계 설명서</a>를 사용합니다. <a href="adr/008-frontend-handoff-realtime.html">ADR-008</a>에 1초 상태 조회·SSE 전달과 heartbeat 경계를 기록했습니다. 브라우저는 MQTT 브로커에 직접 접속하지 않습니다.</p>
 <h2>첫 기능에서 놓치면 안 되는 경계</h2>
 <ul>
 <li>메시지 원본·사건 이력·현재 snapshot·view_revision의 관계는 기존 C1/C2/D5를 따릅니다. 과거 이력 저장과 현재 상태 갱신은 다릅니다.</li>

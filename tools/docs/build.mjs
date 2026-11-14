@@ -23,6 +23,7 @@ const pages = new Map([
   ['first-slice.md', 'first-slice.html'],
   ['contracts.md', 'contracts.html'],
   ['status.md', 'status.html'],
+  ['status-history.md', 'status-history.html'],
   ['adr/001-start-small.md', 'adr/001-start-small.html'],
   ['adr/002-repository-onboarding.md', 'adr/002-repository-onboarding.html'],
   ['adr/003-event-validation-boundary.md', 'adr/003-event-validation-boundary.html'],

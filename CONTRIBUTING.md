@@ -8,6 +8,8 @@
 
 ## 작업 하나를 끝내는 흐름
 
+**이번 프론트 인계의 기준은 `feat/frontend-handoff`입니다.** `main`은 아직 초기 골격이므로 아래 일반 절차 대신 `git switch feat/frontend-handoff` → `git pull --ff-only` → `git switch -c feat/console-ui`로 시작하고, PR의 기준 브랜치도 `feat/frontend-handoff`로 지정합니다. 인계 PR들이 main에 병합된 뒤에는 아래 일반 절차를 사용합니다. 미커밋 변경이 있으면 먼저 보존합니다.
+
 1. `main`에서 `git pull --ff-only`로 최신 변경을 받습니다. 미커밋 변경이 있으면 먼저 확인하고 보존합니다.
 2. `git switch -c feat/mqtt-ingest`처럼 목적이 드러나는 브랜치를 만듭니다. 문서 작업은 `docs/`, 수정은 `fix/`를 사용할 수 있습니다.
 3. 관련 작업표와 계약을 읽고 구현합니다. 영향을 받는 문서·예제·검증도 함께 수정합니다.
@@ -30,6 +32,8 @@
 | 웹 계약·생성기 | `python3 tools/build_contracts.py --check` 및 `python3 -m unittest discover -s tools/tests -v` | 보존 원본 해시·REST 변경 범위·생성물 일치. 변경 시 생성 명령을 먼저 실행 |
 | Compose 설정 | `cd infra` 후 `docker compose --env-file .env.example config --quiet` | 설정 문법. 컨테이너 기동을 뜻하지 않음 |
 | 통신·저장 기능 | 해당 작업표의 실제 통합 시험 | 브로커·DB를 사용한 흐름. 실행 조건과 결과 기록 |
+| 프론트 | `cd frontend` 후 `npm run generate && npm run format:check && npm test && npm run build` | 계약 생성·코드 서식·단위 시험·타입·빌드 |
+| 프론트 통신·흐름 | [인계 설명서](docs/frontend-handoff.md)의 `npm run test:e2e` | 빈 별도 Docker 환경에서 실제 브라우저·MQTT·DB 시험 |
 
 ```sh
 npm --prefix tools/docs ci
@@ -39,7 +43,7 @@ python3 tools/check_structure.py
 
 Markdown·DOT 원본을 고친 뒤 생성된 HTML·SVG도 커밋합니다. `git diff -- docs`로 생성 결과를 확인하세요. CI는 문서 재생성 후 미커밋 차이가 없는지 검사하므로 생성물을 빠뜨리면 실패합니다.
 
-[GitHub Actions](.github/workflows/verify.yml)는 PR·main push에서 문서/설정 검사와 백엔드 빌드를 따로 실행합니다. 실행 결과는 GitHub의 Actions 탭에서 확인합니다. 기동 테스트가 통과해도 MQTT·DB·실차 시험까지 통과한 것은 아닙니다.
+[GitHub Actions](.github/workflows/verify.yml)는 PR·main push에서 문서/설정, 백엔드·PostgreSQL, 프론트, 새 환경 Docker·브라우저 인계를 각각 검사합니다. 실행 결과는 GitHub의 Actions 탭에서 확인합니다. 가상 장치 시험을 실물 보드·실차 시험으로 표시하지 않습니다.
 
 ## 설계를 바꿀 때
 

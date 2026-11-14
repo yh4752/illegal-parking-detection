@@ -16,9 +16,13 @@
 
 **전달 기준:** [작업표](frontend-handoff-checklist.md)와 [검증 기록](../validation/frontend-handoff-2026-11-14.json)을 확인합니다. 로컬 실행판과 공개 HTTPS 완료는 별개입니다. 현재 공개 URL·배포 서버·DNS가 지정되지 않았습니다.
 
+사람은 이 문서부터 읽습니다. 코딩 AI에는 [인계 컨텍스트 JSON](frontend-handoff-context.json)과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 현재 브랜치는 [PR #3](https://github.com/yh4752/parking-system/pull/3)에서 확인하고, main에 미병합된 상태임에 유의합니다.
+
+![실제 가상 장치 데이터로 실행한 구역 현황](screenshots/zone-desktop.png)
+
 ## 1. 처음 실행하기
 
-필요한 것은 GitHub 저장소 접근 권한, Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24도 필요합니다.
+필요한 것은 GitHub 저장소 접근 권한, Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24.13.0도 필요합니다(`frontend/.nvmrc`).
 
 ```sh
 git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git
@@ -86,6 +90,8 @@ PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev
 
 React 19, TypeScript 5.9, Vite 8, React Router 7, CSS Modules입니다. 정확한 버전은 package/lockfile을 따릅니다. `npm run format`으로 코드 서식을 맞추고, `npm run format:check`로 검사합니다. 처음부터 기능을 다시 만드는 대신 실행되는 화면의 디자인·사용성을 개선하면 됩니다.
 
+수정은 인계 브랜치에서 본인 작업 브랜치를 만들어 진행합니다. 예를 들어 `git switch -c feat/console-ui`로 시작하고 PR의 기준을 `feat/frontend-handoff`로 지정합니다. 현재 main에서 새로 시작하면 이번 구현이 없습니다. 첫 작업은 **구역 현황의 카드·여백·모바일 배치 개선**을 권합니다. 기존 가상 장치의 정상/통신 지연 표시를 유지하며 변경 전후 화면과 검사 결과를 PR에 첨부합니다.
+
 ## 4. 알고 바꿔야 하는 통신 규칙
 
 | 흐름 | 화면의 책임 |
@@ -145,3 +151,14 @@ npm run test:e2e
 4. 검증된 커밋·검사 기록·남은 제한.
 
 공개 HTTPS 주소는 아직 없습니다. 서버 위치·접근 권한·도메인/DNS와 외부 접속 검증이 필요합니다. 이 로컬 Compose는 외부 공개용 구성이 아니며, 내부 브로커/DB를 외부에 열어 대신하지 않습니다. 실제 서버의 비밀값·백업 저장소·TLS·복원 검증은 배포 단계에서 별도 확인합니다.
+
+## 8. 받는 분의 완료 확인
+
+- [ ] 지정 브랜치를 클론하고 `prepare`가 완료됩니다.
+- [ ] 해당 PC의 비밀번호로 로그인하고, 첫 관측 전 화면을 봅니다.
+- [ ] `simulate` 후 구역 상태·사건 목록·상세가 같은 사건을 표시합니다.
+- [ ] `pause-simulator` 후 장치 응답 지연/연결 미확인으로 바뀌며 마지막 차량 상태가 남습니다.
+- [ ] Vite 개발 서버에서 CSS 한 곳을 바꿔 실제 반영을 확인합니다.
+- [ ] 단위 시험·빌드를 실행하고 작업 브랜치를 푸시할 수 있습니다.
+
+문제가 있으면 **커밋 해시, OS·Docker·Node 버전, 실행 위치와 명령, 기대 결과와 실제 오류**를 전달합니다. 비밀번호·쿠키·CSRF·환경 파일은 첨부하지 않습니다. 위 항목은 자동 CI 통과와 별개로, 실제 받는 분이 확인할 인수 항목입니다.

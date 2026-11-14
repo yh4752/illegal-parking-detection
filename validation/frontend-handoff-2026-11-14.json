@@ -1,12 +1,12 @@
 {
   "date": "2026-11-14",
   "branch": "feat/frontend-handoff",
-  "status": "implementation_under_integration_test",
+  "status": "local_code_handoff_ready_public_deployment_pending",
   "baseline": "9502f07",
   "scope": "React real-API console, heartbeat, bounded SSE, isolated virtual-device handoff",
   "local": {
     "frontend_unit": {
-      "passed": 22
+      "passed": 24
     },
     "simulator_unit": {
       "passed": 3
@@ -18,21 +18,28 @@
       "skipped": 0
     },
     "frontend_build": "passed",
-    "docker": "daemon socket unavailable from agent; integration delegated to repository CI, not yet passed",
-    "frontend_install": "clean npm ci passed on Node 24.13.0 with supported jsdom 27.4.0"
+    "docker": "daemon socket unavailable from agent; actual isolated containers and browser verified in repository CI",
+    "frontend_install": "clean npm ci passed on Node 24.13.0 with supported jsdom 27.4.0",
+    "contract_guard_tests": {
+      "passed": 6
+    }
   },
   "pending": [
-    "fresh checkout Docker bootstrap and browser flow",
-    "final code checks",
-    "public HTTPS host and DNS",
-    "frontend collaborator access and recipient acceptance"
+    "recipient repository access and acceptance on their own PC",
+    "public deployment host/access/budget and domain/DNS",
+    "production HTTPS/TLS/ACL/runtime DB roles and monitoring configuration",
+    "backup storage, independent revision manifest location and isolated operator restore drill",
+    "real slow TCP/global-capacity load test before claiming supported concurrent capacity"
   ],
   "not_claimed": [
     "real board inference",
     "physical LED or speaker output",
     "public deployment",
     "production restore",
-    "large-scale capacity"
+    "large-scale capacity",
+    "external recipient acceptance",
+    "all public-demo acceptance checks passed",
+    "native macOS/Windows container bootstrap verified by agent"
   ],
   "integration_attempts": [
     {
@@ -44,6 +51,100 @@
       "commit": "fa151bd",
       "run": 43582425839,
       "outcome": "backend/docs passed, npm ci missing platform dependency lock entries; fresh lock regenerated and Node version aligned"
+    },
+    {
+      "commit": "d39c598",
+      "run": 43583389898,
+      "outcome": "all four jobs passed; broker outage test subsequently strengthened with --no-deps to keep broker down until explicit restart"
+    },
+    {
+      "commit": "1dc0c36",
+      "run": 43584205319,
+      "outcome": "superseded by additional delayed-history browser assertion; do not treat cancelled run as final validation"
+    },
+    {
+      "commit": "c347dbf",
+      "run": 43584426101,
+      "outcome": "all four jobs passed, including browser delayed-history refresh, distinct cookie logout and broker outage with dependencies kept stopped"
     }
-  ]
+  ],
+  "verified_code_commit": "c347dbf86a398895eb03e70842d37d17eae2caba",
+  "ci": {
+    "run_id": 43584426101,
+    "url": "https://github.com/yh4752/parking-system/actions/runs/43584426101",
+    "commit": "c347dbf86a398895eb03e70842d37d17eae2caba",
+    "result": "success",
+    "environment": "ubuntu-24.04; JDK 17; Node 24.13.0; Docker Compose; PostgreSQL 17.11; Mosquitto 2.0.22; Chromium",
+    "jobs": [
+      {
+        "id": 132415917429,
+        "name": "Documents and local configuration",
+        "result": "success"
+      },
+      {
+        "id": 132415917566,
+        "name": "Backend tests, PostgreSQL migration and build",
+        "result": "success"
+      },
+      {
+        "id": 132415917578,
+        "name": "Frontend contract, unit tests and build",
+        "result": "success"
+      },
+      {
+        "id": 132415917601,
+        "name": "Fresh clone Docker and real browser handoff",
+        "result": "success"
+      }
+    ],
+    "fresh_checkout": [
+      "python3 tools/handoff.py prepare",
+      "cd frontend && npm ci",
+      "npx playwright install --with-deps chromium",
+      "npm run test:e2e",
+      "python3 tools/verify_handoff_transport.py (repository root)"
+    ],
+    "browser": {
+      "tests_passed": 1,
+      "duration_seconds": 57.6,
+      "scenarios": [
+        "wrong-password error then real login",
+        "initial null and empty history",
+        "MQTT to PostgreSQL to REST/SSE and visible UI with matching event ID",
+        "event detail and state filters",
+        "browser offline and reconnection",
+        "heartbeat stop to STALE and OFFLINE without erasing last vehicle observation",
+        "390px mobile without page overflow",
+        "late lower-sequence raw event appears through REST refresh without a zone revision change",
+        "logout removes dedicated handoff cookie; old session fails; login again",
+        "ungranted zone is blocked"
+      ]
+    },
+    "transport": {
+      "result_line": "HANDOFF_TRANSPORT_PASSED scenarios=normal,duplicate,conflict,reverse,db_outage,broker_outage,restart",
+      "scenarios": [
+        "STORED then DUPLICATE",
+        "same ID different body REJECTED MESSAGE_ID_CONFLICT",
+        "reverse order saved without rolling state backward",
+        "DB down: no storage ACK; replay after recovery stored exactly once",
+        "broker stopped while simulator runs with --no-deps: SQLite outbox retained; actual ACK removes it after broker restarts",
+        "backend restart: history preserved, old session invalidated"
+      ]
+    },
+    "artifact": {
+      "id": 14110365335,
+      "name": "handoff-browser-evidence",
+      "expires_at": "2026-11-21T10:21:25Z",
+      "screenshots_saved_to_repo": [
+        {
+          "path": "docs/screenshots/zone-desktop.png",
+          "sha256": "7b0e55e90f0bfbacaf0500550d8ebf06d15d20a52b533575f2b29be01e3c0cbf"
+        },
+        {
+          "path": "docs/screenshots/zone-mobile.png",
+          "sha256": "076bd883014cd2c9313de4e6108042ef354008498b9ec15b51eaf30af2de82f3"
+        }
+      ]
+    }
+  }
 }
