@@ -1,0 +1,6633 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Capstone parking management API",
+    "version": "1.4-detail-2026-11-05",
+    "description": "설계 계약. 실행 서버가 아직 구현됐다는 의미가 아니다. 기존 15개 API 작업을 정식화했다. REST STOP starts_at:null은 즉시 요청이며 서버가 MQTT issued_at과 동일하게 정규화한다."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "같은 출처 HTTPS; 실제 호스트는 배포 때 정한다."
+    }
+  ],
+  "paths": {
+    "/api/csrf": {
+      "get": {
+        "operationId": "op01",
+        "summary": "GET /api/csrf",
+        "description": "v1.4 역할: anonymous",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsrfResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "op02",
+        "summary": "POST /api/auth/login",
+        "description": "v1.4 역할: anonymous+CSRF",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "요청/동시 연결 제한: RATE_LIMITED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "재시도까지 기다릴 초",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrfHeader": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "op03",
+        "summary": "POST /api/auth/logout",
+        "description": "v1.4 역할: authenticated+CSRF",
+        "responses": {
+          "204": {
+            "description": "로그아웃 완료. 응답 본문 없음."
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "webSession": [],
+            "csrfHeader": []
+          }
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "op04",
+        "summary": "GET /api/auth/me",
+        "description": "v1.4 역할: VIEWER|OPERATOR",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ]
+      }
+    },
+    "/api/zones/{id}/status": {
+      "get": {
+        "operationId": "op05",
+        "summary": "GET /api/zones/{id}/status",
+        "description": "v1.4 역할: VIEWER|OPERATOR",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ]
+      }
+    },
+    "/api/events": {
+      "get": {
+        "operationId": "op06",
+        "summary": "GET /api/events",
+        "description": "v1.4 역할: VIEWER|OPERATOR",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "zone_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/incident_state"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/api/events/{id}": {
+      "get": {
+        "operationId": "op07",
+        "summary": "GET /api/events/{id}",
+        "description": "v1.4 역할: VIEWER|OPERATOR",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ]
+      }
+    },
+    "/api/zones/{id}/policy": {
+      "get": {
+        "operationId": "op08",
+        "summary": "GET /api/zones/{id}/policy",
+        "description": "v1.4 역할: VIEWER|OPERATOR",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyGetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "저장 불가; 성공으로 처리하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "op09",
+        "summary": "PUT /api/zones/{id}/policy",
+        "description": "v1.4 역할: OPERATOR+CSRF",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "저장 불가; 성공으로 처리하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          }
+        },
+        "security": [
+          {
+            "webSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyPutRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/devices/{id}/commands": {
+      "post": {
+        "operationId": "op10",
+        "summary": "POST /api/devices/{id}/commands",
+        "description": "v1.4 역할: OPERATOR+CSRF",
+        "responses": {
+          "202": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandCreateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "저장 불가; 성공으로 처리하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          }
+        },
+        "security": [
+          {
+            "webSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandCreateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/commands/{id}": {
+      "get": {
+        "operationId": "op11",
+        "summary": "GET /api/commands/{id}",
+        "description": "v1.4 역할: VIEWER|OPERATOR VIEWER 및 만료 토큰은 result_data.confirmation_token=null. 유효 OPERATOR 응답만 문자열 허용. 공유 ZoneView에는 항상 null.",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizedCommandView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "저장 불가; 성공으로 처리하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ]
+      }
+    },
+    "/api/events/{id}/reviews": {
+      "post": {
+        "operationId": "op12",
+        "summary": "POST /api/events/{id}/reviews",
+        "description": "v1.4 역할: OPERATOR+CSRF",
+        "responses": {
+          "201": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewCreateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "저장 불가; 성공으로 처리하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          }
+        },
+        "security": [
+          {
+            "webSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCreateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/devices/{id}/images": {
+      "post": {
+        "operationId": "op13",
+        "summary": "POST /api/devices/{id}/images",
+        "description": "v1.4 역할: scoped device credential",
+        "responses": {
+          "201": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUploadResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "저장 불가; 성공으로 처리하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          }
+        },
+        "security": [
+          {
+            "deviceCredential": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "image",
+                  "meta"
+                ],
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG 원본 bytes ≤5 MiB. 서버가 magic/decode/폭·높이·해시를 검사한다."
+                  },
+                  "meta": {
+                    "$ref": "#/components/schemas/ImageMetadata"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "encoding": {
+                "image": {
+                  "contentType": "image/jpeg"
+                },
+                "meta": {
+                  "contentType": "application/json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/images/{id}": {
+      "get": {
+        "operationId": "op14",
+        "summary": "GET /api/images/{id}",
+        "description": "v1.4 역할: VIEWER|OPERATOR",
+        "responses": {
+          "200": {
+            "description": "권한 검사 후 JPEG",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "저장 불가; 성공으로 처리하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ]
+      }
+    },
+    "/api/stream": {
+      "get": {
+        "operationId": "op15",
+        "summary": "GET /api/stream",
+        "description": "v1.4 역할: VIEWER|OPERATOR",
+        "responses": {
+          "200": {
+            "description": "SSE 프레임의 data는 ZoneView JSON. 연결 후와 재연결 후 REST 최신 조회. id=view_revision 십진 문자열. keepalive 주석은 상태 이벤트가 아님.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "event: zone_snapshot\nid: 8\ndata: <ZoneView JSON>\n\n",
+                "x-data-schema": {
+                  "$ref": "#/components/schemas/ZoneView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 스키마 또는 의미 검증 실패(INVALID_SCHEMA 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 또는 CSRF 거부",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "대상 또는 아직 저장되지 않은 사진 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "버전·상태·ID·확인 토큰 충돌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "보관기한 종료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "프록시 또는 네트워크 오류는 JSON 본문을 보장하지 않는다. 미확인 상태로 처리하고 상태를 다시 조회한다."
+          },
+          "500": {
+            "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "요청/동시 연결 제한: RATE_LIMITED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "재시도까지 기다릴 초",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "webSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "zone_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "x-event-schema": {
+          "$ref": "#/components/schemas/SseEvent"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "Utc": {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+      },
+      "incident_state": {
+        "type": "string",
+        "enum": [
+          "OBSERVING",
+          "STOP_CONFIRMED",
+          "GUIDING",
+          "GUIDED",
+          "LONG_UNRESOLVED",
+          "HELD",
+          "CLOSED_EXIT",
+          "CLOSED_MANUAL"
+        ]
+      },
+      "camera_health": {
+        "type": "string",
+        "enum": [
+          "OK",
+          "SUSPECT",
+          "BLOCKED",
+          "NO_FRAME",
+          "RECONFIGURE"
+        ]
+      },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "AUTO",
+          "PAUSED",
+          "AWAITING_RESUME"
+        ]
+      },
+      "output_status": {
+        "type": "string",
+        "enum": [
+          "IDLE",
+          "PLAYING",
+          "STOPPING",
+          "FAILED",
+          "UNKNOWN"
+        ]
+      },
+      "body_type": {
+        "type": "string",
+        "enum": [
+          "CAR",
+          "BUS",
+          "TRUCK",
+          "UNKNOWN"
+        ]
+      },
+      "use_type": {
+        "type": "string",
+        "enum": [
+          "TAXI",
+          "SCHOOL",
+          "DELIVERY",
+          "OTHER",
+          "UNKNOWN"
+        ]
+      },
+      "reason_codes": {
+        "type": "string",
+        "enum": [
+          "FRAME_STALE",
+          "FRAME_GAP",
+          "INVALID_FRAME",
+          "OBSERVATION_MISSING",
+          "OCCLUSION_SUSPECT",
+          "IMAGE_DARK",
+          "IMAGE_BRIGHT",
+          "IMAGE_BLUR",
+          "BACKGROUND_UNRELIABLE",
+          "CAMERA_SHIFT",
+          "CALIBRATION_REQUIRED",
+          "IDENTITY_UNCERTAIN",
+          "MULTIPLE_TARGETS",
+          "ROI_BOUNDARY",
+          "VEHICLE_MOVING",
+          "OUTPUT_FAULT",
+          "CLOCK_UNTRUSTED"
+        ]
+      },
+      "command_type": {
+        "type": "string",
+        "enum": [
+          "STOP_GUIDANCE",
+          "RESUME_GUIDANCE",
+          "REQUEST_SNAPSHOT",
+          "CLOSE_EVENT"
+        ]
+      },
+      "scope": {
+        "type": "string",
+        "enum": [
+          "DEVICE",
+          "ZONE",
+          "EVENT"
+        ]
+      },
+      "command_result": {
+        "type": "string",
+        "enum": [
+          "APPLIED",
+          "REJECTED",
+          "EXPIRED",
+          "FAILED"
+        ]
+      },
+      "server_command_status": {
+        "type": "string",
+        "enum": [
+          "QUEUED",
+          "WAITING_RESULT",
+          "APPLIED",
+          "REJECTED",
+          "EXPIRED",
+          "FAILED",
+          "DELIVERY_TIMEOUT"
+        ]
+      },
+      "ack_status": {
+        "type": "string",
+        "enum": [
+          "STORED",
+          "DUPLICATE",
+          "REJECTED"
+        ]
+      },
+      "config_status": {
+        "type": "string",
+        "enum": [
+          "RECEIVED_PENDING",
+          "APPLIED",
+          "RECONFIGURE_REQUIRED",
+          "REJECTED"
+        ]
+      },
+      "pause_source": {
+        "type": "string",
+        "enum": [
+          "USER",
+          "SCHEDULE",
+          "PHYSICAL",
+          "RESTART",
+          "RECONFIGURE",
+          "REARM_REQUIRED",
+          "OUTPUT_FAULT",
+          "OBSERVATION_REVIEW"
+        ]
+      },
+      "pause_status": {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ACTIVE",
+          "ACK_REQUIRED",
+          "CLEARED"
+        ]
+      },
+      "connection_state": {
+        "type": "string",
+        "enum": [
+          "ONLINE",
+          "STALE",
+          "OFFLINE"
+        ]
+      },
+      "role": {
+        "type": "string",
+        "enum": [
+          "VIEWER",
+          "OPERATOR"
+        ]
+      },
+      "snapshot_purpose": {
+        "type": "string",
+        "enum": [
+          "VIEW",
+          "RESUME",
+          "CLOSE_EVENT"
+        ]
+      },
+      "error_code": {
+        "type": "string",
+        "enum": [
+          "INVALID_SCHEMA",
+          "UNSUPPORTED_SCHEMA",
+          "UNAUTHENTICATED",
+          "FORBIDDEN",
+          "NOT_FOUND",
+          "GONE",
+          "VERSION_CONFLICT",
+          "POLICY_CONTENT_CONFLICT",
+          "EVENT_MISMATCH",
+          "NO_ACTIVE_EVENT",
+          "MODE_CHANGED",
+          "INVALID_TOKEN",
+          "SNAPSHOT_EXPIRED",
+          "CLOCK_UNTRUSTED",
+          "PHYSICAL_STOP_ACTIVE",
+          "PAUSE_NOT_RELEASABLE",
+          "REARM_NOT_READY",
+          "OBSERVATION_UNSAFE",
+          "COMMAND_EXPIRED",
+          "OUTPUT_FAULT",
+          "MESSAGE_ID_CONFLICT",
+          "IMAGE_ID_CONFLICT",
+          "IDEMPOTENCY_CONFLICT",
+          "STORAGE_FULL"
+        ]
+      },
+      "event_type": {
+        "type": "string",
+        "enum": [
+          "EVENT_STARTED",
+          "STOP_CONFIRMED",
+          "GUIDANCE_ATTEMPTED",
+          "GUIDANCE_PLAYBACK_COMPLETED",
+          "GUIDANCE_PLAYBACK_STOPPED",
+          "GUIDANCE_PLAYBACK_FAILED",
+          "OBSERVATION_HELD",
+          "OBSERVATION_RECOVERED",
+          "LONG_UNRESOLVED",
+          "EVENT_CLOSED_EXIT",
+          "EVENT_CLOSED_MANUAL",
+          "PAUSE_CHANGED",
+          "CONFIG_RECEIVED",
+          "CONFIG_ACTIVATED",
+          "DEVICE_RESTARTED",
+          "IMAGE_STATUS_CHANGED"
+        ]
+      },
+      "image_kind": {
+        "type": "string",
+        "enum": [
+          "FIRST_GUIDANCE",
+          "EVENT_CLOSE",
+          "VIEW",
+          "RESUME_CONFIRM",
+          "CLOSE_CONFIRM"
+        ]
+      },
+      "image_status": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "AVAILABLE",
+          "FAILED",
+          "EXPIRED"
+        ]
+      },
+      "image_error_code": {
+        "type": "string",
+        "enum": [
+          "QUEUE_FULL",
+          "IMAGE_STORAGE_FULL",
+          "NO_VALID_FRAME",
+          "ENCODE_FAILED",
+          "IMAGE_TOO_LARGE",
+          "HTTP_REJECTED",
+          "IMAGE_ID_CONFLICT",
+          "RETRY_EXHAUSTED",
+          "AGE_UNKNOWN",
+          "RETENTION_EXPIRED",
+          "RESTART_INCOMPLETE"
+        ]
+      },
+      "clock_state": {
+        "type": "string",
+        "enum": [
+          "SYNCED",
+          "HOLDOVER",
+          "UNTRUSTED"
+        ]
+      },
+      "DeviceEnvelope": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2,
+            "description": "const 2"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id; immutable across retry"
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id; source boot"
+          },
+          "device_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer >=0; persisted new state-message sequence"
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "clock_synced": {
+            "type": "boolean",
+            "description": "boolean"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          }
+        },
+        "required": [
+          "schema_version",
+          "device_id",
+          "zone_id",
+          "message_id",
+          "boot_id",
+          "device_seq",
+          "occurred_at",
+          "clock_synced",
+          "event_id"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "clock_synced": {
+                  "const": false
+                }
+              },
+              "required": [
+                "clock_synced"
+              ]
+            },
+            "then": {
+              "properties": {
+                "occurred_at": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DeviceSnapshot": {
+        "type": "object",
+        "properties": {
+          "current_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "incident_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/incident_state"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "incident_state|null"
+          },
+          "event_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=1|null"
+          },
+          "guidance_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "integer 0..2; zero without event"
+          },
+          "continuous_stop_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0; zero without event"
+          },
+          "body_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/body_type"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "body_type|null"
+          },
+          "use_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/use_type"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "use_type|null"
+          },
+          "camera_health": {
+            "$ref": "#/components/schemas/camera_health",
+            "description": "camera_health"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/mode",
+            "description": "mode"
+          },
+          "output_status": {
+            "$ref": "#/components/schemas/output_status",
+            "description": "output_status"
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reason_codes"
+            },
+            "minItems": 0,
+            "description": "array<reason_codes>; [] normal"
+          },
+          "pauses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivePause"
+            },
+            "minItems": 0,
+            "description": "array<Pause>; non-cleared only"
+          },
+          "received_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=1|null before first accepted policy"
+          },
+          "active_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=1|null before first activated policy"
+          },
+          "mode_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0"
+          },
+          "rearm_required": {
+            "type": "boolean",
+            "description": "boolean"
+          },
+          "device_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0; equal envelope sequence"
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id; equal envelope boot"
+          },
+          "clock_synced": {
+            "type": "boolean",
+            "description": "boolean; equals envelope; true iff clock_status.state is SYNCED or HOLDOVER"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "overdue": {
+            "type": "boolean",
+            "description": "boolean; false without current event"
+          },
+          "clock_status": {
+            "$ref": "#/components/schemas/ClockStatus",
+            "description": "ClockStatus; clock_synced=true iff state is SYNCED or HOLDOVER"
+          }
+        },
+        "required": [
+          "current_event_id",
+          "incident_state",
+          "event_policy_version",
+          "guidance_count",
+          "continuous_stop_ms",
+          "body_type",
+          "use_type",
+          "camera_health",
+          "mode",
+          "output_status",
+          "reason_codes",
+          "pauses",
+          "received_policy_version",
+          "active_policy_version",
+          "mode_revision",
+          "rearm_required",
+          "device_seq",
+          "boot_id",
+          "clock_synced",
+          "observed_at",
+          "overdue",
+          "clock_status"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "current_event_id": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "current_event_id"
+              ]
+            },
+            "then": {
+              "properties": {
+                "incident_state": {
+                  "type": "null"
+                },
+                "event_policy_version": {
+                  "type": "null"
+                },
+                "body_type": {
+                  "type": "null"
+                },
+                "use_type": {
+                  "type": "null"
+                },
+                "guidance_count": {
+                  "const": 0
+                },
+                "continuous_stop_ms": {
+                  "const": 0
+                },
+                "overdue": {
+                  "const": false
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "incident_state": {
+                  "$ref": "#/components/schemas/incident_state"
+                },
+                "event_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "body_type": {
+                  "$ref": "#/components/schemas/body_type"
+                },
+                "use_type": {
+                  "$ref": "#/components/schemas/use_type"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "clock_synced": {
+                  "const": false
+                }
+              },
+              "required": [
+                "clock_synced"
+              ]
+            },
+            "then": {
+              "properties": {
+                "observed_at": {
+                  "type": "null"
+                },
+                "clock_status": {
+                  "properties": {
+                    "state": {
+                      "const": "UNTRUSTED"
+                    }
+                  }
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "clock_status": {
+                  "properties": {
+                    "state": {
+                      "enum": [
+                        "SYNCED",
+                        "HOLDOVER"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "EventRecord": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/incident_state",
+            "description": "incident_state"
+          },
+          "event_policy_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "closed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "close_reason": {
+            "enum": [
+              "OBSERVED_EXIT",
+              "MANUAL",
+              null
+            ],
+            "description": "OBSERVED_EXIT|MANUAL|null"
+          },
+          "guidance_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "integer 0..2"
+          },
+          "body_type": {
+            "$ref": "#/components/schemas/body_type",
+            "description": "body_type"
+          },
+          "use_type": {
+            "$ref": "#/components/schemas/use_type",
+            "description": "use_type"
+          },
+          "continuous_stop_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0"
+          },
+          "overdue": {
+            "type": "boolean",
+            "description": "boolean; true after unresolved threshold; retained independently of HELD"
+          }
+        },
+        "required": [
+          "event_id",
+          "state",
+          "event_policy_version",
+          "started_at",
+          "closed_at",
+          "close_reason",
+          "guidance_count",
+          "body_type",
+          "use_type",
+          "continuous_stop_ms",
+          "overdue"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "CLOSED_EXIT"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "close_reason": {
+                  "const": "OBSERVED_EXIT"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "CLOSED_MANUAL"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "close_reason": {
+                  "const": "MANUAL"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "not": {
+                    "enum": [
+                      "CLOSED_EXIT",
+                      "CLOSED_MANUAL"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "closed_at": {
+                  "type": "null"
+                },
+                "close_reason": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Pause": {
+        "type": "object",
+        "properties": {
+          "pause_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "source": {
+            "$ref": "#/components/schemas/pause_source",
+            "description": "pause_source"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/scope",
+            "description": "scope"
+          },
+          "target_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null; nonnull iff EVENT"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "status": {
+            "$ref": "#/components/schemas/pause_status",
+            "description": "pause_status"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "string 1..200"
+          }
+        },
+        "required": [
+          "pause_id",
+          "source",
+          "scope",
+          "target_event_id",
+          "starts_at",
+          "expires_at",
+          "status",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "scope": {
+                  "const": "EVENT"
+                }
+              },
+              "required": [
+                "scope"
+              ]
+            },
+            "then": {
+              "properties": {
+                "target_event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "target_event_id": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Timers": {
+        "type": "object",
+        "properties": {
+          "first_guidance_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1 default300000"
+          },
+          "confirm_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1 default3000"
+          },
+          "repeat_after_end_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1 default30000"
+          },
+          "max_attempts": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2,
+            "description": "integer1..2 default2"
+          },
+          "unresolved_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1 default600000; must be > first_guidance_ms"
+          },
+          "exit_confirm_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1 default3000"
+          }
+        },
+        "required": [
+          "first_guidance_ms",
+          "confirm_ms",
+          "repeat_after_end_ms",
+          "max_attempts",
+          "unresolved_ms",
+          "exit_confirm_ms"
+        ],
+        "additionalProperties": false
+      },
+      "Policy": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1 server assigned"
+          },
+          "base_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0"
+          },
+          "change_class": {
+            "enum": [
+              "TIMING",
+              "GEOMETRY"
+            ],
+            "description": "TIMING|GEOMETRY server computed"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/Geometry",
+            "description": "Geometry"
+          },
+          "timers": {
+            "$ref": "#/components/schemas/Timers",
+            "description": "Timers"
+          },
+          "vision_profile_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "operating_hours": {
+            "$ref": "#/components/schemas/OperatingHours",
+            "description": "OperatingHours"
+          }
+        },
+        "required": [
+          "zone_id",
+          "version",
+          "base_version",
+          "change_class",
+          "geometry",
+          "timers",
+          "vision_profile_id",
+          "operating_hours"
+        ],
+        "additionalProperties": false
+      },
+      "Command": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2,
+            "description": "const 2"
+          },
+          "command_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/command_type",
+            "description": "command_type"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/scope",
+            "description": "scope"
+          },
+          "target_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC; normally trusted server time, immediate STOP exception may carry best available server UTC; TTL exception determines freshness"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC exactly issued_at+60000ms"
+          },
+          "expected_mode_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=0|null"
+          },
+          "expected_received_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=1|null"
+          },
+          "expected_active_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=1|null"
+          },
+          "expected_event_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=1|null"
+          },
+          "confirmation_token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "opaque string|null"
+          },
+          "params": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/STOP_GUIDANCEParams"
+              },
+              {
+                "$ref": "#/components/schemas/RESUME_GUIDANCEParams"
+              },
+              {
+                "$ref": "#/components/schemas/REQUEST_SNAPSHOTParams"
+              },
+              {
+                "$ref": "#/components/schemas/CLOSE_EVENTParams"
+              }
+            ],
+            "description": "CommandParams selected by type"
+          }
+        },
+        "required": [
+          "schema_version",
+          "command_id",
+          "device_id",
+          "type",
+          "scope",
+          "target_event_id",
+          "issued_at",
+          "expires_at",
+          "expected_mode_revision",
+          "expected_received_policy_version",
+          "expected_active_policy_version",
+          "expected_event_policy_version",
+          "confirmation_token",
+          "params"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "STOP_GUIDANCE"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/STOP_GUIDANCEParams"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "RESUME_GUIDANCE"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/RESUME_GUIDANCEParams"
+                },
+                "scope": {
+                  "const": "DEVICE"
+                },
+                "confirmation_token": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "expected_mode_revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "expected_received_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "expected_active_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "REQUEST_SNAPSHOT"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/REQUEST_SNAPSHOTParams"
+                },
+                "scope": {
+                  "const": "DEVICE"
+                },
+                "target_event_id": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "CLOSE_EVENT"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/CLOSE_EVENTParams"
+                },
+                "scope": {
+                  "const": "EVENT"
+                },
+                "target_event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "expected_event_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "confirmation_token": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "expected_mode_revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "expected_received_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "expected_active_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "STOP_GUIDANCE"
+                },
+                "scope": {
+                  "const": "EVENT"
+                }
+              },
+              "required": [
+                "type",
+                "scope"
+              ]
+            },
+            "then": {
+              "properties": {
+                "target_event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "STOP_GUIDANCE"
+                },
+                "scope": {
+                  "enum": [
+                    "DEVICE",
+                    "ZONE"
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "scope"
+              ]
+            },
+            "then": {
+              "properties": {
+                "target_event_id": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CommandResultData": {
+        "type": "object",
+        "properties": {
+          "pause_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 0,
+            "description": "array<id>; [] when irrelevant"
+          },
+          "image_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "confirmation_token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "opaque string|null; operator only"
+          },
+          "token_valid_for_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 30000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer0..30000|null"
+          },
+          "closed_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          }
+        },
+        "required": [
+          "pause_ids",
+          "image_id",
+          "confirmation_token",
+          "token_valid_for_ms",
+          "closed_event_id"
+        ],
+        "additionalProperties": false
+      },
+      "ImageMetadata": {
+        "type": "object",
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "request_command_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "captured_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "trusted UTC original frame capture time|null; never changed when bytes are reused"
+          },
+          "clock_synced": {
+            "type": "boolean",
+            "description": "boolean; trust of original captured_at, not upload time"
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "mode_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0"
+          },
+          "received_policy_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1"
+          },
+          "active_policy_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1"
+          },
+          "event_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=1|null"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "64 lower hexadecimal chars"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1280,
+            "description": "integer1..1280; max(width,height)<=1280; preserve aspect ratio, no upscaling"
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1280,
+            "description": "integer1..1280; max(width,height)<=1280; preserve aspect ratio, no upscaling"
+          },
+          "image_kind": {
+            "$ref": "#/components/schemas/image_kind",
+            "description": "image_kind"
+          },
+          "image_profile_id": {
+            "const": "jpeg-1280-q80-v1",
+            "description": "const jpeg-1280-q80-v1; fixed output profile"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "trusted UTC job creation time|null; persisted for reboot age reconstruction"
+          },
+          "source_image_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null; nonnull only when EVENT_CLOSE reuses an accepted CLOSE_CONFIRM JPEG"
+          }
+        },
+        "required": [
+          "image_id",
+          "request_command_id",
+          "event_id",
+          "captured_at",
+          "clock_synced",
+          "boot_id",
+          "mode_revision",
+          "received_policy_version",
+          "active_policy_version",
+          "event_policy_version",
+          "sha256",
+          "width",
+          "height",
+          "image_kind",
+          "image_profile_id",
+          "created_at",
+          "source_image_id"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "clock_synced": {
+                  "const": false
+                }
+              },
+              "required": [
+                "clock_synced"
+              ]
+            },
+            "then": {
+              "properties": {
+                "captured_at": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "captured_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "source_image_id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "source_image_id"
+              ]
+            },
+            "then": {
+              "properties": {
+                "image_kind": {
+                  "const": "EVENT_CLOSE"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "image_kind": {
+                  "enum": [
+                    "FIRST_GUIDANCE",
+                    "EVENT_CLOSE"
+                  ]
+                }
+              },
+              "required": [
+                "image_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "request_command_id": {
+                  "type": "null"
+                },
+                "event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "event_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "request_command_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ZoneView": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "view_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0 persisted per-zone"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null; last state snapshot received"
+          },
+          "last_heartbeat_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "connection_state": {
+            "$ref": "#/components/schemas/connection_state",
+            "description": "connection_state"
+          },
+          "snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeviceSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DeviceSnapshot|null before first report"
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommandView"
+            },
+            "minItems": 0,
+            "maxItems": 20,
+            "description": "array<CommandView>; latest20"
+          },
+          "image_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageRef"
+            },
+            "minItems": 0,
+            "maxItems": 10,
+            "description": "array<ImageRef>; latest10"
+          }
+        },
+        "required": [
+          "zone_id",
+          "view_revision",
+          "received_at",
+          "last_heartbeat_at",
+          "connection_state",
+          "snapshot",
+          "commands",
+          "image_refs"
+        ],
+        "additionalProperties": false
+      },
+      "ImageRef": {
+        "type": "object",
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "image_kind": {
+            "$ref": "#/components/schemas/image_kind",
+            "description": "image_kind"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "captured_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "trusted UTC|null"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC; first server receipt of image status or JPEG, immutable"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null; file retention deadline once received JPEG; null if no JPEG stored"
+          },
+          "status": {
+            "$ref": "#/components/schemas/image_status",
+            "description": "image_status"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/image_error_code"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "image_error_code|null; null for PENDING/AVAILABLE"
+          }
+        },
+        "required": [
+          "image_id",
+          "image_kind",
+          "event_id",
+          "captured_at",
+          "received_at",
+          "expires_at",
+          "status",
+          "error_code"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "FAILED",
+                    "EXPIRED"
+                  ]
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "error_code": {
+                  "$ref": "#/components/schemas/image_error_code"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error_code": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "AVAILABLE"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "expires_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CommandView": {
+        "type": "object",
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/command_type",
+            "description": "command_type"
+          },
+          "server_status": {
+            "$ref": "#/components/schemas/server_command_status",
+            "description": "server_command_status"
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC"
+          },
+          "result_received_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/command_result"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "command_result|null"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/error_code"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "error_code|null"
+          },
+          "result_data": {
+            "$ref": "#/components/schemas/PublicCommandResultData",
+            "description": "CommandResultData with token removed; see authorized GET command result"
+          }
+        },
+        "required": [
+          "command_id",
+          "type",
+          "server_status",
+          "issued_at",
+          "expires_at",
+          "result_received_at",
+          "result",
+          "error_code",
+          "result_data"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "APPLIED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "APPLIED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "REJECTED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "REJECTED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "EXPIRED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "EXPIRED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "FAILED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "FAILED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "EventDetail": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "$ref": "#/components/schemas/EventRecord",
+            "description": "EventRecord"
+          },
+          "manual_use_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/use_type"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "use_type|null"
+          },
+          "last_device_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventMessage"
+            },
+            "minItems": 0,
+            "description": "array<EventMessage>; chronological"
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Review"
+            },
+            "minItems": 0,
+            "description": "array<Review>"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageRef"
+            },
+            "minItems": 0,
+            "description": "array<ImageRef>"
+          }
+        },
+        "required": [
+          "event",
+          "manual_use_type",
+          "last_device_seq",
+          "messages",
+          "reviews",
+          "images"
+        ],
+        "additionalProperties": false
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "review_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "created_by": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 500,
+            "description": "string0..500"
+          },
+          "use_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/use_type"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "use_type|null"
+          }
+        },
+        "required": [
+          "review_id",
+          "event_id",
+          "created_by",
+          "created_at",
+          "note",
+          "use_type"
+        ],
+        "additionalProperties": false
+      },
+      "RestError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/error_code"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "RATE_LIMITED",
+                  "SERVICE_UNAVAILABLE",
+                  "INTERNAL_ERROR"
+                ]
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 0,
+            "description": "human readable string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "description": "object"
+          },
+          "retryable": {
+            "type": "boolean",
+            "description": "boolean"
+          },
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "details",
+          "retryable",
+          "request_id"
+        ],
+        "additionalProperties": false
+      },
+      "ImageUpdate": {
+        "type": "object",
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "image_kind": {
+            "$ref": "#/components/schemas/image_kind",
+            "description": "image_kind"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "captured_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "trusted UTC|null; null before capture or when capture clock untrusted"
+          },
+          "status": {
+            "$ref": "#/components/schemas/image_status",
+            "description": "image_status"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/image_error_code"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "image_error_code|null; required nonnull for FAILED/EXPIRED, null otherwise"
+          }
+        },
+        "required": [
+          "image_id",
+          "image_kind",
+          "event_id",
+          "captured_at",
+          "status",
+          "error_code"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "FAILED",
+                    "EXPIRED"
+                  ]
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "error_code": {
+                  "$ref": "#/components/schemas/image_error_code"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error_code": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ClockStatus": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/clock_state",
+            "description": "clock_state"
+          },
+          "error_bound_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=0|null; valid adapter estimate rounded up, not a measured accuracy guarantee"
+          },
+          "last_sync_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null; most recent externally synchronized anchor, not latest health-poll time"
+          },
+          "sync_age_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer>=0|null; monotonic elapsed age of same-boot external sync anchor"
+          }
+        },
+        "required": [
+          "state",
+          "error_bound_ms",
+          "last_sync_at",
+          "sync_age_ms"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "SYNCED"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "error_bound_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                "last_sync_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                },
+                "sync_age_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 300000
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "HOLDOVER"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "error_bound_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                "last_sync_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                },
+                "sync_age_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1800000
+                }
+              }
+            }
+          }
+        ]
+      },
+      "JsonValue": {
+        "anyOf": [
+          {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "minItems": 0
+          },
+          {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            }
+          }
+        ]
+      },
+      "Geometry": {
+        "type": "object",
+        "properties": {
+          "roi_polygon_m": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "minItems": 3,
+            "description": "array of >=3 [finite x,finite y]; simple polygon"
+          },
+          "exit_polygon_m": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "minItems": 3,
+            "description": "array of >=3 [finite x,finite y]; simple polygon"
+          },
+          "calibration_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "reference_points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "image_uv": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "ground_xy_m": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "image_uv",
+                "ground_xy_m"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 4,
+            "description": "array>=4 of {image_uv:[0..1,0..1],ground_xy_m:[finite,finite]}; noncollinear"
+          }
+        },
+        "required": [
+          "roi_polygon_m",
+          "exit_polygon_m",
+          "calibration_id",
+          "reference_points"
+        ],
+        "additionalProperties": false
+      },
+      "OperatingHours": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "const": "Asia/Seoul",
+            "description": "const Asia/Seoul"
+          },
+          "windows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "weekday": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 7
+                },
+                "start_hhmm": {
+                  "type": "string",
+                  "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+                },
+                "end_hhmm": {
+                  "type": "string",
+                  "pattern": "^(?:(?:[01][0-9]|2[0-3]):[0-5][0-9]|24:00)$"
+                }
+              },
+              "required": [
+                "weekday",
+                "start_hhmm",
+                "end_hhmm"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "description": "array of {weekday:integer1..7,start_hhmm:HH:mm,end_hhmm:HH:mm or24:00}; overnight split into two windows"
+          }
+        },
+        "required": [
+          "timezone",
+          "windows"
+        ],
+        "additionalProperties": false
+      },
+      "STOP_GUIDANCEParams": {
+        "type": "object",
+        "properties": {
+          "pause_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id server assigned"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC; immediate MUST exactly equal Command.issued_at; scheduled MUST be later than issued_at and scope ZONE. Classify by this equality, never unreliable receiver wall time."
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null; pause ending, independent command TTL"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "string1..200"
+          }
+        },
+        "required": [
+          "pause_id",
+          "starts_at",
+          "expires_at",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "RESUME_GUIDANCEParams": {
+        "type": "object",
+        "properties": {
+          "pause_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "nonempty array<id>; exact release list"
+          },
+          "identity_confirmed": {
+            "type": "boolean",
+            "description": "boolean; true only after operator verifies same vehicle for OBSERVATION_REVIEW"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "string1..200; evidence required for identity confirmation"
+          }
+        },
+        "required": [
+          "pause_ids",
+          "identity_confirmed",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "REQUEST_SNAPSHOTParams": {
+        "type": "object",
+        "properties": {
+          "purpose": {
+            "$ref": "#/components/schemas/snapshot_purpose",
+            "description": "VIEW|RESUME|CLOSE_EVENT"
+          }
+        },
+        "required": [
+          "purpose"
+        ],
+        "additionalProperties": false
+      },
+      "CLOSE_EVENTParams": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "string1..200"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "ActivePause": {
+        "type": "object",
+        "properties": {
+          "pause_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "source": {
+            "$ref": "#/components/schemas/pause_source",
+            "description": "pause_source"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/scope",
+            "description": "scope"
+          },
+          "target_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null; nonnull iff EVENT"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "status": {
+            "enum": [
+              "SCHEDULED",
+              "ACTIVE",
+              "ACK_REQUIRED"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "string 1..200"
+          }
+        },
+        "required": [
+          "pause_id",
+          "source",
+          "scope",
+          "target_event_id",
+          "starts_at",
+          "expires_at",
+          "status",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "scope": {
+                  "const": "EVENT"
+                }
+              },
+              "required": [
+                "scope"
+              ]
+            },
+            "then": {
+              "properties": {
+                "target_event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "target_event_id": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PublicCommandResultData": {
+        "type": "object",
+        "properties": {
+          "pause_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 0,
+            "description": "array<id>; [] when irrelevant"
+          },
+          "image_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          },
+          "confirmation_token": {
+            "type": "null",
+            "description": "Public REST/SSE keeps the field but always returns null."
+          },
+          "token_valid_for_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 30000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "integer0..30000|null"
+          },
+          "closed_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id|null"
+          }
+        },
+        "required": [
+          "pause_ids",
+          "image_id",
+          "confirmation_token",
+          "token_valid_for_ms",
+          "closed_event_id"
+        ],
+        "additionalProperties": false
+      },
+      "AuthorizedCommandView": {
+        "type": "object",
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/command_type",
+            "description": "command_type"
+          },
+          "server_status": {
+            "$ref": "#/components/schemas/server_command_status",
+            "description": "server_command_status"
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+            "description": "UTC"
+          },
+          "result_received_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/command_result"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "command_result|null"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/error_code"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "error_code|null"
+          },
+          "result_data": {
+            "$ref": "#/components/schemas/CommandResultData"
+          }
+        },
+        "required": [
+          "command_id",
+          "type",
+          "server_status",
+          "issued_at",
+          "expires_at",
+          "result_received_at",
+          "result",
+          "error_code",
+          "result_data"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "APPLIED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "APPLIED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "REJECTED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "REJECTED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "EXPIRED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "EXPIRED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "server_status": {
+                  "const": "FAILED"
+                }
+              },
+              "required": [
+                "server_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "result": {
+                  "const": "FAILED"
+                },
+                "result_received_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "EventMessage": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "device_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "clock_synced": {
+            "type": "boolean"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "event_type": {
+            "$ref": "#/components/schemas/event_type"
+          },
+          "event": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventRecord"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/DeviceSnapshot"
+          },
+          "image_update": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImageUpdate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "device_id",
+          "zone_id",
+          "message_id",
+          "boot_id",
+          "device_seq",
+          "occurred_at",
+          "clock_synced",
+          "event_id",
+          "event_type",
+          "event",
+          "snapshot",
+          "image_update"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "clock_synced": {
+                  "const": false
+                }
+              },
+              "required": [
+                "clock_synced"
+              ]
+            },
+            "then": {
+              "properties": {
+                "occurred_at": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "event_type": {
+                  "const": "IMAGE_STATUS_CHANGED"
+                }
+              },
+              "required": [
+                "event_type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "event": {
+                  "type": "null"
+                },
+                "image_update": {
+                  "$ref": "#/components/schemas/ImageUpdate"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "image_update": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Heartbeat": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "device_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "clock_synced": {
+            "type": "boolean"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/DeviceSnapshot"
+          },
+          "fps": {
+            "type": "number",
+            "minimum": 0
+          },
+          "pending_message_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "storage_ok": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "device_id",
+          "zone_id",
+          "message_id",
+          "boot_id",
+          "device_seq",
+          "occurred_at",
+          "clock_synced",
+          "event_id",
+          "snapshot",
+          "fps",
+          "pending_message_count",
+          "storage_ok"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "clock_synced": {
+                  "const": false
+                }
+              },
+              "required": [
+                "clock_synced"
+              ]
+            },
+            "then": {
+              "properties": {
+                "occurred_at": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Availability": {
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "connection_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "status": {
+            "enum": [
+              "ONLINE",
+              "OFFLINE"
+            ]
+          }
+        },
+        "required": [
+          "device_id",
+          "boot_id",
+          "connection_id",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "Ack": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "status": {
+            "$ref": "#/components/schemas/ack_status"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/error_code"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "committed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+          }
+        },
+        "required": [
+          "schema_version",
+          "device_id",
+          "message_id",
+          "status",
+          "error_code",
+          "committed_at"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "STORED",
+                    "DUPLICATE"
+                  ]
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "error_code": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ConfigDesired": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "desired_policy": {
+            "$ref": "#/components/schemas/Policy"
+          }
+        },
+        "required": [
+          "schema_version",
+          "device_id",
+          "desired_policy"
+        ],
+        "additionalProperties": false
+      },
+      "ConfigReported": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "device_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "clock_synced": {
+            "type": "boolean"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "config_status": {
+            "$ref": "#/components/schemas/config_status"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/error_code"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/DeviceSnapshot"
+          }
+        },
+        "required": [
+          "schema_version",
+          "device_id",
+          "zone_id",
+          "message_id",
+          "boot_id",
+          "device_seq",
+          "occurred_at",
+          "clock_synced",
+          "event_id",
+          "config_status",
+          "error_code",
+          "snapshot"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "clock_synced": {
+                  "const": false
+                }
+              },
+              "required": [
+                "clock_synced"
+              ]
+            },
+            "then": {
+              "properties": {
+                "occurred_at": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CommandResult": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 2
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "boot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "device_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "clock_synced": {
+            "type": "boolean"
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "command_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "result": {
+            "$ref": "#/components/schemas/command_result"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/error_code"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_data": {
+            "$ref": "#/components/schemas/CommandResultData"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/DeviceSnapshot"
+          }
+        },
+        "required": [
+          "schema_version",
+          "device_id",
+          "zone_id",
+          "message_id",
+          "boot_id",
+          "device_seq",
+          "occurred_at",
+          "clock_synced",
+          "event_id",
+          "command_id",
+          "result",
+          "error_code",
+          "result_data",
+          "snapshot"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "clock_synced": {
+                  "const": false
+                }
+              },
+              "required": [
+                "clock_synced"
+              ]
+            },
+            "then": {
+              "properties": {
+                "occurred_at": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "result": {
+                  "enum": [
+                    "APPLIED"
+                  ]
+                }
+              },
+              "required": [
+                "result"
+              ]
+            },
+            "then": {
+              "properties": {
+                "error_code": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "AuthUser": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "role": {
+            "$ref": "#/components/schemas/role"
+          }
+        },
+        "required": [
+          "user_id",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "CsrfResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyInput": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/Geometry"
+          },
+          "timers": {
+            "$ref": "#/components/schemas/Timers"
+          },
+          "vision_profile_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "operating_hours": {
+            "$ref": "#/components/schemas/OperatingHours"
+          }
+        },
+        "required": [
+          "zone_id",
+          "geometry",
+          "timers",
+          "vision_profile_id",
+          "operating_hours"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyPutRequest": {
+        "type": "object",
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PolicyInput"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "expected_version",
+          "policy",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyPutResponse": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "delivery_status": {
+            "const": "QUEUED"
+          }
+        },
+        "required": [
+          "version",
+          "delivery_status"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyGetResponse": {
+        "type": "object",
+        "properties": {
+          "latest_policy": {
+            "$ref": "#/components/schemas/Policy"
+          },
+          "device_versions": {
+            "type": "object",
+            "properties": {
+              "received_policy_version": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "active_policy_version": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "event_policy_version": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "received_policy_version",
+              "active_policy_version",
+              "event_policy_version"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "latest_policy",
+          "device_versions"
+        ],
+        "additionalProperties": false
+      },
+      "WebStopParams": {
+        "type": "object",
+        "properties": {
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null=immediate; server sets MQTT starts_at=issued_at. UTC=future schedule, ZONE only; past/equal request is rejected, never silently made immediate."
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "starts_at",
+          "expires_at",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "CommandCreateRequest": {
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "type": {
+            "$ref": "#/components/schemas/command_type"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/scope"
+          },
+          "target_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_mode_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_received_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_active_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_event_policy_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confirmation_token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "params": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/WebStopParams"
+              },
+              {
+                "$ref": "#/components/schemas/RESUME_GUIDANCEParams"
+              },
+              {
+                "$ref": "#/components/schemas/REQUEST_SNAPSHOTParams"
+              },
+              {
+                "$ref": "#/components/schemas/CLOSE_EVENTParams"
+              }
+            ]
+          }
+        },
+        "required": [
+          "client_request_id",
+          "type",
+          "scope",
+          "target_event_id",
+          "expected_mode_revision",
+          "expected_received_policy_version",
+          "expected_active_policy_version",
+          "expected_event_policy_version",
+          "confirmation_token",
+          "params"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "STOP_GUIDANCE"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/WebStopParams"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "RESUME_GUIDANCE"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/RESUME_GUIDANCEParams"
+                },
+                "scope": {
+                  "const": "DEVICE"
+                },
+                "confirmation_token": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "expected_mode_revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "expected_received_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "expected_active_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "REQUEST_SNAPSHOT"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/REQUEST_SNAPSHOTParams"
+                },
+                "scope": {
+                  "const": "DEVICE"
+                },
+                "target_event_id": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "CLOSE_EVENT"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "$ref": "#/components/schemas/CLOSE_EVENTParams"
+                },
+                "scope": {
+                  "const": "EVENT"
+                },
+                "target_event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "expected_event_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "confirmation_token": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "expected_mode_revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "expected_received_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "expected_active_policy_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "STOP_GUIDANCE"
+                },
+                "scope": {
+                  "const": "EVENT"
+                }
+              },
+              "required": [
+                "type",
+                "scope"
+              ]
+            },
+            "then": {
+              "properties": {
+                "target_event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "STOP_GUIDANCE"
+                },
+                "scope": {
+                  "enum": [
+                    "DEVICE",
+                    "ZONE"
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "scope"
+              ]
+            },
+            "then": {
+              "properties": {
+                "target_event_id": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "STOP_GUIDANCE"
+                },
+                "params": {
+                  "properties": {
+                    "starts_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "type",
+                "params"
+              ]
+            },
+            "then": {
+              "properties": {
+                "scope": {
+                  "const": "ZONE"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CommandCreateResponse": {
+        "type": "object",
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "status": {
+            "const": "QUEUED"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+          }
+        },
+        "required": [
+          "command_id",
+          "status",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "ReviewCreateRequest": {
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "note": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 500
+          },
+          "use_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/use_type"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "client_request_id",
+          "note",
+          "use_type"
+        ],
+        "additionalProperties": false
+      },
+      "ReviewCreateResponse": {
+        "type": "object",
+        "properties": {
+          "review_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "manual_use_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/use_type"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "review_id",
+          "manual_use_type"
+        ],
+        "additionalProperties": false
+      },
+      "ImageUploadResponse": {
+        "type": "object",
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "stored_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+          }
+        },
+        "required": [
+          "image_id",
+          "stored_at"
+        ],
+        "additionalProperties": false
+      },
+      "EventListItem": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/incident_state",
+            "description": "incident_state"
+          },
+          "event_policy_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "integer>=1"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "closed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC|null"
+          },
+          "close_reason": {
+            "enum": [
+              "OBSERVED_EXIT",
+              "MANUAL",
+              null
+            ],
+            "description": "OBSERVED_EXIT|MANUAL|null"
+          },
+          "guidance_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "integer 0..2"
+          },
+          "body_type": {
+            "$ref": "#/components/schemas/body_type",
+            "description": "body_type"
+          },
+          "use_type": {
+            "$ref": "#/components/schemas/use_type",
+            "description": "use_type"
+          },
+          "continuous_stop_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "integer>=0"
+          },
+          "overdue": {
+            "type": "boolean",
+            "description": "boolean; true after unresolved threshold; retained independently of HELD"
+          },
+          "manual_use_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/use_type"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "state",
+          "event_policy_version",
+          "started_at",
+          "closed_at",
+          "close_reason",
+          "guidance_count",
+          "body_type",
+          "use_type",
+          "continuous_stop_ms",
+          "overdue",
+          "manual_use_type"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "CLOSED_EXIT"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "close_reason": {
+                  "const": "OBSERVED_EXIT"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "CLOSED_MANUAL"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "close_reason": {
+                  "const": "MANUAL"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "not": {
+                    "enum": [
+                      "CLOSED_EXIT",
+                      "CLOSED_MANUAL"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "closed_at": {
+                  "type": "null"
+                },
+                "close_reason": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "EventListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventListItem"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "EventQuery": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+          },
+          "state": {
+            "$ref": "#/components/schemas/incident_state"
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          }
+        },
+        "required": [
+          "zone_id"
+        ],
+        "additionalProperties": false
+      },
+      "SseEvent": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "const": "zone_snapshot"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ZoneView"
+          }
+        },
+        "required": [
+          "event",
+          "id",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "ClockBoundaryExamples": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "condition": {
+              "type": "string",
+              "minLength": 1
+            },
+            "expected": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "condition",
+            "expected"
+          ],
+          "additionalProperties": false
+        },
+        "minItems": 1
+      }
+    },
+    "securitySchemes": {
+      "webSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "JSESSIONID",
+        "description": "Secure; HttpOnly; SameSite=Lax. 단일 서버 메모리 세션."
+      },
+      "csrfHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-TOKEN",
+        "description": "GET /api/csrf가 반환한 토큰. GET 응답시 필요한 세션 쿠키도 유지."
+      },
+      "deviceCredential": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "장치별 HTTPS 불투명 토큰. JWT 요구 아님. path device_id에 제한; 웹 세션과 분리."
+      }
+    }
+  },
+  "x-semantic-checks": [
+    {
+      "id": "SC01",
+      "rule": "Envelope device_seq/boot_id/clock_synced must equal snapshot; event reference and SSE id must match corresponding data.",
+      "checked_by_fixture_script": true
+    },
+    {
+      "id": "SC02",
+      "rule": "Command expires_at is issued_at+60000ms. Immediate STOP starts_at==issued_at; future STOP requires ZONE, starts_at>issued_at and pause expiry after start. REST null normalizes only on server.",
+      "checked_by_fixture_script": true
+    },
+    {
+      "id": "SC03",
+      "rule": "Timers.unresolved_ms>first_guidance_ms; policy base/version progression, geometric simplicity/noncollinearity and profile availability require service checks.",
+      "checked_by_fixture_script": "timer comparison only; other checks require implementation"
+    },
+    {
+      "id": "SC04",
+      "rule": "Token purpose/event/image/boot/policy/mode/time binding, one-time consumption and clock trust require stored state and monotonic time.",
+      "checked_by_fixture_script": false
+    },
+    {
+      "id": "SC05",
+      "rule": "Dedup payload identity, device_seq order, terminal event protection, concurrent updates, retries and physical output require persistence/integration tests.",
+      "checked_by_fixture_script": false
+    },
+    {
+      "id": "SC06",
+      "rule": "Parse strict JSON: reject duplicate keys, NaN/Infinity and non-UTF8; enforce serialized UTF8 metadata<=65536B, JPEG<=5242880B, HTTP total-body bound separately. Schema number does not validate JPEG bytes.",
+      "checked_by_fixture_script": "strict parser helper and metadata byte limit only"
+    },
+    {
+      "id": "SC07",
+      "rule": "Image source reuse needs accepted CLOSE_CONFIRM, same bytes/hash/capture metadata, valid originating command and same event; image lifecycle retention depends on authoritative server state.",
+      "checked_by_fixture_script": "provided two reuse examples only"
+    },
+    {
+      "id": "SC08",
+      "rule": "ClockStatus bounds are syntactic necessary conditions. Actual state depends on external adapter validity, same boot, monotonic age, probe failure and time-jump evidence.",
+      "checked_by_fixture_script": "six supplied documented boundaries via synthetic evidence; not a real clock adapter"
+    },
+    {
+      "id": "SC09",
+      "rule": "HTTP authorization, CSRF, device-to-topic/path ownership, public null token vs live OPERATOR token and SSE filtering require request context.",
+      "checked_by_fixture_script": "public token schema only"
+    },
+    {
+      "id": "SC10",
+      "rule": "UTC values remain null if originally untrusted; operating windows do not cross midnight and require start<end plus registered timezone; raw IDs are opaque while registered device/zone IDs must be topic/path-safe.",
+      "checked_by_fixture_script": "window comparison only"
+    }
+  ]
+}

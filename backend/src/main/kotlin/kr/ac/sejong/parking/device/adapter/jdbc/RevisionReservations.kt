@@ -77,6 +77,29 @@ class RevisionReservations(
         return action()
     }
 
+    /** A fresh-demo initialization is claimed outside the DB before clearing recovery_hold.
+     * A restored pre-initialization DB cannot reuse this command with the latest manifest.
+     * A crash after this claim needs operator recovery; never erase the claim to retry.
+     */
+    @Synchronized
+    fun <T> withFreshInitializationClaim(zoneId: String, action: () -> T): T = withZone(zoneId) {
+        val reserved = manifest!!["zones"][zoneId]
+        check(reserved != null && reserved["reserved_through"].longValue() == 999_999L) { "initial_reservation_required" }
+        check(!reserved.has("demo_initialization_claimed_at")) { "initialization_already_claimed_review_required" }
+        val next = manifest!!.deepCopy()
+        (next["zones"][zoneId] as ObjectNode).put("demo_initialization_claimed_at", Instant.now().toString())
+        try {
+            val bytes = mapper.writeValueAsBytes(next)
+            durableReplace(primary, bytes)
+            durableReplace(backup, bytes)
+            manifest = mapper.readTree(bytes) as ObjectNode
+        } catch (error: Exception) {
+            failed = true
+            throw error
+        }
+        action()
+    }
+
     private fun ensureRange(zoneId: String) {
         val rows = jdbc.queryForList("SELECT * FROM zone_view WHERE zone_id=?", zoneId)
         if (rows.isEmpty()) return
@@ -102,6 +125,7 @@ class RevisionReservations(
             put("manifest_generation", (reserved?.get("manifest_generation")?.longValue() ?: 0L) + 1)
             put("reserved_through", end)
             put("reserved_at", Instant.now().toString())
+            reserved?.get("demo_initialization_claimed_at")?.let { set<com.fasterxml.jackson.databind.JsonNode>("demo_initialization_claimed_at", it) }
         }
         // Either both copies are durable or the gate fails closed on this run/restart.
         val bytes = mapper.writeValueAsBytes(next)

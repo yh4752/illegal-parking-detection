@@ -10,6 +10,7 @@ version = "0.1.0-SNAPSHOT"
 repositories { mavenCentral() }
 
 kotlin { jvmToolchain(17) }
+springBoot { mainClass.set("kr.ac.sejong.parking.ParkingApplicationKt") }
 
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.16"))
@@ -46,6 +47,10 @@ tasks.processResources {
         include("parking.schema.json")
         into("contracts")
     }
+    from(layout.projectDirectory.dir("../contracts/effective")) {
+        include("parking.schema.json", "openapi.json")
+        into("contracts/effective")
+    }
 }
 tasks.processTestResources {
     from(contractDirectory) {
@@ -72,4 +77,11 @@ tasks.register<Test>("databaseTest") {
     // The database is external state; never reuse a previous successful test result.
     outputs.upToDateWhen { false }
     outputs.cacheIf { false }
+}
+
+tasks.register<JavaExec>("initializeDemoZone") {
+    description = "Inspect a fresh single-zone demo database; --apply explicitly opens its recovery hold. No HTTP/MQTT."
+    group = "application"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("kr.ac.sejong.parkingtools.DemoInitializationCliKt")
 }

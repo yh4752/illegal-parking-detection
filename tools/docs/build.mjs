@@ -29,7 +29,9 @@ const pages = new Map([
   ['adr/004-event-storage-and-ack.md', 'adr/004-event-storage-and-ack.html'],
   ['event-storage.md', 'event-storage.html'],
   ['design/event-ingest-v1.md', 'design/event-ingest-v1.html'],
-  ['design/event-message-dto.md', 'design/event-message-dto.html']
+  ['design/event-message-dto.md', 'design/event-message-dto.html'],
+  ['demo-foundation.md', 'demo-foundation.html'],
+  ['adr/006-public-demo-foundation.md', 'adr/006-public-demo-foundation.html']
 ]);
 const css = `
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}

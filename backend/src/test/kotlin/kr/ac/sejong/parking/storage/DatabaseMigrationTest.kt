@@ -64,7 +64,7 @@ class DatabaseMigrationTest(
             "incident", "zone_view", "inbound_receipt", "event_message", "command",
             "server_outbox", "pause_projection", "review", "request_receipt",
             "device_image", "image_upload_intent", "entity_tombstone", "audit_entry",
-            "inbound_quarantine",
+            "inbound_quarantine", "user_zone_access",
         )
         assertThat(flyway.migrate().migrationsExecuted).isZero()
         assertThat(flyway.validateWithResult().validationSuccessful).isTrue()

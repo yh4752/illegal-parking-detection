@@ -10,7 +10,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="first-slice.html">첫 구현</a><a class="active" href="status.html">현재 상태</a><a href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선만으로 구현 완료를 판단하지 않습니다. 사건 저장·커밋 후 ACK의 코드와 DB 시험을 마쳤으며, 정상 1건의 실제 MQTT 왕복도 확인했습니다. 중복 재전송의 DUPLICATE 수신도 확인했습니다. SQL로 원문 1건도 확인했습니다. 추가 시험·조회 API는 다음 단계입니다. 자세한 근거는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>현재 구현 범위</h1>
-<p>2026-11-13 · 이 파일이 현재 개발 저장소의 현황입니다. reference/v1.43의 상태표는 설계 작성 당시 기록입니다.</p>
+<p>2026-11-14 · 이 파일이 현재 개발 저장소의 현황입니다. reference/v1.43의 상태표는 설계 작성 당시 기록입니다.</p>
 <p>개인 비공개 저장소 <a href="https://github.com/yh4752/parking-system">yh4752/parking-system</a>에 코드·설계·협업 지침을 올렸습니다. 팀원 초대와 브랜치 보호는 별도 설정입니다.</p>
 <div class="table-scroll"><table>
 <thead>
@@ -81,9 +81,14 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <td>일반 126개·실제 PostgreSQL 30개 전체 통과. 커밋 실패·ACK 발행 예외·재전송 확인. 16:51 사용자 로그로 정상 1건의 실제 Mosquitto 왕복 확인. 16:54 동일 메시지의 DUPLICATE 응답 수신 확인. SQL로 해당 원문 1건 확인. 충돌 거부 ACK 수신 확인. 충돌 후 SQL에서 원문 seq=10·receipt STORED·격리 오류 1행 확인. 역순 12→11의 STORED 수신 및 SQL에서 이력 2행·사건/구역 seq=12 유지 확인. 실패 경로의 실제 브로커 시험은 남음</td>
 </tr>
 <tr>
-<td>제품 조회 API</td>
+<td>공개 데모 기반 M0</td>
+<td>REST 유효 계약·V3/V4·신규 초기화 CLI 작성</td>
+<td>검증 진행 중. <a href="demo-foundation.html">범위와 실행 안내</a></td>
+</tr>
+<tr>
+<td>제품 로그인·조회 API</td>
 <td>미구현</td>
-<td>다음 구현</td>
+<td>다음 M1 구현</td>
 </tr>
 <tr>
 <td>사건 예제 출력 도구</td>
