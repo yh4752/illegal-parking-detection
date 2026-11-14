@@ -1,12 +1,13 @@
 {
   "plan_id": "public-demo-1",
   "date": "2026-11-13",
-  "status": "M0_M1_completed_M2_next",
+  "status": "M0_M1_completed_M3_REST_priority",
   "baseline_commit": "6c6c172318f8e00dee9e2701b4e91616f5115957",
   "read_first": [
     "AGENTS.md",
     "docs/status.md",
     "docs/public-demo.md",
+    "docs/frontend-handoff-checklist.md",
     "docs/design/public-demo-plan.md",
     "docs/adr/005-public-demo-boundary.md",
     "docs/contracts.md"
@@ -390,7 +391,8 @@
   "scheduling_notes": [
     "M3 UI fixtures may start after M0; its SSE integration completes with M2 before M4",
     "M0 validates initialization/hold gate only; the full restore drill is completed in M5",
-    "M4 simulator implementation may start after M0; integrated acceptance waits for M2 and M3"
+    "M4 simulator implementation may start after M0; integrated acceptance waits for M2 and M3",
+    "2026-11-14 same-day frontend handoff: start M3 REST UI after completed M1, then integrate M2; local code handoff does not complete M5/M6 public HTTPS acceptance. Checklist: docs/frontend-handoff-checklist.md"
   ],
   "external_inputs_before_publication": [
     "Linux host/account and budget",
