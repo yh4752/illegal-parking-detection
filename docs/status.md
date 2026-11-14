@@ -18,7 +18,7 @@
 | 제품 DB 연결·v1.43 초기 마이그레이션 | JDBC·Flyway·database 프로필·PostgreSQL 검사·CI 단계 작성 | 11:41 최초 V1 적용, 11:48 사용자의 전체 빌드 성공 및 DB 검사 6개 통과. 11:58 에이전트 실행에서 등록 조회 포함 DB 검사 7개 통과 |
 | 정식 EventMessage 검증·등록 조회·로컬 MQTT 수신 연결 | V01~V12 구현 | 최신 일반 테스트 122개 통과, bootJar 생성 확인. DB 테스트 7개는 이전 실행 결과. 13:37~13:40 사용자 실습에서 실제 브로커 정상→모순 거부→정상 처리 확인. 15:53 E11 거부 → 15:57 E09 통과를 같은 PID에서 확인. 추가 의미 검사의 실제 브로커 확인 범위는 이 두 사례 |
 | 사건 저장·중복/역순 처리·커밋 후 응용 ACK | mqtt-ingest-local·V2·revision 예약·보관 정리·정책 fixture 구현 | 일반 126개·실제 PostgreSQL 30개 전체 통과. 커밋 실패·ACK 발행 예외·재전송 확인. 16:51 사용자 로그로 정상 1건의 실제 Mosquitto 왕복 확인. 16:54 동일 메시지의 DUPLICATE 응답 수신 확인. SQL로 해당 원문 1건 확인. 충돌 거부 ACK 수신 확인. 충돌 후 SQL에서 원문 seq=10·receipt STORED·격리 오류 1행 확인. 역순 12→11의 STORED 수신 및 SQL에서 이력 2행·사건/구역 seq=12 유지 확인. 실패 경로의 실제 브로커 시험은 남음 |
-| 공개 데모 기반 M0 | REST 유효 계약·V3/V4·신규 초기화 CLI 작성 | 검증 진행 중. [범위와 실행 안내](demo-foundation.md) |
+| 공개 데모 기반 M0 | REST 유효 계약·V3/V4·신규 초기화 CLI 구현 | GitHub 전체 CI·계약 보호 시험 6개·별도 CLI 프로세스 5개 사례 통과. [범위와 실행 안내](demo-foundation.md) |
 | 제품 로그인·조회 API | 미구현 | 다음 M1 구현 |
 | 사건 예제 출력 도구 | tools/event_fixture.py 작성 | 원본/오류 변형, --design-case E01~E26 출력이 설계 사례와 일치함을 확인. 장치 SDK·재전송 시뮬레이터는 아직 아님 |
 | React·SSE·명령·사진·로그인 | 미구현 | 미수행 |
@@ -67,3 +67,13 @@
 사용자 역순 수신 로그: PID 48082에서 storage-012(seq 12)는 17:02:32.185 KST 커밋 후 .186 ACK 발행, storage-011(seq 11)은 17:02:38.914 커밋 후 .916 ACK 발행을 확인했다. 두 응답은 모두 STORED/error_code=null이며 구독자도 각각 수신했다(ACK committed_at: 08:02:32.185887Z, 08:02:38.915496Z). 이는 역순 두 메시지의 커밋·응답 확인이다. event_message의 두 원문과 incident·zone_view의 last_device_seq=12 유지는 다음 SQL 조회로 확인한다.
 
 사용자 역순 후 SQL 확인: event_message에서 storage-012/12와 storage-011/11 두 행, incident의 evt-001/last_device_seq=12, zone_view의 zone-01/last_device_seq=12를 확인했다. 정상·중복·내용 충돌·역순의 실제 MQTT/SQL 실습을 완료했다. 다음 구현은 기존 OpenAPI/ZoneView에 맞는 GET /api/zones/{id}/status와 명시적 로컬 조회 접근 제어다. SQL 조회 성공을 HTTP API 구현 완료로 취급하지 않는다. 실제 브로커 장애·재시작·보드·부하 검증은 별도로 남아 있다.
+
+## 공개 조회 데모 M0 — 2026-11-14
+
+[구현 PR #1](https://github.com/yh4752/parking-system/pull/1)은 `feat/mqtt-learning` 기준의 별도 브랜치입니다. 기존 MQTT 원본·성공 DTO·V1/V2를 보존하고, REST 전용 유효 계약과 V3/V4, 신규 단일 구역 데모 초기화 CLI를 추가했습니다. 초기화는 기본 검사 모드이며, 명시 적용 시 외부 manifest claim을 먼저 저장한 뒤 hold와 audit를 커밋합니다. 기존 실습 DB에는 적용하지 않았습니다.
+
+코드 커밋 `db939572`의 [GitHub CI](https://github.com/yh4752/parking-system/actions/runs/43568432860)에서 문서·계약·Compose 검사와 `test databaseTest bootJar`가 모두 통과했습니다. 로컬 최종 bootJar 생성도 성공했고, 그 산출물을 사용한 별도 CLI 프로세스 5개 사례를 PostgreSQL 17.11에서 확인했습니다. 미마이그레이션 DB 거부, 검사 모드 무변경, 신규 초기화, 재적용 거부, 최신 manifest를 유지한 초기 DB 복원 뒤 claim 재사용 거부입니다. 오류를 기대한 사례의 종료 코드 1은 성공적인 거부 결과입니다.
+
+[시험 기록](../validation/demo-foundation-2026-11-14.json)에 환경·실패한 초기 시도·검증 한계를 남겼습니다. 원본 127개 보존과 계약 보호 시험 6개도 통과했습니다. 로컬 전체 테스트가 통과했다고 보고하는 것은 아니며 전체 회귀의 근거는 위 GitHub CI입니다. 이전 Mac 설계 커밋 `052fa95`의 문서 병합은 남아 있습니다.
+
+다음 작업은 **M1 로그인·세션·CSRF·구역 권한·조회 API**입니다. M0의 권한 테이블 추가는 HTTP 권한 검사 구현 완료를 뜻하지 않습니다. heartbeat 수신·SSE·React·실제 배포는 후속 단계입니다.

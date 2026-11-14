@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-14",
+  "scope": "M0 공개 조회 데모의 계약·DB·신규 초기화 기반",
+  "code_commit": "db93957273d2af8f71ab618d01bec4d2475c8c78",
+  "base_commit": "6c6c172318f8e00dee9e2701b4e91616f5115957",
+  "design_continuity": {
+    "preserved_reference": "reference/v1.43",
+    "preserved_file_count": 127,
+    "unavailable_local_plan_commit": "052fa95",
+    "pending": "Mac 로컬 원안 문서와 이번 브랜치의 병합"
+  },
+  "github_ci": {
+    "url": "https://github.com/yh4752/parking-system/actions/runs/43568432860",
+    "conclusion": "success",
+    "documents_job_id": 132367289116,
+    "backend_job_id": 132367289347,
+    "backend_command": "bash ./gradlew test databaseTest bootJar --no-daemon",
+    "environment": "GitHub ubuntu-24.04, Temurin 17, Docker PostgreSQL 17.11 (repository-pinned digest)",
+    "coverage": [
+      "기존 사건 검증·저장·중복·충돌·역순·커밋 후 ACK 회귀",
+      "V3 구역 권한 PK/FK 및 기본 권한 없음",
+      "V4 nullable/소수/false/NaN/Infinity/개수 경계",
+      "V2 자료 보존 업그레이드 및 재적용",
+      "신규 초기화·기존 이력 거부·audit 실패 롤백·외부 claim 재사용 거부"
+    ]
+  },
+  "local_checks": {
+    "contract_generation": "PASS",
+    "contract_guard_unit_tests": 6,
+    "documentation_build": "PASS: 4 SVG, 15 HTML",
+    "structure_and_reference": "PASS",
+    "diff_check": "PASS",
+    "bootJar": "PASS: final main entry point explicitly configured",
+    "cli_process_cases": [
+      {
+        "case": "unmigrated_preflight_refused",
+        "exit_code": 1,
+        "result": "PASS"
+      },
+      {
+        "case": "preflight_no_mutation",
+        "exit_code": 0,
+        "result": "PASS"
+      },
+      {
+        "case": "apply_fresh_demo",
+        "exit_code": 0,
+        "result": "PASS"
+      },
+      {
+        "case": "repeat_application_refused",
+        "exit_code": 1,
+        "result": "PASS"
+      },
+      {
+        "case": "restored_db_claim_reuse_refused",
+        "exit_code": 1,
+        "result": "PASS"
+      }
+    ]
+  },
+  "local_environment": {
+    "java": "Temurin 17.0.21+9",
+    "gradle": "8.12.1, distribution checksum verified",
+    "postgres": "17.11, downloaded binary checksum verified, isolated temporary instance",
+    "maven_access": "Temporary loopback mirror fetched only Maven Central; repository configuration unchanged",
+    "data": "Disposable CLI database and manifest directories; user Mac DB untouched"
+  },
+  "attempts_and_limits": [
+    "초기 로컬 전체 빌드는 시작 후 build.gradle.kts의 mainClass 지정이 추가되어 이전 설정으로 resolveMainClassName에서 중단됐다. 최종 커밋의 GitHub 전체 시험 및 로컬 bootJar는 통과했다. 로컬 전체 시험 통과로 기록하지 않는다.",
+    "CLI는 최종 bootJar의 classes/libs를 사용한 별도 Java 프로세스에서 실행했다. 환경변수로 servlet 모드를 지정해도 CLI의 non-web 설정이 유지되고 HTTP/MQTT 기동 로그가 없음을 확인했다.",
+    "M0 서비스 시험은 GitHub CI에서 실행했다. 실제 새 브로커 왕복, 보드, 카메라, LED·스피커 시험을 수행한 것은 아니다.",
+    "초기화 claim은 최신 manifest를 유지한 초기 DB 복원 사례를 방어한다. 일반 DB 롤백 탐지·호스트 유실 복구를 구현한 것은 아니다."
+  ],
+  "not_implemented": [
+    "로그인·세션·CSRF·구역 권한 적용 서비스·조회 API(M1)",
+    "heartbeat 수신·SSE(M2)",
+    "React 화면·가상 장치 통합·공개 배포·프론트 인계",
+    "기존 사용 DB의 운영 인수·복구 절차"
+  ],
+  "next": "M1 로그인·세션·CSRF·구역 권한과 조회 API"
+}
