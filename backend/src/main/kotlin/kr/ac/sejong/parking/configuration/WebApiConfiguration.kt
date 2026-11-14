@@ -56,7 +56,8 @@ class WebApiConfiguration {
     @Bean fun readQueries(store: JdbcReadStore, revisions: RevisionReservations, webClock: Clock) = ReadQueries(store, revisions, webClock)
 
     @Bean fun webSecurity(http: HttpSecurity, mapper: ObjectMapper, users: JdbcWebUsers, encoder: PasswordEncoder,
-        json: StrictJson, errors: RestErrors, throttle: LoginThrottle, lifetime: SessionLifetime): SecurityFilterChain {
+        json: StrictJson, errors: RestErrors, throttle: LoginThrottle, lifetime: SessionLifetime,
+        streams: kr.ac.sejong.parking.zone.adapter.sse.ZoneStreams): SecurityFilterChain {
         val contexts = HttpSessionSecurityContextRepository().apply { setDisableUrlRewriting(true) }
         val csrf = HttpSessionCsrfTokenRepository()
         val provider = DaoAuthenticationProvider(users).apply { setPasswordEncoder(encoder) }
@@ -84,12 +85,13 @@ class WebApiConfiguration {
         http.authorizeHttpRequests { it
             .requestMatchers(org.springframework.http.HttpMethod.GET, "/actuator/health", "/api/csrf").permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/login").permitAll()
-            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/auth/me", "/api/zones/*/status", "/api/events", "/api/events/*").hasAnyRole("VIEWER", "OPERATOR")
+            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/auth/me", "/api/zones/*/status", "/api/events", "/api/events/*", "/api/stream").hasAnyRole("VIEWER", "OPERATOR")
             .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/logout").authenticated()
             .anyRequest().denyAll()
         }
         val logoutPath = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/api/auth/logout")
         http.logout { it.logoutRequestMatcher { req -> logoutPath.matches(req) && SecurityContextHolder.getContext().authentication?.principal is WebIdentity }
+            .addLogoutHandler { req, _, _ -> req.getSession(false)?.let { session -> streams.closeSession(session.id) } }
             .deleteCookies("JSESSIONID").logoutSuccessHandler { _, res, _ -> res.status = 204 } }
         http.addFilterBefore(SessionGuardFilter(users, lifetime, contexts, errors), CsrfFilter::class.java)
         http.addFilterAt(login, UsernamePasswordAuthenticationFilter::class.java)

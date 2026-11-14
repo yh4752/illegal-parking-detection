@@ -43,6 +43,10 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 // Package the authoritative contract directly; do not maintain a second schema copy.
 val contractDirectory = layout.projectDirectory.dir("../reference/v1.43/개발자료/09_구현설계/contracts")
 tasks.processResources {
+    from(layout.projectDirectory.dir("../infra/sql")) {
+        include("register-local-device.sql", "register-local-policy.sql")
+        into("demo")
+    }
     from(contractDirectory) {
         include("parking.schema.json")
         into("contracts")

@@ -346,6 +346,66 @@ class WebReadDatabaseTest(
         } finally { Files.deleteIfExists(secret) }
     }
 
+    private fun httpSession():Pair<HttpClient,String> {
+        val client=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build()
+        val first=client.send(HttpRequest.newBuilder(URI.create("http://127.0.0.1:$port/api/csrf")).GET().build(),HttpResponse.BodyHandlers.ofString())
+        val cookie=first.headers().firstValue("set-cookie").orElseThrow().substringBefore(';')
+        val token=mapper.readTree(first.body())["token"].asText()
+        val login=client.send(HttpRequest.newBuilder(URI.create("http://127.0.0.1:$port/api/auth/login")).header("Cookie",cookie)
+            .header("X-CSRF-TOKEN",token).header("Content-Type","application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(mapOf("username" to "viewer-a","password" to password)))).build(),HttpResponse.BodyHandlers.ofString())
+        assertThat(login.statusCode()).isEqualTo(200)
+        return client to login.headers().firstValue("set-cookie").orElseThrow().substringBefore(';')
+    }
+    private fun httpGet(path:String,cookie:String)=HttpRequest.newBuilder(URI.create("http://127.0.0.1:$port$path")).header("Cookie",cookie).GET().build()
+    private fun readFrame(reader:java.io.BufferedReader):String {
+        val executor=Executors.newSingleThreadExecutor()
+        try { return executor.submit<String> { buildString { while(true) {val line=reader.readLine()?:break; if(line.isEmpty())break;append(line).append('\n')} } }.get(5,TimeUnit.SECONDS) }
+        finally {executor.shutdownNow()}
+    }
+    @Test fun `SSE actual HTTP sends committed full snapshots and immediately closes on logout`() {
+        val (client,cookie)=httpSession()
+        val response=client.send(httpGet("/api/stream?zone_id=zone-01",cookie),HttpResponse.BodyHandlers.ofInputStream())
+        response.body().use { input ->
+            assertThat(response.statusCode()).isEqualTo(200)
+            assertThat(response.headers().firstValue("content-type").orElseThrow()).contains("text/event-stream")
+            val reader=input.bufferedReader();val first=readFrame(reader)
+            assertThat(first).contains("id: 0","event: zone_snapshot")
+            val firstBody=mapper.readTree(first.lineSequence().first {it.startsWith("data:")}.removePrefix("data: "))
+            checkSchema("ZoneView",firstBody);assertThat(firstBody["snapshot"].isNull).isTrue()
+            ingest("sse-message",10)
+            val next=readFrame(reader);assertThat(next).contains("id: 1")
+            val body=mapper.readTree(next.lineSequence().first {it.startsWith("data:")}.removePrefix("data: "))
+            checkSchema("ZoneView",body);assertThat(body["snapshot"]["device_seq"].asLong()).isEqualTo(10)
+            val token=mapper.readTree(client.send(httpGet("/api/csrf",cookie),HttpResponse.BodyHandlers.ofString()).body())["token"].asText()
+            val logout=client.send(HttpRequest.newBuilder(URI.create("http://127.0.0.1:$port/api/auth/logout")).header("Cookie",cookie).header("X-CSRF-TOKEN",token)
+                .POST(HttpRequest.BodyPublishers.noBody()).build(),HttpResponse.BodyHandlers.ofString())
+            assertThat(logout.statusCode()).isEqualTo(204);assertThat(readFrame(reader)).isEmpty()
+        }
+    }
+    @Test fun `SSE closes when the zone grant is revoked and reconnect returns a JSON 403`() {
+        val (client,cookie)=httpSession()
+        val response=client.send(httpGet("/api/stream?zone_id=zone-01",cookie),HttpResponse.BodyHandlers.ofInputStream())
+        response.body().use { input ->
+            val reader=input.bufferedReader();readFrame(reader)
+            jdbc.update("DELETE FROM user_zone_access WHERE user_id='viewer-a' AND zone_id='zone-01'")
+            assertThat(readFrame(reader)).isEmpty()
+            val denied=client.send(httpGet("/api/stream?zone_id=zone-01",cookie),HttpResponse.BodyHandlers.ofString())
+            assertThat(denied.statusCode()).isEqualTo(403);checkSchema("RestError",mapper.readTree(denied.body()))
+        }
+    }
+    @Test fun `SSE enforces per session quota and stops at idle expiry without touching the session`() {
+        val (client,cookie)=httpSession()
+        val opened=(1..3).map {client.send(httpGet("/api/stream?zone_id=zone-01",cookie),HttpResponse.BodyHandlers.ofInputStream())}
+        try {
+            opened.forEach {assertThat(it.statusCode()).isEqualTo(200)}
+            val limited=client.send(httpGet("/api/stream?zone_id=zone-01",cookie),HttpResponse.BodyHandlers.ofString())
+            assertThat(limited.statusCode()).isEqualTo(429);assertThat(limited.headers().firstValue("Retry-After").orElseThrow()).isEqualTo("10")
+            clock.now=clock.now.plusSeconds(1800)
+            for(response in opened){val reader=response.body().bufferedReader();readFrame(reader);assertThat(readFrame(reader)).isEmpty()}
+        } finally {opened.forEach {it.body().close()}}
+    }
+
     @Test fun `실제 HTTP 서버가 Secure HttpOnly SameSite 쿠키를 발급하고 세션 ID를 교체한다`() {
         val client=HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()
         val base="http://127.0.0.1:$port"

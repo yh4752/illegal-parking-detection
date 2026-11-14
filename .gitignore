@@ -29,3 +29,6 @@ docs/site/
 /data/videos/
 /models/weights/
 /.local-state/
+/frontend/dist/
+/frontend/test-results/
+/frontend/playwright-report/

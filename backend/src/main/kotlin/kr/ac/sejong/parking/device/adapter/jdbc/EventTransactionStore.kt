@@ -3,7 +3,7 @@ package kr.ac.sejong.parking.device.adapter.jdbc
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import kr.ac.sejong.parking.device.application.CorrelatedEvent
+import kr.ac.sejong.parking.device.application.CorrelatedDeviceMessage
 import kr.ac.sejong.parking.device.application.EventCanonicalizer
 import kr.ac.sejong.parking.device.application.EventIngestResult
 import kr.ac.sejong.parking.device.application.EventValidationResult
@@ -28,12 +28,19 @@ class EventTransactionStore(
 ) {
     private val terminal = setOf("CLOSED_EXIT", "CLOSED_MANUAL")
 
-    fun ingest(input: CorrelatedEvent, validate: () -> EventValidationResult.Invalid?): EventIngestResult =
+    fun ingest(input: CorrelatedDeviceMessage, validate: () -> EventValidationResult.Invalid?): EventIngestResult =
         revisions.withZone(input.zoneId) {
             retryTransaction { transaction.execute { ingestLocked(input, validate) }!! }
         }
 
-    private fun ingestLocked(input: CorrelatedEvent, validate: () -> EventValidationResult.Invalid?): EventIngestResult {
+    fun heartbeat(input: CorrelatedDeviceMessage): EventIngestResult = revisions.withZone(input.zoneId) {
+        retryTransaction { transaction.execute { ingestLocked(input, { null }, heartbeat = true) }!! }
+    }
+
+    private fun ingestLocked(input: CorrelatedDeviceMessage, validate: () -> EventValidationResult.Invalid?, heartbeat: Boolean = false): EventIngestResult {
+        // Reuse all ownership/policy/summary/pause checks; heartbeats never create reliable receipts or ACKs.
+        fun reject(input: CorrelatedDeviceMessage, error: String, rule: String, now: Timestamp): EventIngestResult =
+            if (heartbeat) noAck(rule) else this.reject(input, error, rule, now)
         val zones = jdbc.queryForList("SELECT * FROM zone_view WHERE zone_id=? FOR UPDATE", input.zoneId)
         if (zones.isEmpty() || zones.single()["device_id"] != input.deviceId) return noAck("device_registration")
         val zone = zones.single()
@@ -42,7 +49,9 @@ class EventTransactionStore(
             return noAck("device_registration")
         }
         val now = Timestamp.from(clock.instant())
-        val receipt = jdbc.queryForList(
+        if (heartbeat && input.message["device_seq"].longValue() <= maxOf(
+                (zone["last_device_seq"] as Number).toLong(), (zone["last_heartbeat_seq"] as Number).toLong())) return noAck("stale_heartbeat")
+        val receipt = if (heartbeat) null else jdbc.queryForList(
             "SELECT * FROM inbound_receipt WHERE device_id=? AND message_id=?", input.deviceId, input.messageId,
         ).singleOrNull()
         if (receipt != null) {
@@ -66,11 +75,11 @@ class EventTransactionStore(
         }
         val message = input.message
         // Image metadata has its own file/DB protocol. Do not discard its side effect then ACK STORED.
-        if (message["event_type"].asText() == "IMAGE_STATUS_CHANGED") return noAck("unsupported_image_status")
+        if (message.path("event_type").asText() == "IMAGE_STATUS_CHANGED") return noAck("unsupported_image_status")
         val snapshot = message["snapshot"]
         val seq = message["device_seq"].longValue()
         val summaries = linkedMapOf<String, JsonNode>()
-        val event = message["event"]
+        val event = message.path("event").takeUnless { it.isMissingNode } ?: mapper.nullNode()
         if (!event.isNull) summaries[event["event_id"].asText()] = event
         if (!snapshot["current_event_id"].isNull) {
             summaries.putIfAbsent(snapshot["current_event_id"].asText(), summaryFrom(snapshot))
@@ -124,16 +133,19 @@ class EventTransactionStore(
                 }
             }
         }
+        if (!heartbeat) {
         insertReceipt(input, "STORED", null, now)
         jdbc.update("""
             INSERT INTO event_message(device_id,message_id,zone_id,event_id,device_seq,occurred_at,received_at,payload)
             VALUES (?,?,?,?,?,?,?,?::jsonb)
         """.trimIndent(), input.deviceId, input.messageId, input.zoneId, nullableText(message["event_id"]), seq,
             timestamp(message["occurred_at"]), now, mapper.writeValueAsString(message))
+        }
+        if (heartbeat && !snapshot["current_event_id"].isNull && snapshot["current_event_id"].asText() in tombstoned) return noAck("expired_heartbeat_event")
         var changed = false
         for ((id, summary) in summaries.toSortedMap()) {
             val old = existing[id]
-            if (id in tombstoned || (old != null && seq <= (old["last_device_seq"] as Number).toLong())) continue
+            if (id in tombstoned || (old?.get("summary_expires_at") as? Timestamp)?.let { !it.after(now) } == true || (old != null && seq <= (old["last_device_seq"] as Number).toLong())) continue
             saveSummary(input, summary, old, seq, now)
             changed = true
         }
@@ -144,6 +156,12 @@ class EventTransactionStore(
             """.trimIndent(), mapper.writeValueAsString(snapshot), nullableText(snapshot["current_event_id"]), seq, now,
                 snapshot["boot_id"].asText(), input.zoneId)
             updatePauses(input, snapshot, seq, now)
+            changed = true
+        }
+        if (heartbeat) {
+            jdbc.update("""UPDATE zone_view SET last_heartbeat_at=?,last_heartbeat_seq=?,connection_state='ONLINE',
+                fps=?,pending_message_count=?,storage_ok=? WHERE zone_id=?""", now, seq,
+                message["fps"].decimalValue(), message["pending_message_count"].longValue(), message["storage_ok"].booleanValue(), input.zoneId)
             changed = true
         }
         if (changed) incrementRevision(input.zoneId)
@@ -164,7 +182,7 @@ class EventTransactionStore(
         }
     }
 
-    private fun saveSummary(input: CorrelatedEvent, summary: JsonNode, old: Map<String, Any>?, seq: Long, now: Timestamp) {
+    private fun saveSummary(input: CorrelatedDeviceMessage, summary: JsonNode, old: Map<String, Any>?, seq: Long, now: Timestamp) {
         val state = summary["state"].asText()
         val closing = state in terminal
         val started = old?.get("started_at") as? Timestamp ?: timestamp(summary["started_at"])
@@ -191,7 +209,7 @@ class EventTransactionStore(
         check(affected == 1) { "concurrent_incident_conflict" }
     }
 
-    private fun updatePauses(input: CorrelatedEvent, snapshot: JsonNode, seq: Long, now: Timestamp) {
+    private fun updatePauses(input: CorrelatedDeviceMessage, snapshot: JsonNode, seq: Long, now: Timestamp) {
         val present = snapshot["pauses"].map { it["pause_id"].asText() }.toSet()
         for (old in jdbc.queryForList("SELECT pause_id FROM pause_projection WHERE device_id=? AND status <> 'CLEARED'", input.deviceId)) {
             if (old["pause_id"] !in present) jdbc.update(
@@ -212,20 +230,20 @@ class EventTransactionStore(
         }
     }
 
-    private fun insertReceipt(input: CorrelatedEvent, outcome: String, error: String?, now: Timestamp) {
+    private fun insertReceipt(input: CorrelatedDeviceMessage, outcome: String, error: String?, now: Timestamp) {
         jdbc.update("""
             INSERT INTO inbound_receipt(device_id,message_id,family,payload_sha256,outcome,error_code,first_received_at)
             VALUES (?,?,'events',?,?,?,?)
         """.trimIndent(), input.deviceId, input.messageId, input.canonicalHash, outcome, error, now)
     }
 
-    private fun reject(input: CorrelatedEvent, error: String, rule: String, now: Timestamp): EventIngestResult.Committed {
+    private fun reject(input: CorrelatedDeviceMessage, error: String, rule: String, now: Timestamp): EventIngestResult.Committed {
         quarantine(input, error, rule, now)
         insertReceipt(input, "REJECTED", error, now)
         return committed(input, "REJECTED", error)
     }
 
-    private fun quarantine(input: CorrelatedEvent, error: String, rule: String, now: Timestamp) {
+    private fun quarantine(input: CorrelatedDeviceMessage, error: String, rule: String, now: Timestamp) {
         jdbc.update("""
             INSERT INTO inbound_quarantine(quarantine_id,device_id,message_id,topic,raw_payload,raw_sha256,canonical_sha256,
                 error_code,rule_id,first_received_at,expires_at)
@@ -238,6 +256,25 @@ class EventTransactionStore(
     private fun incrementRevision(zoneId: String) {
         check(jdbc.update("UPDATE zone_view SET view_revision=view_revision+1 WHERE zone_id=? AND view_revision < revision_range_end", zoneId) == 1) {
             "revision_range_exhausted"
+        }
+    }
+
+    /** Server elapsed time only changes connectivity; never infer vehicle departure. */
+    fun expireConnectivity() {
+        for (id in jdbc.queryForList("SELECT zone_id FROM zone_view WHERE connection_state<>'OFFLINE' ORDER BY zone_id", String::class.java)) {
+            revisions.withZone(id) {
+                transaction.executeWithoutResult {
+                    val zone = jdbc.queryForMap("SELECT * FROM zone_view WHERE zone_id=? FOR UPDATE", id)
+                    jdbc.queryForMap("SELECT device_id FROM device WHERE device_id=? FOR UPDATE", zone["device_id"])
+                    val last = (zone["last_heartbeat_at"] as? Timestamp)?.toInstant()
+                    val age = last?.let { java.time.Duration.between(it, clock.instant()).toMillis() }
+                    val state = when { age == null || age < 0 || age > 30_000 -> "OFFLINE"; age > 15_000 -> "STALE"; else -> "ONLINE" }
+                    if (zone["connection_state"] != state) {
+                        jdbc.update("UPDATE zone_view SET connection_state=? WHERE zone_id=?", state, id)
+                        incrementRevision(id)
+                    }
+                }
+            }
         }
     }
 
@@ -289,7 +326,7 @@ class EventTransactionStore(
         return Timestamp.from(Instant.parse(text).truncatedTo(ChronoUnit.MICROS))
     }
     private fun nullableText(node: JsonNode): String? = if (node.isNull) null else node.asText()
-    private fun committed(input: CorrelatedEvent, status: String, error: String? = null) =
+    private fun committed(input: CorrelatedDeviceMessage, status: String, error: String? = null) =
         EventIngestResult.Committed(input.deviceId, input.messageId, status, error)
     private fun noAck(reason: String) = EventIngestResult.NotAcknowledged(reason)
 }

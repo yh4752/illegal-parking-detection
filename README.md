@@ -12,9 +12,9 @@
 
 | 현재 | 다음 구현 |
 |---|---|
-| 사건 저장·중복/순서 처리·커밋 후 ACK, 로그인·구역 권한·상태/이력 조회 API 구현 | heartbeat/SSE·React·공개 배포·프론트 인계 |
+| 사건 저장·중복/순서 처리·커밋 후 ACK, 로그인·구역 권한·상태/이력 조회 API 구현 | React·heartbeat/SSE 작성, 독립 데모 통합 시험 중 · 공개 배포는 후속 |
 
-차량 인식·현장 안내·관리자 화면은 아직 미구현입니다. [진행 상황](docs/status.md) · [웹 인계 구현 계획](docs/public-demo.md)
+실제 차량 인식·현장 출력은 미구현입니다. 실행 가능한 관리자 화면은 [인계 설명서](docs/frontend-handoff.md)를 봅니다. [진행 상황](docs/status.md) · [웹 인계 구현 계획](docs/public-demo.md)
 
 [로그인·조회 API 실행 안내](docs/authenticated-read.md)에서 신규 데모 준비·계정 발급·접속 순서를 확인하세요. 이전 실습 DB는 보존합니다.
 

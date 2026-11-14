@@ -9,7 +9,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="../index.html">팀 요약</a><a href="../backend.html">서버 구조</a><a href="../public-demo.html">웹 인계 계획</a><a href="../status.html">현재 상태</a><a href="../review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>ADR-003 사건 검증과 저장 판단의 경계</h1>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>ADR-003 사건 검증과 저장 판단의 경계</h1>
 <p>2026-11-13 · 채택 · 사용자 요청: 저장 구현 전에 설계 확정</p>
 <h2>문제</h2>
 <p>현재 코드는 v1.43의 EventMessage Schema와 SC01 및 등록 관계를 검사한다. 상세 명세 C5/C12/A2의 추가 조합까지 모두 검사하는 것은 아니다. Schema 통과를 저장 가능한 상태로 취급하면 모순을 수용하고, 무조건 강한 검사를 추가하면 정상 과거 보고·출력 전환을 거부한다.</p>

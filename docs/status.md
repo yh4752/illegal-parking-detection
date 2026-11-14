@@ -21,12 +21,13 @@
 | 공개 데모 기반 M0 | REST 유효 계약·V3/V4·신규 초기화 CLI 구현 | GitHub 전체 CI·계약 보호 시험 6개·별도 CLI 프로세스 5개 사례 통과. [범위와 실행 안내](demo-foundation.md) |
 | 제품 로그인·조회 API | M1 구현: 세션·CSRF·구역 권한·7개 경로·계정 CLI | 실제 PostgreSQL·HTTP·CLI 시험. [실행 안내](authenticated-read.md) |
 | 사건 예제 출력 도구 | tools/event_fixture.py 작성 | 원본/오류 변형, --design-case E01~E26 출력이 설계 사례와 일치함을 확인. 장치 SDK·재전송 시뮬레이터는 아직 아님 |
-| React·SSE·명령·사진 파일 | 미구현 | 다음 M2부터 진행 |
+| React·heartbeat·SSE·가상 장치 | 인계 브랜치에 구현, 로컬 단위·HTTP/DB 검사 | 새 클론 Docker/브라우저 통합 시험 진행 중. [인계 설명서](frontend-handoff.md) |
+| 명령·사진 파일 | 미구현 | 별도 후속 범위 |
 | 장치 SDK·실차 시험 | 미구현/미수행 | 언어·장소·카메라 등 확인 필요 |
 
 ## 오늘 프론트 인계까지 남은 작업
 
-`frontend/`에는 README만 있으며 실행 가능한 프론트 코드는 없습니다. [인계 체크리스트](frontend-handoff-checklist.md)에 화면·통합·실시간·배포·새 클론 검증을 정리했습니다. 오늘은 M3의 React/REST 화면을 먼저 착수하고, M2 heartbeat·SSE를 결합하는 순서입니다. 화면·공개 배포 완료를 새로 주장하는 변경은 아닙니다.
+`feat/frontend-handoff`에서 로그인·구역 현황·사건 이력/상세와 실제 API 연결을 작성했습니다. heartbeat와 SSE, 별도 가상 장치 및 인계 Compose를 추가했습니다. 로컬 검사와 별도 CI 통합 시험을 진행 중이며 **공개 인계 완료 상태는 아닙니다**. [설명서](frontend-handoff.md) · [체크리스트](frontend-handoff-checklist.md) · [검증 기록](../validation/frontend-handoff-2026-11-14.json)
 
 ## 확인 근거
 

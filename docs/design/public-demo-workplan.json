@@ -1,12 +1,13 @@
 {
   "plan_id": "public-demo-1",
   "date": "2026-11-13",
-  "status": "M0_M1_completed_M3_REST_priority",
+  "status": "M2_M3_M4_implemented_integration_pending",
   "baseline_commit": "6c6c172318f8e00dee9e2701b4e91616f5115957",
   "read_first": [
     "AGENTS.md",
     "docs/status.md",
     "docs/public-demo.md",
+    "docs/frontend-handoff.md",
     "docs/frontend-handoff-checklist.md",
     "docs/design/public-demo-plan.md",
     "docs/adr/005-public-demo-boundary.md",
@@ -64,7 +65,7 @@
     {
       "id": "M2",
       "name": "생존·실시간",
-      "status": "planned",
+      "status": "implemented_integration_pending",
       "depends_on": [
         "M0",
         "M1"
@@ -82,12 +83,13 @@
         "PD11",
         "PD12",
         "PD13"
-      ]
+      ],
+      "evidence": "validation/frontend-handoff-2026-11-14.json"
     },
     {
       "id": "M3",
       "name": "최소 프론트",
-      "status": "planned",
+      "status": "implemented_integration_pending",
       "depends_on": [
         "M1"
       ],
@@ -100,12 +102,13 @@
       "acceptance_ids": [
         "PD14",
         "PD15"
-      ]
+      ],
+      "evidence": "validation/frontend-handoff-2026-11-14.json"
     },
     {
       "id": "M4",
       "name": "simulator·통합",
-      "status": "planned",
+      "status": "implemented_integration_pending",
       "depends_on": [
         "M2",
         "M3"
@@ -118,7 +121,8 @@
       "acceptance_ids": [
         "PD16",
         "PD17"
-      ]
+      ],
+      "evidence": "validation/frontend-handoff-2026-11-14.json"
     },
     {
       "id": "M5",
@@ -407,5 +411,6 @@
     "hardware or real traffic tests complete",
     "zero data loss on host loss"
   ],
-  "updated_at": "2026-11-14"
+  "updated_at": "2026-11-14",
+  "handoff_decision": "ADR-008: committed full-state polling every 1 second replaces after-commit fanout for this single-instance handoff; public deployment not complete."
 }

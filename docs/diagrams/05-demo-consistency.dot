@@ -7,17 +7,19 @@ digraph Consistency {
     label="DB 트랜잭션 · 같은 구역 잠금 / 네트워크 전송 없음"; labeljust=l; color="#b7cad6"; style=rounded;
     lock [label="구역 → 장치 → 정렬된 사건\n중복·순서·정책·보관 검사"];
     writes [label="해당 이력·현재 상태 갱신\n화면 값이 바뀌면 revision 증가"];
-    capture [label="그 revision의 전체 ZoneView 고정\nDB 커밋"];
+    capture [label="상태와 revision을 함께 DB 커밋"];
     lock -> writes -> capture;
   }
   ack [label="사건 ACK 전송\nSTORED / DUPLICATE / REJECTED", fillcolor="#fff0d5", color="#af7c2f"];
+  poll [label="1초마다 권한·revision·전체 상태 조회\n동일 SQL · 커밋된 상태만"];
   sse [label="바뀐 구역의 SSE 전송\n실패 시 최신값으로 다시 수렴"];
   rest [label="REST 현재 상태 재조회\nSSE 연결·재연결 시"];
   reducer [label="브라우저 공통 reducer\nrevision=0도 최초 수용\n그 뒤 더 큰 revision만 반영"];
   rollback [label="롤백 / 결과 불명\n성공 ACK·새 SSE 없음", fillcolor="#f9e8e4", color="#b37666"];
   input -> lock;
   capture -> ack [label="커밋 성공 · 사건만"];
-  capture -> sse [label="커밋 성공 · 값 변경 시"];
+  capture -> poll [label="커밋 이후 조회"];
+  poll -> sse [label="이전보다 큰 revision"];
   capture -> rollback [label="실패", style=dashed];
   sse -> reducer;
   rest -> reducer;

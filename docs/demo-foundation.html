@@ -9,7 +9,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>M0 — 로그인과 조회를 붙이기 위한 준비</h1>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>M0 — 로그인과 조회를 붙이기 위한 준비</h1>
 <p>2026-11-14 · 첫 공개 조회 데모의 기반 작업</p>
 <p><strong>이번 단계는 계약·DB·새 데모 초기화까지입니다.</strong> 웹 로그인이나 화면은 아직 없습니다. 학습 실습을 기다리지 않고 구현·자동 시험을 먼저 진행하는 방식으로 작업합니다.</p>
 <div class="table-scroll"><table>

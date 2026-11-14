@@ -1,0 +1,6 @@
+import {Link} from 'react-router-dom';
+import type {EventList} from '../../api/types';
+import {Badge,Empty} from '../../components/Feedback';
+import {states,stateTone,date,bodies,uses} from '../../components/labels';
+import styles from '../../styles/Console.module.css';
+export function EventTable({items}:{items:EventList['items']}){if(!items.length)return <Empty title="표시할 사건이 없습니다">새 보고를 받으면 이곳에서 확인할 수 있습니다.</Empty>;return <div className={styles.tableWrap}><table className={styles.table}><caption className={styles.srOnly}>사건 목록</caption><thead><tr><th>사건</th><th>상태</th><th>차량 분류</th><th>안내 횟수</th><th>관측 시작</th><th><span className={styles.srOnly}>상세</span></th></tr></thead><tbody>{items.map(event=><tr key={event.event_id}><td className={styles.mono}>{event.event_id}</td><td><Badge tone={stateTone(event.state)}>{states[event.state]}</Badge></td><td>{bodies[event.body_type]||event.body_type}<small>{uses[event.manual_use_type||event.use_type]||event.use_type}</small></td><td>{event.guidance_count}회</td><td>{date(event.started_at)}</td><td><Link className={styles.textLink} to={`/events/${encodeURIComponent(event.event_id)}`} aria-label={`${event.event_id} 사건 상세 보기`}>상세 보기 ↗</Link></td></tr>)}</tbody></table></div>;}

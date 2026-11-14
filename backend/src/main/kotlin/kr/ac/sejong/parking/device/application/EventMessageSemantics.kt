@@ -12,7 +12,7 @@ internal object EventMessageSemantics {
 
     fun validate(message: JsonNode): EventValidationResult.Invalid? {
         val snapshot = message["snapshot"]
-        val event = message["event"]
+        val event = message.path("event").takeUnless { it.isMissingNode } ?: com.fasterxml.jackson.databind.node.NullNode.instance
         val hasCurrentEvent = !snapshot["current_event_id"].isNull
         val clockUntrustedReason = snapshot["reason_codes"].any { it.asText() == "CLOCK_UNTRUSTED" }
 
@@ -68,7 +68,7 @@ internal object EventMessageSemantics {
             }
         }
 
-        val expectedClosedState = when (message["event_type"].asText()) {
+        val expectedClosedState = when (message.path("event_type").asText()) {
             "EVENT_CLOSED_EXIT" -> "CLOSED_EXIT"
             "EVENT_CLOSED_MANUAL" -> "CLOSED_MANUAL"
             else -> null

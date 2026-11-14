@@ -18,7 +18,11 @@ def check_link(source, target):
     if url.scheme or url.netloc or not url.path:
         return
     counts['local_links'] += 1
-    p = (source.parent / unquote(url.path)).resolve()
+    # Vite entry assets are rooted at frontend/, not the host filesystem root.
+    if source == ROOT/'frontend/index.html' and url.path.startswith('/'):
+        p = (ROOT/'frontend'/unquote(url.path).lstrip('/')).resolve()
+    else:
+        p = (source.parent / unquote(url.path)).resolve()
     if not p.exists():
         errors.append(f'{source.relative_to(ROOT)}: 없는 링크 {target}')
 
@@ -41,7 +45,7 @@ class Links(HTMLParser):
 
 for source in ROOT.rglob('*'):
     rel = source.relative_to(ROOT)
-    if not source.is_file() or any(x in rel.parts for x in ('reference','node_modules','.gradle','build','.git')):
+    if not source.is_file() or any(x in rel.parts for x in ('reference','node_modules','.gradle','build','.git','dist','playwright-report','test-results','.local-state')):
         continue
     if source.suffix == '.md':
         counts['markdown'] += 1

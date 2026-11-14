@@ -107,6 +107,53 @@ class EventIngestionDatabaseTest(
         )
     }
 
+    private fun heartbeat(seq:Long=11):ObjectNode = examples["heartbeat"].deepCopy<ObjectNode>().apply {
+        put("device_seq",seq);put("message_id","heartbeat-$seq");(get("snapshot") as ObjectNode).put("device_seq",seq)
+    }
+    private fun pulse(message:ObjectNode=heartbeat(), retained:Boolean=false,qos:Int=0) {
+        kr.ac.sejong.parking.configuration.HeartbeatReceiver(mapper,store).receive(
+            "parking/v2/devices/edge-01/heartbeat",mapper.writeValueAsBytes(message),qos,retained)
+    }
+    @Test fun `heartbeat projects snapshot summary and diagnostics with no receipt or raw history`() {
+        pulse()
+        assertThat(view()).containsEntry("last_device_seq",11L).containsEntry("last_heartbeat_seq",11L).containsEntry("connection_state","ONLINE").containsEntry("storage_ok",true)
+        assertThat(count("incident")).isEqualTo(1)
+        assertThat(jdbc.queryForObject("SELECT started_at FROM incident",Timestamp::class.java)).isNull()
+        assertThat(count("event_message")).isZero();assertThat(count("inbound_receipt")).isZero();assertThat(count("inbound_quarantine")).isZero()
+    }
+    @Test fun `repeated old and retained heartbeat cannot refresh connectivity or replace a newer event`() {
+        pulse();val before=view();clock.now=clock.now.plusSeconds(16);store.expireConnectivity()
+        pulse();pulse(heartbeat(10));pulse(heartbeat(12),retained=true)
+        assertThat(view()).containsEntry("connection_state","STALE").containsEntry("last_heartbeat_at",before["last_heartbeat_at"])
+        committed(event("newer-event",20));pulse(heartbeat(19));assertThat(view()).containsEntry("last_device_seq",20L).containsEntry("last_heartbeat_seq",11L)
+    }
+    @Test fun `heartbeat expiry has strict fifteen and thirty second boundaries and leaves the vehicle snapshot intact`() {
+        pulse();val snapshot=view()["snapshot"].toString()
+        clock.now=clock.now.plusSeconds(15);store.expireConnectivity();assertThat(view()["connection_state"]).isEqualTo("ONLINE")
+        clock.now=clock.now.plusMillis(1);store.expireConnectivity();assertThat(view()["connection_state"]).isEqualTo("STALE")
+        clock.now=clock.now.plusMillis(14999);store.expireConnectivity();assertThat(view()["connection_state"]).isEqualTo("STALE")
+        clock.now=clock.now.plusMillis(1);store.expireConnectivity();assertThat(view()["connection_state"]).isEqualTo("OFFLINE")
+        assertThat(view()["snapshot"].toString()).isEqualTo(snapshot)
+        pulse(heartbeat(12));assertThat(view()["connection_state"]).isEqualTo("ONLINE")
+    }
+    @Test fun `malformed semantic invalid wrong topic disabled device and unknown policy heartbeat make no changes`() {
+        val bad=heartbeat().apply {(get("snapshot") as ObjectNode).put("continuous_stop_ms",-1)};pulse(bad)
+        pulse(heartbeat().apply{put("device_id","wrong-device")})
+        pulse(heartbeat().apply{(get("snapshot") as ObjectNode).put("active_policy_version",99).put("received_policy_version",99)})
+        jdbc.update("UPDATE device SET enabled=false");pulse()
+        assertThat(view()["last_device_seq"]).isEqualTo(-1L);assertThat(count("incident")).isZero()
+    }
+    @Test fun `heartbeat cannot reopen a closed event or decrease its guidance count`() {
+        committed(closed(seq=20));pulse(heartbeat(21))
+        assertThat(view()["last_device_seq"]).isEqualTo(20L);assertThat(view()["last_heartbeat_at"]).isNull()
+    }
+    @Test fun `delayed reliable event is retained without rolling back newer heartbeat and supplies a missing start time only on a newer summary`() {
+        pulse(heartbeat(20));committed(event("delayed",19));assertThat(count("event_message")).isEqualTo(1)
+        assertThat(view()["last_device_seq"]).isEqualTo(20L)
+        committed(event("new",21));assertThat(view()["last_device_seq"]).isEqualTo(21L)
+        assertThat(jdbc.queryForObject("SELECT started_at FROM incident",Timestamp::class.java)).isNotNull()
+    }
+
     @Test fun `원자 저장 후 트랜잭션 밖에서 ACK를 만들며 온라인 상태를 추정하지 않는다`() {
         var sent = false
         send(event()) { ackTopic, bytes ->
