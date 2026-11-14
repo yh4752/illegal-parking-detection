@@ -25,7 +25,7 @@
     }
   },
   "pending": [
-    "recipient repository access and acceptance on their own PC",
+    "recipient acceptance on their own PC and collaborator access for direct push",
     "public deployment host/access/budget and domain/DNS",
     "production HTTPS/TLS/ACL/runtime DB roles and monitoring configuration",
     "backup storage, independent revision manifest location and isolated operator restore drill",
@@ -71,10 +71,126 @@
       "commit": "b4f9287",
       "run": 43585232829,
       "outcome": "browser flow passed; broker recovery failed the 50-second bound. Actual Paho 1.2.5 reconnect property corrected; threshold unchanged, two outage cycles now required."
+    },
+    {
+      "commit": "32778db",
+      "run": 43591711156,
+      "outcome": "All four jobs passed. Browser flow 55.9s; two broker outage recoveries in 16.6s and 6.7s under the unchanged 50-second bound. EventSource Accept error tests passed."
     }
   ],
-  "verified_code_commit": "c347dbf86a398895eb03e70842d37d17eae2caba",
+  "verified_code_commit": "32778db65a1a4076d2b973372047e81c7b148097",
   "ci": {
+    "run_id": 43591711156,
+    "url": "https://github.com/yh4752/parking-system/actions/runs/43591711156",
+    "commit": "32778db65a1a4076d2b973372047e81c7b148097",
+    "result": "success",
+    "environment": "ubuntu-24.04; JDK 17; Node 24.13.0; Docker Compose; PostgreSQL 17.11; Mosquitto 2.0.22; Chromium",
+    "jobs": [
+      {
+        "id": 132437645904,
+        "name": "Documents and local configuration",
+        "result": "success"
+      },
+      {
+        "id": 132437645866,
+        "name": "Backend tests, PostgreSQL migration and build",
+        "result": "success"
+      },
+      {
+        "id": 132437645788,
+        "name": "Frontend contract, unit tests and build",
+        "result": "success"
+      },
+      {
+        "id": 132437645882,
+        "name": "Fresh clone Docker and real browser handoff",
+        "result": "success"
+      }
+    ],
+    "fresh_checkout": [
+      "python3 tools/handoff.py prepare",
+      "cd frontend && npm ci",
+      "npx playwright install --with-deps chromium",
+      "npm run test:e2e",
+      "python3 tools/verify_handoff_transport.py (repository root)"
+    ],
+    "browser": {
+      "tests_passed": 1,
+      "duration_seconds": 55.9,
+      "scenarios": [
+        "wrong-password error then real login",
+        "initial null and empty history",
+        "MQTT to PostgreSQL to REST/SSE and visible UI with matching event ID",
+        "event detail and state filters",
+        "browser offline and reconnection",
+        "heartbeat stop to STALE and OFFLINE without erasing last vehicle observation",
+        "390px mobile without page overflow",
+        "late lower-sequence raw event appears through REST refresh without a zone revision change",
+        "logout removes dedicated handoff cookie; old session fails; login again",
+        "ungranted zone is blocked"
+      ]
+    },
+    "transport": {
+      "result_line": "HANDOFF_TRANSPORT_PASSED scenarios=normal,duplicate,conflict,reverse,db_outage,broker_outage,restart",
+      "scenarios": [
+        "STORED then DUPLICATE",
+        "same ID different body REJECTED MESSAGE_ID_CONFLICT",
+        "reverse order saved without rolling state backward",
+        "DB down: no storage ACK; replay after recovery stored exactly once",
+        "broker stopped while simulator runs with --no-deps: SQLite outbox retained; actual ACK removes it after broker restarts",
+        "backend restart: history preserved, old session invalidated"
+      ],
+      "broker_recovery_cycles": [
+        {
+          "cycle": 1,
+          "seconds": 16.6
+        },
+        {
+          "cycle": 2,
+          "seconds": 6.7
+        }
+      ],
+      "broker_cycle_timeout_seconds": 50
+    },
+    "artifact": {
+      "id": 14112786412,
+      "name": "handoff-browser-evidence",
+      "expires_at": "2026-11-21T11:51:55Z",
+      "note": "Saved README screenshots remain from the explicitly recorded prior successful CI; no visual layout change in this fix."
+    }
+  },
+  "public_repository": {
+    "visibility": "public",
+    "requested_by_user": true,
+    "verified_anonymous_http": 200,
+    "git_history_blob_versions_scanned": 646,
+    "high_signal_secret_or_sensitive_filename_hits": 0,
+    "scope": "pattern and filename review, not a complete security audit",
+    "website_publication": false
+  },
+  "reverification": {
+    "state": "all_four_ci_jobs_passed",
+    "reason": "Paho reconnect setting and EventSource error content negotiation fixes",
+    "backend": {
+      "test": {
+        "tests": 144,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "databaseTest": {
+        "tests": 75,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "broker_outage_cycles_required": 2,
+    "broker_cycle_timeout_seconds": 50,
+    "commit": "32778db65a1a4076d2b973372047e81c7b148097",
+    "run_id": 43591711156
+  },
+  "previous_verified_ci": {
     "run_id": 43584426101,
     "url": "https://github.com/yh4752/parking-system/actions/runs/43584426101",
     "commit": "c347dbf86a398895eb03e70842d37d17eae2caba",
@@ -151,34 +267,5 @@
         }
       ]
     }
-  },
-  "public_repository": {
-    "visibility": "public",
-    "requested_by_user": true,
-    "verified_anonymous_http": 200,
-    "git_history_blob_versions_scanned": 646,
-    "high_signal_secret_or_sensitive_filename_hits": 0,
-    "scope": "pattern and filename review, not a complete security audit",
-    "website_publication": false
-  },
-  "reverification": {
-    "state": "local_backend_and_docs_passed_ci_pending",
-    "reason": "Paho reconnect setting and EventSource error content negotiation fixes",
-    "backend": {
-      "test": {
-        "tests": 144,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "databaseTest": {
-        "tests": 75,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      }
-    },
-    "broker_outage_cycles_required": 2,
-    "broker_cycle_timeout_seconds": 50
   }
 }
