@@ -38,6 +38,7 @@ services:
       <<: *backend-environment
       SPRING_PROFILES_ACTIVE: app-local,mqtt-ingest-local
       SERVER_ADDRESS: 0.0.0.0
+      SERVER_SERVLET_SESSION_COOKIE_NAME: PARKING_HANDOFF_SESSION
       PARKING_MQTT_URL: tcp://mosquitto:1883
       PARKING_CURSOR_HMAC_KEY: ${PARKING_CURSOR_HMAC_KEY:?Generate a unique cursor key}
     volumes: ["revision:/state", "revision-copy:/state-copy"]

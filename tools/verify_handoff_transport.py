@@ -54,14 +54,14 @@ records=api.get('/api/events/'+event_id)['messages'];assert sum(x['message_id']=
 print('TRANSPORT: broker down keeps simulator outbox; reconnect gets real application ACK',flush=True)
 compose('stop','mosquitto')
 try:
-    compose('--profile','simulation','up','-d','simulator')
+    compose('--profile','simulation','up','-d','--no-deps','simulator')
     time.sleep(3)
     code='import sqlite3; c=sqlite3.connect("/state/device.sqlite"); print(c.execute("SELECT count(*) FROM outbox WHERE status=\'PENDING\'").fetchone()[0])'
     assert int(capture('exec','-T','simulator','python','-c',code))>0
 finally:compose('up','-d','mosquitto')
 end=time.monotonic()+50
 while time.monotonic()<end:
-    if int(capture('exec','-T','simulator','python','-c',code))==0:break
+    if int(capture('exec','-T','simulator','python','-c',code))==0 and api.zone()['connection_state']=='ONLINE':break
     time.sleep(1)
 else:raise AssertionError('simulator did not receive stored ACK after broker restart')
 assert api.zone()['connection_state']=='ONLINE'

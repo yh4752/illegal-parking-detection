@@ -1,10 +1,10 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, Link } from 'react-router-dom';
 import { it, expect, vi } from 'vitest';
 import { AuthProvider } from '../../src/features/auth/Auth';
 import { LoginPage } from '../../src/features/auth/LoginPage';
 import { EventTable } from '../../src/features/events/EventTable';
-import { seoulFilter } from '../../src/features/events/EventsPage';
+import { EventsPage, seoulFilter } from '../../src/features/events/EventsPage';
 import { api, ApiError } from '../../src/api/client';
 it('prevents login racing the initial session check and offers labeled keyboard inputs', async () => {
   let reject!: (e: unknown) => void;
@@ -39,4 +39,28 @@ it('distinguishes an empty history from a processing error', () => {
 });
 it('uses KST for date filters independently of the browser timezone', () => {
   expect(seoulFilter('2026-11-14T09:30')).toBe('2026-11-14T00:30:00.000Z');
+});
+
+it('changing zones discards the old signed cursor and filters', async () => {
+  const events = vi.spyOn(api, 'events').mockImplementation(async (query) => ({
+    items: [],
+    next_cursor:
+      query.get('zone_id') === 'zone-01' && !query.has('cursor') ? 'signed-for-zone-one' : null,
+  }));
+  render(
+    <MemoryRouter initialEntries={['/zones/zone-01/events']}>
+      <Link to="/zones/zone-02/events">다른 구역</Link>
+      <Routes>
+        <Route path="/zones/:zoneId/events" element={<EventsPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+  await waitFor(() => expect(screen.getByRole('button', { name: '다음' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: '다음' }));
+  await waitFor(() =>
+    expect(events.mock.calls.at(-1)?.[0].get('cursor')).toBe('signed-for-zone-one'),
+  );
+  fireEvent.click(screen.getByRole('link', { name: '다른 구역' }));
+  await waitFor(() => expect(events.mock.calls.at(-1)?.[0].get('zone_id')).toBe('zone-02'));
+  expect(events.mock.calls.at(-1)?.[0].has('cursor')).toBe(false);
 });

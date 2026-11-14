@@ -57,7 +57,7 @@ class WebApiConfiguration {
 
     @Bean fun webSecurity(http: HttpSecurity, mapper: ObjectMapper, users: JdbcWebUsers, encoder: PasswordEncoder,
         json: StrictJson, errors: RestErrors, throttle: LoginThrottle, lifetime: SessionLifetime,
-        streams: kr.ac.sejong.parking.zone.adapter.sse.ZoneStreams): SecurityFilterChain {
+        streams: kr.ac.sejong.parking.zone.adapter.sse.ZoneStreams, environment: Environment): SecurityFilterChain {
         val contexts = HttpSessionSecurityContextRepository().apply { setDisableUrlRewriting(true) }
         val csrf = HttpSessionCsrfTokenRepository()
         val provider = DaoAuthenticationProvider(users).apply { setPasswordEncoder(encoder) }
@@ -93,7 +93,7 @@ class WebApiConfiguration {
         val logoutPath = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/api/auth/logout")
         http.logout { it.logoutRequestMatcher { req -> logoutPath.matches(req) && SecurityContextHolder.getContext().authentication?.principal is WebIdentity }
             .addLogoutHandler { req, _, _ -> req.getSession(false)?.let { session -> streams.closeSession(session.id) } }
-            .deleteCookies("JSESSIONID").logoutSuccessHandler { _, res, _ -> res.status = 204 } }
+            .deleteCookies(environment.getProperty("server.servlet.session.cookie.name", "JSESSIONID")).logoutSuccessHandler { _, res, _ -> res.status = 204 } }
         http.addFilterBefore(SessionGuardFilter(users, lifetime, contexts, errors), CsrfFilter::class.java)
         http.addFilterAt(login, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()

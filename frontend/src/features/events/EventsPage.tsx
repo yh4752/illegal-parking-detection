@@ -11,6 +11,9 @@ export function seoulFilter(value: string): string {
 }
 export function EventsPage() {
   const { zoneId = '' } = useParams();
+  return <ZoneEvents key={zoneId} zoneId={zoneId} />;
+}
+function ZoneEvents({ zoneId }: { zoneId: string }) {
   const [state, setState] = useState(''),
     [from, setFrom] = useState(''),
     [to, setTo] = useState(''),

@@ -48,7 +48,12 @@ export class ZoneStream {
     if (this.timer) clearTimeout(this.timer);
   }
   refresh() {
-    if (!this.disposed) void this.read(this.generation);
+    if (this.disposed) return;
+    if (this.source) void this.read(this.generation);
+    else {
+      if (this.timer) clearTimeout(this.timer);
+      this.connect();
+    }
   }
   private update(view: ZoneView, state: StreamState) {
     this.current = acceptSnapshot(this.current, view, this.zoneId);

@@ -76,6 +76,9 @@ test('fresh clone: real login, MQTT persistence, SSE, history, reconnect, offlin
   );
   await page.getByRole('button', { name: '로그아웃' }).click();
   await expect(page.getByRole('heading', { name: '로그인', exact: true })).toBeVisible();
+  expect((await page.context().cookies()).some((c) => c.name === 'PARKING_HANDOFF_SESSION')).toBe(
+    false,
+  );
   expect((await page.request.get('/api/auth/me')).status()).toBe(401);
   expect(errors).toEqual([]);
   await page.getByLabel('아이디').fill('handoff-viewer');

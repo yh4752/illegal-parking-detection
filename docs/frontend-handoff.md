@@ -26,7 +26,7 @@ cd parking-system
 python3 tools/handoff.py prepare
 ```
 
-`prepare`는 저장소에 포함된 실행 도구입니다. Docker 자체 명령은 아닙니다. 별도 `parking-handoff` 프로젝트에 빈 DB·브로커·서버·화면을 만들고 구역·정책·조회 계정을 준비합니다. 기존 `parking-local`의 8080/11883/15432와 DB를 변경하지 않습니다. 이미 초기화한 인계 DB는 보존하며, 기존 데이터가 있는 DB를 초기화하려는 요청은 거부합니다.
+`prepare`는 저장소에 포함된 실행 도구입니다. Docker 자체 명령은 아닙니다. 별도 `parking-handoff` 프로젝트에 빈 DB·브로커·서버·화면을 만들고 구역·정책·조회 계정을 준비합니다. 기존 `parking-local`의 8080/11883/15432와 DB를 변경하지 않습니다. 브라우저 세션 쿠키도 `PARKING_HANDOFF_SESSION`으로 분리합니다. 이미 초기화한 인계 DB는 보존하며, 기존 데이터가 있는 DB를 초기화하려는 요청은 거부합니다.
 
 - 주소: <http://127.0.0.1:18081>
 - 아이디: `handoff-viewer`

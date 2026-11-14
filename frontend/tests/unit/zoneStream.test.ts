@@ -159,3 +159,20 @@ it('rejects mismatched SSE id and payload revision', async () => {
   expect(h.notify.mock.calls.some((x) => x[0]?.view_revision === 7)).toBe(false);
   h.stream.stop();
 });
+
+it('manual refresh can reconnect after a revoked grant is restored', async () => {
+  const h = harness();
+  h.stream.start();
+  h.sources[0].open();
+  await settle();
+  h.me.mockRejectedValueOnce(new ApiError(403, 'FORBIDDEN', '권한 없음'));
+  h.sources[0].onerror?.();
+  await settle();
+  expect(h.notify.mock.calls.at(-1)?.[1]).toBe('blocked');
+  h.stream.refresh();
+  expect(h.sources.length).toBe(2);
+  h.sources[1].open();
+  await settle();
+  expect(h.notify.mock.calls.at(-1)?.[1]).toBe('live');
+  h.stream.stop();
+});
