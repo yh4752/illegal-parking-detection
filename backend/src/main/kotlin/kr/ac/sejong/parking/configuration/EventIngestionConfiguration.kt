@@ -75,6 +75,8 @@ class EventIngestionConfiguration(@Value("\${parking.mqtt.broker-url}") private 
 
     @EventListener
     fun onSubscribed(event: MqttSubscribedEvent) {
+        val adapter = event.source as? Mqttv5PahoMessageDrivenChannelAdapter ?: return
+        if (adapter.componentName?.startsWith("eventIngestInbound.") != true) return
         log.info("EVENT_INGEST_READY topic=parking/v2/devices/+/events mode=local_persistence")
     }
 

@@ -34,6 +34,7 @@ const pages = new Map([
   ['authenticated-read.md', 'authenticated-read.html'],
   ['frontend-handoff-checklist.md', 'frontend-handoff-checklist.html'],
   ['frontend-handoff.md', 'frontend-handoff.html'],
+  ['learning-map.md', 'learning-map.html'],
   ['adr/008-frontend-handoff-realtime.md', 'adr/008-frontend-handoff-realtime.html'],
   ['adr/007-authenticated-read-api.md', 'adr/007-authenticated-read-api.html'],
   ['adr/006-public-demo-foundation.md', 'adr/006-public-demo-foundation.html'],

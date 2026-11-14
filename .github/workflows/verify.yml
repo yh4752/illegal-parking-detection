@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with: {persist-credentials: false}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
-        with: {node-version: '24', package-manager-cache: false}
+        with: {node-version: '24.13.0', package-manager-cache: false}
       - run: npm ci
         working-directory: frontend
       - run: npm run generate && npm run format:check && npm test && npm run build
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with: {persist-credentials: false}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
-        with: {node-version: '24', package-manager-cache: false}
+        with: {node-version: '24.13.0', package-manager-cache: false}
       - run: python3 tools/handoff.py prepare
       - run: npm ci
         working-directory: frontend
@@ -100,6 +100,8 @@ jobs:
         working-directory: frontend
       - run: npm run test:e2e
         working-directory: frontend
+      - name: Broker, DB and restart recovery
+        run: python3 tools/verify_handoff_transport.py
       - name: Container logs on failure (no environment dump)
         if: failure()
         run: python3 tools/handoff.py logs

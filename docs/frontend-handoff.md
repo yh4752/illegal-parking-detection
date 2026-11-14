@@ -84,7 +84,7 @@ PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev
 | 실시간 수신·revision | `features/zones/zoneStream.ts` | 오래된 응답 무시·재연결·권한 회수 처리 유지 |
 | API 타입·응답 검증 | `src/api/generated/` | 직접 편집하지 않고 `npm run generate` |
 
-React 19, TypeScript 5.9, Vite 8, React Router 7, CSS Modules입니다. 정확한 버전은 package/lockfile을 따릅니다. 처음부터 기능을 다시 만드는 대신 실행되는 화면의 디자인·사용성을 개선하면 됩니다.
+React 19, TypeScript 5.9, Vite 8, React Router 7, CSS Modules입니다. 정확한 버전은 package/lockfile을 따릅니다. `npm run format`으로 코드 서식을 맞추고, `npm run format:check`로 검사합니다. 처음부터 기능을 다시 만드는 대신 실행되는 화면의 디자인·사용성을 개선하면 됩니다.
 
 ## 4. 알고 바꿔야 하는 통신 규칙
 
@@ -121,6 +121,8 @@ npm run test:e2e
 ```
 
 시험은 실제 로그인, MQTT 발행·저장·조회, SSE, 목록/상세, 통신 단절/재연결, 15/30초 표시, 모바일 폭, 로그아웃/재로그인을 검사합니다. CI는 깨끗한 체크아웃과 독립 Docker 볼륨에서 실행합니다. 성공 여부·커밋은 검증 기록을 기준으로 판단합니다.
+
+브로커·DB 중단/복귀와 중복·충돌·역순·서버 재시작은 저장소 최상위의 `python3 tools/verify_handoff_transport.py`가 별도 인계 환경에서 검사합니다. 실행 중 해당 데모 서비스가 중지/재시작되므로 개인 작업용 데이터가 아닌 자동 시험 환경에서만 사용합니다.
 
 ## 6. 잘 안 될 때
 

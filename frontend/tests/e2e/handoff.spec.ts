@@ -16,7 +16,9 @@ test('fresh clone: real login, MQTT persistence, SSE, history, reconnect, offlin
 }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/');
+  const entry = await page.goto('/');
+  expect(entry?.headers()['content-security-policy']).toContain("default-src 'self'");
+  expect(entry?.headers()['x-frame-options']).toBe('DENY');
   await expect(page.getByRole('heading', { name: '로그인', exact: true })).toBeVisible();
   await page.getByLabel('아이디').fill('handoff-viewer');
   await page.getByLabel('비밀번호').fill('wrong-password-value');

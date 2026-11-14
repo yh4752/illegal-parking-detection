@@ -107,6 +107,18 @@ class EventIngestionDatabaseTest(
         )
     }
 
+    @Test fun `transient preflight DB read failure changes no file and allows a checked retry`() {
+        revisions.close()
+        val spy=org.mockito.Mockito.spy(jdbc)
+        revisions=RevisionReservations(spy,TransactionTemplate(manager),mapper,primary,backup).apply { initialize() }
+        val before=Files.readAllBytes(primary)
+        org.mockito.Mockito.doThrow(org.springframework.jdbc.CannotGetJdbcConnectionException("test outage"))
+            .doCallRealMethod().`when`(spy).queryForList("SELECT * FROM zone_view WHERE zone_id=?","zone-01")
+        assertThatThrownBy { revisions.withZone("zone-01") { error("must not execute") } }.hasMessage("reservation_database_unavailable")
+        assertThat(Files.readAllBytes(primary)).isEqualTo(before);assertThat(Files.readAllBytes(backup)).isEqualTo(before)
+        var executed=false;revisions.withZone("zone-01") {executed=true};assertThat(executed).isTrue()
+    }
+
     private fun heartbeat(seq:Long=11):ObjectNode = examples["heartbeat"].deepCopy<ObjectNode>().apply {
         put("device_seq",seq);put("message_id","heartbeat-$seq");(get("snapshot") as ObjectNode).put("device_seq",seq)
     }

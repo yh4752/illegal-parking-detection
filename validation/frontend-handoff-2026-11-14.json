@@ -5,12 +5,45 @@
   "baseline": "9502f07",
   "scope": "React real-API console, heartbeat, bounded SSE, isolated virtual-device handoff",
   "local": {
-    "frontend_unit": {"passed": 21},
-    "simulator_unit": {"passed": 3},
-    "backend": "test and databaseTest passed after heartbeat/SSE changes; final bootstrap revision not yet rerun",
+    "frontend_unit": {
+      "passed": 22
+    },
+    "simulator_unit": {
+      "passed": 3
+    },
+    "backend": {
+      "general_passed": 144,
+      "database_passed": 74,
+      "failures": 0,
+      "skipped": 0
+    },
     "frontend_build": "passed",
-    "docker": "daemon socket unavailable from agent; integration delegated to repository CI, not yet passed"
+    "docker": "daemon socket unavailable from agent; integration delegated to repository CI, not yet passed",
+    "frontend_install": "clean npm ci passed on Node 24.13.0 with supported jsdom 27.4.0"
   },
-  "pending": ["fresh checkout Docker bootstrap and browser flow", "final code checks", "public HTTPS host and DNS", "frontend collaborator access and recipient acceptance"],
-  "not_claimed": ["real board inference", "physical LED or speaker output", "public deployment", "production restore", "large-scale capacity"]
+  "pending": [
+    "fresh checkout Docker bootstrap and browser flow",
+    "final code checks",
+    "public HTTPS host and DNS",
+    "frontend collaborator access and recipient acceptance"
+  ],
+  "not_claimed": [
+    "real board inference",
+    "physical LED or speaker output",
+    "public deployment",
+    "production restore",
+    "large-scale capacity"
+  ],
+  "integration_attempts": [
+    {
+      "commit": "78d14aa",
+      "run": 43581906449,
+      "outcome": "bootstrap and desktop/MQTT/SSE/disconnection passed; mobile overflow failed, fixed table label containing block"
+    },
+    {
+      "commit": "fa151bd",
+      "run": 43582425839,
+      "outcome": "backend/docs passed, npm ci missing platform dependency lock entries; fresh lock regenerated and Node version aligned"
+    }
+  ]
 }
