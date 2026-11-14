@@ -1,0 +1,21 @@
+digraph PublicDemo {
+  graph [rankdir=TB, bgcolor="transparent", pad="0.3", nodesep="0.4", ranksep="0.6", fontname="Apple SD Gothic Neo", label="C4 L2 + 배치 경계 · 공개 데모 목표 구조\n구현 설계이며 배포 완료 그림이 아닙니다", labelloc=t, fontsize=19, fontcolor="#19354a"];
+  node [shape=box, style="rounded,filled", fontname="Apple SD Gothic Neo", fontsize=13, margin="0.2,0.15", color="#216582", fillcolor="#e0f0f7", fontcolor="#19354a"];
+  edge [fontname="Apple SD Gothic Neo", fontsize=11, color="#326e8a", fontcolor="#486478", arrowsize=0.7];
+  browser [label="팀원 브라우저\n[Container · React / TypeScript]\n로그인 · 구역 현황 · 사건 이력", fillcolor="#fff0d5", color="#af7c2f"];
+  subgraph cluster_host {
+    label="Linux 단일 호스트 · Docker Compose / 서버·DB·브로커 포트는 내부망"; labeljust=l; color="#b7cad6"; style=rounded; fontsize=14;
+    nginx [label="웹 입구\n[Container · Nginx]\nHTTPS · React 정적 파일 · /api 프록시"];
+    spring [label="업무 서버\n[Container · Spring Boot]\n인증 · 검증 · 저장 · REST · SSE", penwidth=2];
+    simulator [label="가상 장치\n[Container · Python]\n사건 · heartbeat / SQLite outbox", fillcolor="#fff0d5", color="#af7c2f"];
+    broker [label="메시지 중계\n[Container · Mosquitto]\nMQTT 5 · TLS · 계정/ACL"];
+    db [shape=cylinder, label="업무 데이터\n[Container · PostgreSQL]\n사건 · 현재 상태 · 사용자/구역 권한"];
+    manifest [shape=note, label="revision 예약 파일\n[File · DB 복원 경로 밖]\n백업 복원 시 번호 역행 방지", fillcolor="#edf3e6", color="#6b8b4a"];
+    nginx -> spring [label="HTTP /api + SSE\n내부망", dir=both];
+    simulator -> broker [label="사건·heartbeat\n저장 ACK 수신", dir=both];
+    broker -> spring [label="MQTT 구독·ACK\n원본 v2 메시지", dir=both];
+    spring -> db [label="JDBC / 트랜잭션"];
+    spring -> manifest [label="파일 예약 후 DB 반영\nDB 잠금 밖 I/O"];
+  }
+  browser -> nginx [label="같은 출처 HTTPS 443\n세션 · CSRF · REST / SSE", dir=both];
+}

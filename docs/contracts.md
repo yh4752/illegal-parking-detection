@@ -24,3 +24,5 @@
 ## 공개 데모 웹 계약의 실행 기준
 
 M0부터 웹은 [유효 OpenAPI·Schema](../contracts/README.md)를 사용한다. 보존 원본 + REST 전용 overlay를 생성기로 적용하며 일반 오류 3종만 REST에 보완한다. MQTT 검증은 계속 보존 원본을 사용한다. 성공 DTO·ZoneView·wire schema_version=2는 바꾸지 않는다. [ADR-006](adr/006-public-demo-foundation.md)과 [M0 안내](demo-foundation.md)를 따른다. 현재 제품 웹 API는 아직 미구현이며 계약 생성 성공이 API 구현 완료를 뜻하지 않는다.
+
+구현 범위와 인수 조건은 [상세 설계](design/public-demo-plan.md)·[ADR-005](adr/005-public-demo-boundary.md)·[작업표](design/public-demo-workplan.json)를 함께 따른다. `docs/design/public-demo-rest-overlay.json`은 설계 기록이며 실행 기준은 `contracts/overlays/public-demo-rest-v1.json`과 생성물이다.

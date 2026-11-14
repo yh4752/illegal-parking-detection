@@ -1,0 +1,106 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a class="active" href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 다음 목표는 로그인·조회·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>다음 구현: 웹에서 확인하고 프론트 담당자에게 넘기기</h1>
+<p>2026-11-13 · 구현 설계 · 아직 웹 구현/배포 전</p>
+<p><strong>학습을 잠시 뒤로 미루고, MQTT 수신부터 로그인한 웹 화면까지 먼저 완성합니다.</strong> 지금까지 만든 저장 코드를 그대로 사용합니다. 완성 후 실제 파일과 실행 흐름을 따라 학습합니다.</p>
+<figure class="figure"><img src="diagrams/04-public-demo.svg" alt="공개 데모의 목표 구조"><a href="diagrams/04-public-demo.svg" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
+<h2>완성되면 이렇게 사용합니다</h2>
+<ol>
+<li>팀원이 HTTPS 주소로 접속해 로그인합니다.</li>
+<li>가상 장치가 보고한 구역 상태·차량 분류·안내 횟수·카메라 상태를 확인합니다.</li>
+<li>사건을 눌러 이력과 상세 내용을 봅니다.</li>
+<li>장치 송신을 멈추면 연결 지연/끊김이 표시됩니다. 웹 연결이 끊겼다가 돌아와도 최신 상태로 복구됩니다.</li>
+<li>프론트 담당자는 저장소를 받아 같은 화면을 실행하고 UI를 개선합니다.</li>
+</ol>
+<p>화면은 <strong>로그인 / 구역 현황 / 사건 목록·상세</strong> 3종입니다. ‘가상 장치 데모’를 표시하고 실제 차량을 감지한 것처럼 표현하지 않습니다.</p>
+<h2>무엇을 만들까요?</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>현재 확인한 것</th>
+<th>이번에 완성할 것</th>
+<th>다음 범위</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MQTT 사건 수신·검증·DB 저장</td>
+<td>로그인·구역별 조회 권한</td>
+<td>실제 보드·AI·현장 출력</td>
+</tr>
+<tr>
+<td>정상/중복/충돌/역순 처리</td>
+<td>상태·사건 조회 API</td>
+<td>관리자 명령·정책 변경·review 작성</td>
+</tr>
+<tr>
+<td>DB 커밋 후 저장 완료 ACK</td>
+<td>heartbeat·실시간 화면 갱신</td>
+<td>사진 업로드·조회</td>
+</tr>
+<tr>
+<td>자동 시험과 실제 MQTT/SQL 확인</td>
+<td>React·가상 장치·HTTPS 배포·인계</td>
+<td>현장 성능·대규모 운영</td>
+</tr>
+</tbody></table></div>
+<p>‘이번에 완성’은 <strong>조회 가능한 첫 인계판 전체</strong>입니다. v1.43의 모든 제품 기능을 구현 완료했다는 뜻은 아닙니다. 공개 URL에는 팀원 로그인이 필요하며 GitHub 비공개 저장소를 public으로 바꾸지 않습니다.</p>
+<h2>구현 순서</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>순서</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>M0. 계약·DB 준비</td>
+<td>빠진 웹 오류 코드, 구역 권한 테이블, 초기화/복구 기준</td>
+</tr>
+<tr>
+<td>M1. 로그인·조회</td>
+<td>7개 HTTP 경로, 목록·상세·보관 만료·권한 검사</td>
+</tr>
+<tr>
+<td>M2. 실시간 연동</td>
+<td>heartbeat, 15초 초과 STALE / 30초 초과 OFFLINE, SSE</td>
+</tr>
+<tr>
+<td>M3. React 화면</td>
+<td>실제 API 연결, 빈 상태·오류·재로그인·재연결 처리</td>
+</tr>
+<tr>
+<td>M4. 자동 시나리오</td>
+<td>가상 장치로 정상·장애·재전송을 재현하는 통합 시험</td>
+</tr>
+<tr>
+<td>M5. 운영 준비</td>
+<td>Docker 배포, HTTPS, 비밀값·포트 관리, 복원 시험</td>
+</tr>
+<tr>
+<td>M6. 외부 확인·인계</td>
+<td>외부 주소 접속 검증, 실행 안내, 프론트 수정 경계와 학습 지도</td>
+</tr>
+</tbody></table></div>
+<p>터미널 명령을 하나씩 따라 하는 실습을 매 단계의 선행 조건으로 두지 않습니다. 구현과 검증을 진행한 뒤 완료 내용·실패한 점·남은 일을 보고합니다.</p>
+<h2>지금 정한 것과 나중에 필요한 정보</h2>
+<p>Spring Boot·PostgreSQL·Mosquitto를 유지합니다. 프론트는 <strong>React + TypeScript + Vite</strong>, 실시간 갱신은 <strong>SSE</strong>, 배포는 <strong>단일 Linux 서버 + Docker Compose + Nginx</strong>로 정합니다. 서버와 브라우저는 같은 HTTPS 주소를 사용합니다.</p>
+<p>실제 공개 직전에는 사용할 서버·예산, 도메인/DNS 권한, 팀원 계정 전달 대상, 백업과 revision 기록의 보관 위치가 필요합니다. 코드·자동 시험·로컬 배포 구성은 이 정보 없이도 먼저 만들 수 있습니다. 카메라와 실험 장소 확정은 이번 웹 구현의 선행 조건이 아닙니다.</p>
+<h2>상세 자료</h2>
+<ul>
+<li><a href="design/public-demo-plan.html">구현 설계서</a>: API·세션·DB·실시간·배포의 구현 기준</li>
+<li><a href="adr/005-public-demo-boundary.html">결정 기록 ADR-005</a>: v1.43에서 구체화하거나 보완한 부분</li>
+<li><a href="design/public-demo-review.html">설계 검토서</a>: 발견한 빈틈과 인수 시험</li>
+<li><a href="design/public-demo-workplan.json">작업·인수 조건 JSON</a>: 다음 개발 AI가 실행할 순서와 완료 조건</li>
+</ul>
+<p>이번 변경은 설계 문서입니다. 실제 기능의 작성·시험·공개 여부는 <a href="status.html">현재 상태</a>에서 따로 관리합니다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

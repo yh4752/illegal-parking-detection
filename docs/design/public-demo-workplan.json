@@ -1,0 +1,399 @@
+{
+  "plan_id": "public-demo-1",
+  "date": "2026-11-13",
+  "status": "M0_completed_M1_in_progress",
+  "baseline_commit": "6c6c172318f8e00dee9e2701b4e91616f5115957",
+  "read_first": [
+    "AGENTS.md",
+    "docs/status.md",
+    "docs/public-demo.md",
+    "docs/design/public-demo-plan.md",
+    "docs/adr/005-public-demo-boundary.md",
+    "docs/contracts.md"
+  ],
+  "scope": "authenticated read-only demo through public HTTPS and frontend handoff",
+  "out_of_scope": [
+    "real board SDK and AI model",
+    "hardware outputs",
+    "commands and policy mutation",
+    "review mutation",
+    "photos",
+    "GitHub repository visibility change"
+  ],
+  "stages": [
+    {
+      "id": "M0",
+      "name": "계약·DB·gate",
+      "status": "completed_fresh_initialization_only",
+      "depends_on": [],
+      "deliverables": [
+        "REST 유효 계약 생성기",
+        "V3 user_zone_access",
+        "V4 heartbeat telemetry",
+        "신규/기존 초기화 gate"
+      ],
+      "acceptance_ids": [
+        "PD01",
+        "PD02",
+        "PD19"
+      ]
+    },
+    {
+      "id": "M1",
+      "name": "인증·조회",
+      "status": "in_progress",
+      "depends_on": [
+        "M0"
+      ],
+      "deliverables": [
+        "7개 auth/REST 경로",
+        "세션·CSRF·grant",
+        "일관된 상태/이력 조회",
+        "보관 만료 접근 차단"
+      ],
+      "acceptance_ids": [
+        "PD03",
+        "PD04",
+        "PD05",
+        "PD06",
+        "PD07"
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "생존·실시간",
+      "status": "planned",
+      "depends_on": [
+        "M0",
+        "M1"
+      ],
+      "deliverables": [
+        "heartbeat/availability 수신",
+        "freshness timer",
+        "commit snapshot/SSE",
+        "권한 회수·누락 보완"
+      ],
+      "acceptance_ids": [
+        "PD08",
+        "PD09",
+        "PD10",
+        "PD11",
+        "PD12",
+        "PD13"
+      ]
+    },
+    {
+      "id": "M3",
+      "name": "최소 프론트",
+      "status": "planned",
+      "depends_on": [
+        "M1"
+      ],
+      "deliverables": [
+        "React/TS/Vite",
+        "계약 생성 타입",
+        "로그인·구역·이력 화면",
+        "통신과 UI 분리"
+      ],
+      "acceptance_ids": [
+        "PD14",
+        "PD15"
+      ]
+    },
+    {
+      "id": "M4",
+      "name": "simulator·통합",
+      "status": "planned",
+      "depends_on": [
+        "M2",
+        "M3"
+      ],
+      "deliverables": [
+        "SQLite outbox 가상 장치",
+        "격리 통합 Compose",
+        "실제 브라우저 E2E"
+      ],
+      "acceptance_ids": [
+        "PD16",
+        "PD17"
+      ]
+    },
+    {
+      "id": "M5",
+      "name": "배포·운영·복구",
+      "status": "planned",
+      "depends_on": [
+        "M4"
+      ],
+      "deliverables": [
+        "배포 Compose/images",
+        "HTTPS/ACL/secrets/metrics",
+        "백업·복원 CLI/runbook"
+      ],
+      "acceptance_ids": [
+        "PD18",
+        "PD19"
+      ]
+    },
+    {
+      "id": "M6",
+      "name": "외부 공개·인계",
+      "status": "planned",
+      "depends_on": [
+        "M5"
+      ],
+      "deliverables": [
+        "외부 URL 검증",
+        "프론트 인계 문서",
+        "계정 발급/회수",
+        "완성 코드 학습 지도"
+      ],
+      "acceptance_ids": [
+        "PD20"
+      ]
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "id": "PD01",
+      "area": "contract",
+      "status": "passed",
+      "expectation": "원본 해시 127개 보존, overlay 적용, REST 새 오류 3종만 허용, MQTT enum/성공 DTO 불변",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ],
+      "evidence": "validation/demo-foundation-2026-11-14.json"
+    },
+    {
+      "id": "PD02",
+      "area": "database",
+      "status": "passed",
+      "expectation": "새 DB 및 V2 기존 DB에 V3/V4 적용, grant 기본 거부, FK/nullable/범위 제약",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ],
+      "evidence": "validation/demo-foundation-2026-11-14.json"
+    },
+    {
+      "id": "PD03",
+      "area": "authentication",
+      "status": "planned",
+      "expectation": "CSRF 없는 login/logout 거부, 성공 시 session ID/CSRF 회전, Secure/HttpOnly/SameSite 및 401/403 JSON",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD04",
+      "area": "authorization",
+      "status": "planned",
+      "expectation": "두 사용자·두 구역으로 REST/SSE 교차 접근 거부; 비활성/권한 회수·기존 SSE 종료",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD05",
+      "area": "pagination",
+      "status": "planned",
+      "expectation": "동일 수신 시각 정렬, cursor 변조/필터 불일치/길이 제한, UTC from 포함/to 제외, limit 1~100",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD06",
+      "area": "read_consistency",
+      "status": "planned",
+      "expectation": "동시 쓰기 중 revision과 ZoneView 내용 일치; 최초 null; 배열 필수키 유지; confirmation_token 마스킹",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD07",
+      "area": "retention",
+      "status": "planned",
+      "expectation": "30일 기한 직전/정각/직후, 배치 전 접근 차단, tombstone 410/미존재 404, 오래된 snapshot은 빈 구역으로 조작하지 않음",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD08",
+      "area": "heartbeat",
+      "status": "planned",
+      "expectation": "snapshot/정책/등록 검증, 공유 seq·종료·tombstone 보존, 과거 events/지연 heartbeat/retained ONLINE이 freshness 갱신하지 않음",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD09",
+      "area": "freshness",
+      "status": "planned",
+      "expectation": "15/30초 정각과 초과 경계·1초 tick 오차, 최신 heartbeat 복구, 연결 상태와 카메라/시계 상태 구분",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD10",
+      "area": "transaction",
+      "status": "planned",
+      "expectation": "롤백 시 ACK/SSE 없음; 커밋 후 두 전송 독립; duplicate/conflict/역순 기존 회귀 통과",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD11",
+      "area": "sse_delivery",
+      "status": "planned",
+      "expectation": "SSE open 후 REST, 재연결 REST, revision=0 초기 수용·동일/과거 무시, 누락 callback의 DB 비교 수렴",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD12",
+      "area": "session_stream",
+      "status": "planned",
+      "expectation": "idle 30분/absolute 8시간, keepalive가 세션 연장하지 않음, logout 즉시 닫기, 계정/권한 회수 검사 후 전송 금지",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD13",
+      "area": "bounded_resources",
+      "status": "planned",
+      "expectation": "전체 50/세션3 SSE 제한·최신값1 대기·느린 클라이언트·executor 상한, 종료 시 정리, 429/Retry-After",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD14",
+      "area": "frontend",
+      "status": "planned",
+      "expectation": "3종 화면의 loading/empty/error/403/404/410, 비JSON 프록시 오류, 세션/구역 전환 응답 폐기, 키보드/focus/label",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD15",
+      "area": "history_refresh",
+      "status": "planned",
+      "expectation": "낮은 seq 원문 추가가 revision을 안 바꿔도 활성 목록/상세가 10초 이내 재조회로 반영(정상 서버 기준)",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD16",
+      "area": "simulator",
+      "status": "planned",
+      "expectation": "공통 seq/SQLite outbox 영속, ACK 구독 뒤 전송, 동일 ID/본문 재전송, REJECTED 격리, heartbeat 과거 재전송 없음",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD17",
+      "area": "system_e2e",
+      "status": "planned",
+      "expectation": "격리 Compose+실제 MQTT/DB/브라우저로 정상·중복·충돌·역순·DB/브로커 단절·재시작 재현",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD18",
+      "area": "deployment",
+      "status": "planned",
+      "expectation": "실제 Nginx HTTPS에서 쿠키/CSRF/SSE 확인, 허용 포트만 노출, 장치별 ACL/TLS 인증, secrets·민감 로그 미노출",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    },
+    {
+      "id": "PD19",
+      "area": "recovery",
+      "status": "partial_fresh_only",
+      "expectation": "fresh 초기화와 기존 상태 인수 분리; 복원 gate/새 범위/대조; 예약 후 DB 전 종료와 manifest 유실은 안전하게 중단/복구",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ],
+      "remaining": "existing-state adoption and restore drill in M5"
+    },
+    {
+      "id": "PD20",
+      "area": "handoff",
+      "status": "planned",
+      "expectation": "외부 PC HTTPS 로그인·재연결·계정 회수; 새 클론으로 실행; 프론트 README/AGENTS·미구현 범위·학습 파일 경로 확인",
+      "evidence_required": [
+        "environment and commit",
+        "command or reproducible steps",
+        "observed result"
+      ]
+    }
+  ],
+  "scheduling_notes": [
+    "M3 UI fixtures may start after M0; its SSE integration completes with M2 before M4",
+    "M0 validates initialization/hold gate only; the full restore drill is completed in M5",
+    "M4 simulator implementation may start after M0; integrated acceptance waits for M2 and M3"
+  ],
+  "external_inputs_before_publication": [
+    "Linux host/account and budget",
+    "domain/DNS authority and certificate method",
+    "team access recipients",
+    "backup and independently retained revision manifest locations"
+  ],
+  "do_not_claim": [
+    "planned checks passed",
+    "UI or APIs already implemented",
+    "all v1.43 features complete",
+    "hardware or real traffic tests complete",
+    "zero data loss on host loss"
+  ]
+}
