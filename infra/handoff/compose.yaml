@@ -1,0 +1,65 @@
+name: parking-handoff
+x-backend-environment: &backend-environment
+  PARKING_DB_URL: jdbc:postgresql://postgres:5432/parking_handoff
+  PARKING_DB_USERNAME: parking
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python3 tools/handoff.py prepare first}
+  PARKING_REVISION_PRIMARY: /state/revisions.json
+  PARKING_REVISION_BACKUP: /state-copy/revisions.json
+services:
+  postgres:
+    image: postgres:17.11@sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f
+    environment:
+      POSTGRES_DB: parking_handoff
+      POSTGRES_USER: parking
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: ["db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U parking -d parking_handoff"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  mosquitto:
+    image: eclipse-mosquitto:2.0.22@sha256:81a6193ae693942a3231cd3ac52875b02b7e3a19da671b2fb4b55cc874c5b279
+    volumes: ["../mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro", "mqtt:/mosquitto/data"]
+  bootstrap:
+    profiles: [tools]
+    image: parking-handoff-backend:local
+    build: {context: ../.., dockerfile: backend/Dockerfile}
+    user: "0:0"
+    entrypoint: ["/bin/sh", "/app/bootstrap.sh"]
+    environment: *backend-environment
+    secrets: [web_password]
+    volumes: ["revision:/state", "revision-copy:/state-copy"]
+    depends_on: {postgres: {condition: service_healthy}}
+  backend:
+    image: parking-handoff-backend:local
+    build: {context: ../.., dockerfile: backend/Dockerfile}
+    environment:
+      <<: *backend-environment
+      SPRING_PROFILES_ACTIVE: app-local,mqtt-ingest-local
+      SERVER_ADDRESS: 0.0.0.0
+      SERVER_SERVLET_SESSION_COOKIE_NAME: PARKING_HANDOFF_SESSION
+      PARKING_MQTT_URL: tcp://mosquitto:1883
+      PARKING_CURSOR_HMAC_KEY: ${PARKING_CURSOR_HMAC_KEY:?Generate a unique cursor key}
+    volumes: ["revision:/state", "revision-copy:/state-copy"]
+    ports: ["127.0.0.1:18080:8080"]
+    depends_on: {postgres: {condition: service_healthy}, mosquitto: {condition: service_started}}
+  web:
+    build: {context: ../.., dockerfile: frontend/Dockerfile}
+    ports: ["127.0.0.1:18081:80"]
+    depends_on: [backend]
+  simulator:
+    profiles: [simulation]
+    build: {context: ../.., dockerfile: simulator/Dockerfile}
+    command: ["--host", "mosquitto", "--state", "/state/device.sqlite", "--scenario", "guided"]
+    volumes: ["simulator:/state"]
+    depends_on: [backend]
+secrets:
+  web_password:
+    file: ../../.local-state/handoff/web-password
+volumes:
+  db:
+  mqtt:
+  revision:
+  revision-copy:
+  simulator:

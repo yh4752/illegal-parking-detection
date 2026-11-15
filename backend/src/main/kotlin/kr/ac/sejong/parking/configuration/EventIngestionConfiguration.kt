@@ -75,6 +75,8 @@ class EventIngestionConfiguration(@Value("\${parking.mqtt.broker-url}") private 
 
     @EventListener
     fun onSubscribed(event: MqttSubscribedEvent) {
+        val adapter = event.source as? Mqttv5PahoMessageDrivenChannelAdapter ?: return
+        if (adapter.componentName?.startsWith("eventIngestInbound.") != true) return
         log.info("EVENT_INGEST_READY topic=parking/v2/devices/+/events mode=local_persistence")
     }
 
@@ -82,7 +84,10 @@ class EventIngestionConfiguration(@Value("\${parking.mqtt.broker-url}") private 
         setServerURIs(arrayOf(brokerUrl))
         setCleanStart(true); setSessionExpiryInterval(0L)
         setKeepAliveInterval(15); setConnectionTimeout(10); setReceiveMaximum(8)
-        setAutomaticReconnect(true); setAutomaticReconnectDelay(1, 30)
+        setAutomaticReconnect(true)
+        // Paho 1.2.5's reconnect loop reads maxReconnectDelay (milliseconds),
+        // not automaticReconnectMaxDelay. Keep the actual backoff within 8 seconds.
+        setMaxReconnectDelay(8_000)
     }
 }
 

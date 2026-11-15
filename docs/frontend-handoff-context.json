@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-15",
+  "project": "parking-system",
+  "product_design": "v1.43",
+  "repository": "https://github.com/yh4752/parking-system",
+  "branch": "main",
+  "checkout": {
+    "method": "git_clone",
+    "clone_command": "git clone https://github.com/yh4752/parking-system.git",
+    "working_directory": "parking-system",
+    "work_branch_example": "git switch -c feat/console-ui",
+    "pull_request_base": "main",
+    "zip_usage": "Reference attachment for AI only; use a Git clone for collaborative development. Preserve any edits made in a ZIP folder before copying changed files into a work branch."
+  },
+  "pull_request": "https://github.com/yh4752/parking-system/pull/3",
+  "purpose": "프론트 담당자와 코딩 AI가 실행되는 실제 API 연결 화면을 인수하고 UI를 개선하기 위한 시작 정보",
+  "delivery": "local_executable_handoff",
+  "public_url": null,
+  "read_first": [
+    "docs/team-handoff.md",
+    "AGENTS.md",
+    "frontend/AGENTS.md",
+    "docs/frontend-handoff.md",
+    "docs/frontend-design-alignment.md",
+    "docs/frontend-handoff-checklist.md",
+    "docs/contracts.md",
+    "validation/frontend-handoff-2026-11-14.json"
+  ],
+  "canonical_contracts": {
+    "entry": "docs/contracts.md",
+    "web": "contracts/effective/",
+    "mqtt": "reference/v1.43/개발자료/09_구현설계/contracts/",
+    "immutable": "reference/v1.43",
+    "decision": "docs/adr/008-frontend-handoff-realtime.md"
+  },
+  "stack": {
+    "frontend": "React + TypeScript + Vite + React Router + CSS Modules",
+    "backend": "Kotlin + Spring Boot",
+    "transport": "MQTT 5 to backend; same-origin REST and SSE to browser",
+    "database": "PostgreSQL",
+    "broker": "Mosquitto",
+    "node": "24.13.0"
+  },
+  "run": {
+    "cwd": "repository root",
+    "prepare": "python3 tools/handoff.py prepare",
+    "url": "http://127.0.0.1:18081",
+    "username": "handoff-viewer",
+    "password_file": ".local-state/handoff/web-password",
+    "simulate": "python3 tools/handoff.py simulate",
+    "pause": "python3 tools/handoff.py pause-simulator",
+    "stop": "python3 tools/handoff.py stop",
+    "frontend_cwd": "frontend",
+    "frontend_commands": [
+      "npm ci",
+      "npm run generate",
+      "PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev"
+    ],
+    "frontend_url": "http://127.0.0.1:5173"
+  },
+  "edit_first": [
+    "frontend/src/styles/",
+    "frontend/src/components/Shell.tsx",
+    "frontend/src/features/zones/ZonePage.tsx",
+    "frontend/src/features/events/"
+  ],
+  "coordinate_with_backend": [
+    "frontend/src/api/client.ts",
+    "frontend/src/features/auth/Auth.tsx",
+    "frontend/src/features/zones/zoneStream.ts",
+    "contracts/effective/",
+    "infra/"
+  ],
+  "generated_do_not_edit": [
+    "frontend/src/api/generated/",
+    "docs/**/*.html",
+    "docs/diagrams/*.svg"
+  ],
+  "invariants": [
+    "No browser connection to MQTT or PostgreSQL; no fake API replacement.",
+    "Keep CSRF, session handling, aborts, and role/zone authorization; no tokens in browser storage.",
+    "Accept initial revision zero, then strictly increasing revision; close old stream on route/account change.",
+    "snapshot=null means no observation, not an empty zone. Device connectivity, camera state and UI transport are distinct.",
+    "Events alone do not make device ONLINE. Valid heartbeat: over 15 seconds STALE, over 30 seconds OFFLINE.",
+    "Event history refreshes through REST even if the zone revision does not change.",
+    "SSE sends committed full snapshots every second, coalesces intermediate revisions, and is not an audit log.",
+    "Keep virtual-device labels. Reported stopping duration is simulated and must not be called real AI inference.",
+    "Keep v1.43 originals unchanged; use effective contracts and documented ADR changes.",
+    "Apply the supplied HTML visual design to the existing React app without copying its mock state transitions. v1.43 behavior remains the baseline; the UI displays edge-reported state and does not decide guidance locally.",
+    "The discussed two-class emergency-vehicle model and 300-second manager-only notification are a pending product/contract change, not current v1.43 behavior or an implemented API."
+  ],
+  "checks": {
+    "frontend": [
+      "npm run generate",
+      "npm run format:check",
+      "npm test",
+      "npm run build"
+    ],
+    "fresh_isolated_stack_only": [
+      "npm run test:e2e (cwd frontend)",
+      "python3 tools/verify_handoff_transport.py (cwd repository root)"
+    ],
+    "evidence": "validation/frontend-handoff-2026-11-14.json"
+  },
+  "git_workflow": "Create a work branch from updated main; commit and push that branch, then open a PR targeting main. Preserve existing work and merge origin/main into an existing work branch; do not force-reset it.",
+  "not_implemented": [
+    "public HTTPS deployment",
+    "production backup/restore workflow",
+    "real board SDK and AI inference",
+    "physical LED/speaker execution",
+    "command/policy/review mutation",
+    "photo file upload/download",
+    "map or find-my-car"
+  ],
+  "external_inputs": [
+    "deployment host/access and budget",
+    "domain/DNS/certificate ownership",
+    "frontend collaborator GitHub ID and recipient acceptance",
+    "backup and independent revision-manifest locations"
+  ],
+  "do_not_claim": [
+    "all product v1.43 features complete",
+    "external recipient acceptance",
+    "public URL live",
+    "real vehicle experiment",
+    "large-scale capacity or zero host-loss data loss"
+  ],
+  "repository_visibility": "public",
+  "access": "Anonymous read/clone; direct push needs collaborator permission or contribute through a fork/PR."
+}

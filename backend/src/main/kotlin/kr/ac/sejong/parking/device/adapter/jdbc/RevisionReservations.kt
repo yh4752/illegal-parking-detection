@@ -71,7 +71,7 @@ class RevisionReservations(
             check(readPair() == manifest) { "manifest_changed" }
             ensureRange(zoneId)
         } catch (error: Exception) {
-            failed = true
+            if (error !is ReservationReadUnavailable) failed = true
             throw error
         }
         return action()
@@ -113,7 +113,10 @@ class RevisionReservations(
     }
 
     private fun ensureRange(zoneId: String) {
-        val rows = jdbc.queryForList("SELECT * FROM zone_view WHERE zone_id=?", zoneId)
+        // A failed preflight read has not touched the reservation files. Retry only this case.
+        // Mismatches and any failure after durable reservation still latch the gate closed.
+        val rows = try { jdbc.queryForList("SELECT * FROM zone_view WHERE zone_id=?", zoneId) }
+            catch (error: org.springframework.dao.DataAccessException) { throw ReservationReadUnavailable(error) }
         if (rows.isEmpty()) return
         val row = rows.single()
         val oldEnd = (row["revision_range_end"] as Number).toLong()
@@ -188,3 +191,5 @@ class RevisionReservations(
         channel = null
     }
 }
+
+private class ReservationReadUnavailable(cause: Exception): RuntimeException("reservation_database_unavailable", cause)

@@ -1,15 +1,26 @@
-# 가상 장치 — 다음 구현 대상
+# 가상 장치
 
-실제 보드 대신 기존 v1.43 메시지를 MQTT 5로 발행하는 개발·시험 도구다. 현재 실행 코드는 없다. 보드 AI·로컬 SDK 전체를 흉내 내는 완성된 에뮬레이터가 아니다.
+AI 추론 없이 v1.43 상태를 재생하는 Python 도구입니다. 실제 보드 성능이나 실제 5분 정차를 시험하지 않습니다. 첫 사건은 5분 4초 안내 완료 보고를 재생하고 5초마다 heartbeat를 보냅니다.
 
-첫 작업에서는 다음 기능만 만든다.
+가장 간단한 실행은 저장소 최상위에서 `python3 tools/handoff.py simulate`입니다. 준비·중지·UI 확인은 [인계 설명서](../docs/frontend-handoff.md)를 봅니다.
 
-1. `reference/v1.43/개발자료/09_구현설계/contracts/examples.json`의 `guidance_complete`를 읽는다. 예제를 별도 원본으로 복사하지 않는다.
-2. `parking/v2/devices/{device_id}/events`에 QoS 1, retain=false로 발행한다.
-3. `/acks`를 먼저 구독하고 같은 message_id의 응용 ACK를 표시한다. PUBACK와 구분한다.
-4. 중복 시험은 ID·본문·순서를 바꾸지 않고 재전송한다. 새 시험 메시지의 필드 변경은 Schema/의미 조건을 함께 만족해야 한다.
-5. 과거 시각이 있는 예제는 이력 재생이다. 현재 heartbeat나 실차 안내 결과라고 표시하지 않는다.
+| 동작 | 보장/범위 |
+|---|---|
+| events | MQTT 5, QoS 1, retain=false. ACK 구독 완료 후 발행 |
+| 재전송 | SQLite WAL/FULL에 원문·ID를 먼저 저장. ACK가 없으면 5초 후 같은 메시지 재발행 |
+| 저장 응답 | 원본 Ack Schema 검사. STORED/DUPLICATE만 삭제, REJECTED는 별도 상태로 보존 |
+| 순번 | heartbeat/events가 같은 SQLite 영속 counter 사용. 재시작해도 증가 |
+| heartbeat | 5초, QoS 0, retain=false. 저장 확인 ACK 대상 아님 |
+| 단절 | SQLite pending은 유지. 재연결 후 ACK 구독과 재전송 |
 
-상태 초기화용 SQL, 등록 장치·구역·정책 fixture와 명령은 수신 기능 구현 시 함께 제공한다. 실제 환경의 데이터를 임의로 지우는 초기화 도구는 만들지 않는다.
+직접 실행하려면 Python 3.10 이상과 `requirements.txt`를 설치합니다. 기본 주소는 localhost:1883이므로 실제 브로커 주소/포트를 명시하세요. 로컬 인계 Docker 브로커는 호스트에 공개되지 않습니다.
 
-보드 SDK의 언어와 이 PC 도구의 언어는 별도 결정이다. MQTT 라이브러리·실행 명령은 첫 구현 때 고정한다.
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r simulator/requirements.txt
+.venv/bin/python simulator/device.py --host 127.0.0.1 --port 11883 --state .local-state/separate-sim.sqlite --scenario guided
+```
+
+위 직접 실행 예시는 기존 실습 브로커 11883입니다. 해당 환경의 등록·정책·순번과 충돌하지 않는지 먼저 확인하세요. 팀 프론트 인계에는 격리된 `tools/handoff.py`를 권장합니다. 지원 시나리오는 guided/held/exit이며 실물 SDK의 상태 기계·명령·사진 처리는 구현하지 않습니다.
+
+시험: `python -m unittest discover -s simulator -v` (가상환경 의존성 필요).

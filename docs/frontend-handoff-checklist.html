@@ -9,211 +9,100 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>오늘 프론트 인계를 위한 작업표</h1>
-<p>2026-11-14 · 기준: <code>feat/authenticated-read-api</code> · <a href="https://github.com/yh4752/parking-system/pull/2">PR #2</a></p>
-<p><strong>현재는 백엔드 로그인·조회까지 완료했고, 프론트 코드는 없습니다.</strong> 오늘의 우선순위는 실제 API에 연결되는 React 화면을 만드는 것입니다. M2 전체를 끝내야 M3를 시작할 수 있는 구조가 아니므로, 화면 착수를 먼저 합니다. v1.43 계약과 기존 설계의 완료 조건은 유지합니다.</p>
-<h2>현재 어디까지 되었나요?</h2>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>프론트 인계 판정표</h1>
+<p>2026-11-15 · 공통 기준 <code>main</code> · <a href="https://github.com/yh4752/parking-system/pull/3">PR #3</a></p>
+<p><strong>로컬 실행 코드 인계 기준을 충족했습니다. 공개 HTTPS 운영 인계는 아직 완료하지 않았습니다.</strong> <a href="frontend-handoff.html">설명서</a>에서 실행 방법·담당 범위를 확인합니다. 코드 <code>32778db</code>의 <a href="https://github.com/yh4752/parking-system/actions/runs/43591711156">전체 CI</a>가 통과했으며, 미검증 범위까지 <a href="../validation/frontend-handoff-2026-11-14.json">검증 기록</a>에 남겼습니다.</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
-<th>영역</th>
-<th>상태</th>
-<th>확인한 범위</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>MQTT 사건 수신·저장·ACK</td>
-<td>완료</td>
-<td>정상·중복·내용 충돌·역순 처리, 실제 MQTT/SQL 실습</td>
-</tr>
-<tr>
-<td>로그인·권한·조회 API</td>
-<td>완료</td>
-<td>세션·CSRF·구역 권한, 상태·목록·상세 등 7개 경로</td>
-</tr>
-<tr>
-<td>웹 계정 관리</td>
-<td>완료</td>
-<td>계정 생성·구역 권한 부여/회수·비활성화 CLI</td>
-</tr>
-<tr>
-<td>백엔드 자동 검증</td>
-<td>통과</td>
-<td>일반 140개·PostgreSQL 64개, 계약 보호 6개. <a href="../validation/authenticated-read-2026-11-14.json">기록</a></td>
-</tr>
-<tr>
-<td>React 화면</td>
-<td>미착수</td>
-<td>frontend/README.md만 있음. package.json·화면·실행 명령 없음</td>
-</tr>
-<tr>
-<td>heartbeat·SSE</td>
-<td>미구현</td>
-<td>장치 연결 최신성 판정과 브라우저 실시간 전달 필요</td>
-</tr>
-<tr>
-<td>재현 가능한 통합 데모</td>
-<td>일부 준비</td>
-<td>예제 출력·등록 SQL·초기화 도구 있음. 자동 가상 장치와 브라우저 통합 시험 없음</td>
-</tr>
-<tr>
-<td>공개 HTTPS·인계</td>
-<td>미완료</td>
-<td>배포 파일·공개 주소·외부 접속 검증·새 클론 시험 필요</td>
-</tr>
-</tbody></table></div>
-<p>테스트 수는 백엔드 검증 결과입니다. 프론트가 동작하거나 외부에서 접속할 수 있다는 증거가 아닙니다.</p>
-<h2>남은 작업과 순서</h2>
-<div class="table-scroll"><table>
-<thead>
-<tr>
-<th>순서</th>
-<th>작업</th>
-<th>완료를 확인하는 방법</th>
-<th>현재</th>
+<th>ID</th>
+<th>완료 조건</th>
+<th>현재 확인</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>H01</td>
-<td>React + TypeScript + Vite, 라우팅, 계약 타입, API/인증 모듈</td>
-<td>설치·타입 검사·빌드 성공, 실제 로그인과 CSRF 교체</td>
-<td>미착수</td>
+<td>React/TypeScript/Vite·lockfile·생성 타입·설치/빌드</td>
+<td>통과. macOS 빌드와 Linux 새 설치·생성물·타입·단위 검사</td>
 </tr>
 <tr>
 <td>H02</td>
-<td>로그인 / 구역 현황 / 사건 목록·상세 3종 화면</td>
-<td>실제 API로 자료 표시. 로딩·빈 값·권한·만료·오류/재시도 구분</td>
-<td>미착수</td>
+<td>로그인·구역·사건 목록/상세, 실제 API와 오류 상태</td>
+<td>인계 흐름 통과. 실제 브라우저 로그인·조회·필터·빈 상태·접근 제한·모바일 검사</td>
 </tr>
 <tr>
 <td>H03</td>
-<td>별도 데모 DB·계정·가상 사건·실행 절차</td>
-<td>가상 메시지 → MQTT → DB → API → 화면의 ID·순번 일치</td>
-<td>일부 도구 있음</td>
+<td>별도 DB·계정·가상 장치, MQTT→DB→API→화면 재현</td>
+<td>통과. 새 환경 초기화, 정상·중복·충돌·역순, DB/브로커 장애·서버 재시작</td>
 </tr>
 <tr>
 <td>H04</td>
-<td>heartbeat·연결 상태·SSE와 화면 결합</td>
-<td>송신 중지 시 STALE/OFFLINE, 복귀·재접속 시 최신 상태, 권한 회수 시 전송 중단</td>
-<td>미구현</td>
+<td>heartbeat·STALE/OFFLINE·SSE·재연결·권한 회수</td>
+<td>인계 기능 통과. 실제 HTTP/DB·브라우저 확인. 전체 50개 연결·느린 TCP 부하는 미검증</td>
 </tr>
 <tr>
 <td>H05</td>
-<td>배포 구성·HTTPS·계정·복구 검증</td>
-<td>같은 HTTPS 주소에서 화면/API/SSE 사용, 내부 포트 비공개, 재시작·백업/복원 확인</td>
-<td>미구현·접속 정보 필요</td>
+<td>공개 HTTPS·서버 접근·운영 복구</td>
+<td>미완료. 로컬 이미지/Compose와 프록시는 있음. 공개 호스트·DNS·백업 위치 필요</td>
 </tr>
 <tr>
 <td>H06</td>
-<td>프론트 인계 문서·수정 경계·GitHub 접근</td>
-<td>담당자가 어디를 고칠지 알고 저장소를 받을 수 있음</td>
-<td>기존 공통 문서만 있음</td>
+<td>설명서·README·AGENTS·수정 경계</td>
+<td>완료. 사람용 설명서·AI용 JSON·실제 화면·학습 지도. 열람·클론은 공개. 직접 push할 협업자 권한은 미확인</td>
 </tr>
 <tr>
 <td>H07</td>
-<td>새 클론·외부 PC에서 최종 인수</td>
-<td>담당자가 로그인→상태→이력→로그아웃을 재현, 재연결·계정 회수 확인</td>
-<td>미수행</td>
+<td>새 체크아웃 실행 + 상대방 인수 + 외부 접속</td>
+<td>새 체크아웃 자동 검사 통과. 상대방 PC·공개 HTTPS 인수는 미수행</td>
 </tr>
 </tbody></table></div>
-<p><strong>실행 순서는 H01 → H02 → H03 → H04 → H05 → H07입니다.</strong> H06 문서는 코드와 함께 작성합니다. 배포 환경·저장소 접근 정보는 화면 작업과 별도로 미리 확인합니다. 상세 구현은 <a href="design/public-demo-plan.html">공개 데모 설계</a>, 원래 단계와 인수 조건은 <a href="design/public-demo-workplan.json">작업 JSON</a>을 따릅니다.</p>
-<h2>오늘 우선 만들 화면</h2>
+<h2>이번에 전달할 코드</h2>
 <div class="table-scroll"><table>
 <thead>
 <tr>
-<th>화면</th>
-<th>먼저 보여줄 것</th>
-<th>포함할 실패 상태</th>
+<th>구분</th>
+<th>제공 내용</th>
+<th>프론트 담당자의 주된 작업</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>로그인</td>
-<td>아이디·비밀번호, 로그인/로그아웃</td>
-<td>인증 실패·시도 제한·세션 만료</td>
+<td>화면</td>
+<td>로그인, 구역 상태, 사건 목록/상세</td>
+<td>디자인·배치·반응형·사용성 개선</td>
 </tr>
 <tr>
-<td>구역 현황</td>
-<td>사건 상태·차량 분류·안내 횟수·관측 시각·카메라 상태·연결 상태</td>
-<td>아직 관측 없음·과거 자료·통신 오류·접근 권한 없음</td>
+<td>통신</td>
+<td>세션·CSRF·HTTP·SSE·오류·revision</td>
+<td>기본 모듈 유지, 변경 필요 시 백엔드와 협의</td>
 </tr>
 <tr>
-<td>사건 목록·상세</td>
-<td>기간/상태 필터, 다음 페이지, 사건 요약·수신 이력</td>
-<td>빈 목록·404·410·403·조회 실패</td>
+<td>실행</td>
+<td>별도 parking-handoff Docker 환경·가상 장치</td>
+<td>자기 PC에서 실행하고 UI 수정</td>
+</tr>
+<tr>
+<td>문서</td>
+<td>실행·수정·검증·오류 대응·실제 남은 범위</td>
+<td>README/AGENTS를 코딩 도구에 함께 전달</td>
 </tr>
 </tbody></table></div>
-<p>첫 화면은 REST로 검증합니다. H04 이전에는 새로고침으로 다시 조회할 수 있게 하고, 실시간으로 동작하는 것처럼 표시하지 않습니다. 사건을 받았다는 이유만으로 장치를 ONLINE으로 만들지 않습니다. SSE를 붙이면 기존 설계대로 최초/재접속 REST 조회와 revision 비교를 적용합니다. 사건 이력의 10초 재조회는 SSE와 별개입니다.</p>
-<p>주차 지도·내 차 찾기·영상 스트리밍·장식용 제어 버튼은 이번 불법주정차 안내 시스템의 첫 인계 범위에 넣지 않습니다. 가상 데이터에는 ‘가상 장치 데모’를 표시합니다.</p>
-<h2>인계 전 체크리스트</h2>
+<p>번호판/영상·지도·내 차 찾기·미구현 제어 버튼·실제 AI 판단은 이 인계판의 기능이 아닙니다. 화면은 가상 장치가 보고한 상태를 표시합니다.</p>
+<h2>인계 전 확인</h2>
 <ul>
-<li><input disabled="" type="checkbox"> frontend/에 실행 코드·lockfile·환경변수 예시가 있고, 설치/실행/빌드 명령이 검증되어 있다.</li>
-<li><input disabled="" type="checkbox"> 성공 DTO는 유효 OpenAPI에서 생성한 타입을 사용하고, API 경로·필드를 임의로 축약하지 않는다.</li>
-<li><input disabled="" type="checkbox"> 실제 서버와 로그인·CSRF 재발급·상태/이력 조회·로그아웃이 연결되어 있다.</li>
-<li><input disabled="" type="checkbox"> 구역 ID는 서버에서 허용한 대상을 사용한다. 미구현 구역 목록 API나 브라우저의 자체 권한 판단을 추가하지 않는다.</li>
-<li><input disabled="" type="checkbox"> 브라우저·서버 오류, 장치 연결 상태, 카메라 상태를 서로 다른 표시로 구분한다.</li>
-<li><input disabled="" type="checkbox"> 키보드 조작·입력 label·로딩·빈 상태·오류·세션 만료를 실제 화면에서 확인했다.</li>
-<li><input disabled="" type="checkbox"> 별도 데모 자료로 MQTT 저장 결과와 화면을 대조했다. 기존 사용자 DB를 초기화하지 않았다.</li>
-<li><input disabled="" type="checkbox"> API/인증/SSE 모듈과 화면·스타일을 나누고 frontend/README.md·AGENTS.md에 수정 범위를 적었다.</li>
-<li><input disabled="" type="checkbox"> 전달할 브랜치/커밋, 실행 방법, 미구현 기능, 확인한 테스트를 명시했다.</li>
-<li><input disabled="" type="checkbox"> 담당자의 저장소 접근과 계정 전달 방법을 확인했다. 비밀번호·서버 비밀값은 저장소/문서에 넣지 않았다.</li>
-<li><input disabled="" type="checkbox"> 공개 URL은 외부 PC에서 HTTPS 로그인·조회·SSE·재로그인을 확인했다.</li>
-<li><input disabled="" type="checkbox"> 새 클론에서 실행과 수정 후 빌드를 재현했다.</li>
+<li><input checked="" disabled="" type="checkbox"> 실행 코드·설정 예시·원본 계약 기반 타입·별도 데모 구성 작성</li>
+<li><input checked="" disabled="" type="checkbox"> 로그인/CSRF/권한/상태/이력/API 연결 구현</li>
+<li><input checked="" disabled="" type="checkbox"> 장치 연결·카메라·화면 연결과 최초 null 구분</li>
+<li><input checked="" disabled="" type="checkbox"> 실제 HTTP SSE·로그아웃·권한 회수·idle 만료 시험</li>
+<li><input checked="" disabled="" type="checkbox"> 화면/CSS와 인증/통신 모듈 분리, 인계 문서 작성</li>
+<li><input checked="" disabled="" type="checkbox"> 최종 코드에서 새 체크아웃 설치·브라우저·모바일·장애/재시작 검사 전체 통과</li>
+<li><input checked="" disabled="" type="checkbox"> 저장소 공개 전환·비로그인 열람 및 소스 접근 확인</li>
+<li><input disabled="" type="checkbox"> 상대방의 자기 PC 실행과 개발 참여 확인</li>
+<li><input disabled="" type="checkbox"> 공개 HTTPS 주소·외부 PC 접속·운영 복구 확인</li>
 </ul>
-<h2>전달 후 누가 무엇을 수정하나요?</h2>
-<div class="table-scroll"><table>
-<thead>
-<tr>
-<th>담당 범위</th>
-<th>이번 인계에서 준비할 것</th>
-<th>전달 후 주된 작업</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>사용자·현재 구현 작업</td>
-<td>실제 API 연결·인증·기본 화면·실시간 연결·실행 및 배포 기반</td>
-<td>서버·계약·통신·배포 유지, 새 API 협의</td>
-</tr>
-<tr>
-<td>프론트 담당자</td>
-<td>실행 가능한 기본 UI와 수정 안내를 전달받음</td>
-<td>화면 배치·디자인·반응형·사용성 개선, 필요한 화면 기능 추가</td>
-</tr>
-</tbody></table></div>
-<p>프론트 담당자가 MQTT·백엔드 인증·서버 배포를 처음부터 다시 구현해야 하는 인계는 피합니다. API 타입·세션·CSRF·revision 처리 규칙을 바꾸려면 계약과 함께 검토합니다.</p>
-<h2>공개를 위해 필요한 정보</h2>
-<div class="table-scroll"><table>
-<thead>
-<tr>
-<th>확인할 항목</th>
-<th>필요한 이유</th>
-<th>정보 없이 먼저 할 수 있는 일</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>사용할 서버·접근 권한·비용 범위</td>
-<td>백엔드·DB·브로커를 실행할 위치</td>
-<td>코드·이미지·Compose 작성</td>
-</tr>
-<tr>
-<td>도메인/DNS 권한·인증서 방식</td>
-<td>팀원이 접속할 HTTPS 주소</td>
-<td>Nginx 설정·로컬 통합 검증</td>
-</tr>
-<tr>
-<td>프론트 담당자의 GitHub 계정</td>
-<td>비공개 저장소 접근</td>
-<td>인계 문서·코드 준비</td>
-</tr>
-<tr>
-<td>팀원 계정 전달 경로·백업 보관 위치</td>
-<td>로그인 제공·복구</td>
-<td>계정 CLI·복구 절차 검증</td>
-</tr>
-</tbody></table></div>
-<p>현재 작업 자료에서는 위 운영 정보의 확정을 확인하지 못했습니다. 익명 MQTT나 기존 로컬 DB 포트를 외부에 여는 방식으로 공개를 대신하지 않습니다.</p>
-<h2>오늘 전달할 때의 완료 판정</h2>
-<p><strong>코드 인계 가능:</strong> H01~H03, H06과 새 클론 실행 검증이 끝난 상태입니다. 담당자가 실제 API에 연결된 UI를 받아 수정할 수 있습니다. 공개 주소가 준비되지 않았다면 ‘로컬 실행 인계판’이라고 분명히 적습니다.</p>
-<p><strong>원래 요청한 공개 인계 완료:</strong> 여기에 H04·H05와 외부 접속 검증까지 끝난 상태입니다. 팀원이 HTTPS 주소로 로그인하고 실시간 변화를 확인합니다. 로컬 코드 인계만으로 이 목표가 완료되었다고 표시하지 않습니다.</p>
-<p>현재는 두 기준 모두 미완료입니다. 오늘 공개 완료 여부는 남은 구현·통합 시험과 서버/DNS 준비에 달려 있습니다. 우선 H01/H02에 착수하여 실행 가능한 화면을 확보하고, 위 체크리스트에 실행 증거가 생긴 항목만 완료 처리합니다.</p>
+<h2>전달 가능 여부의 의미</h2>
+<p><strong>코드 인계 가능:</strong> H01~H03, H06과 새 체크아웃 자동 검사가 통과한 상태. 담당자가 실제 API에 연결된 UI를 받아 수정할 수 있습니다. 공개 주소가 없으면 ‘로컬 실행 인계판’이라고 명시합니다.</p>
+<p><strong>공개 인계 완료:</strong> 위 조건에 H04·H05와 외부 PC 인수까지 추가로 통과한 상태. 아직 이 상태로 표시하지 않습니다.</p>
+<p>공개 서버·접근 권한·비용 범위, 도메인/DNS, 프론트 담당자의 GitHub 계정, 백업/독립 manifest 보관 위치가 확인되어야 운영 배포와 상대방 인수를 끝낼 수 있습니다. 해당 정보가 없어도 로컬 실행·UI 개선은 시작할 수 있습니다.</p>
+<p>공개 단계에는 입력 확인뿐 아니라 TLS/ACL·runtime DB 권한 분리·운영 지표·복원 절차의 구현과 해당 서버 검증도 남아 있습니다. 이번 성공을 M5/M6 전체 완료로 표시하지 않습니다. 구체적인 일부 검증 한계는 <a href="design/public-demo-workplan.json">작업·인수 조건</a>을 따릅니다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

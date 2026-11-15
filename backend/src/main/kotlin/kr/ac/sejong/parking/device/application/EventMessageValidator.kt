@@ -31,7 +31,10 @@ fun interface DeviceRegistrationLookup {
 class EventMessageValidator(
     objectMapper: ObjectMapper,
     private val registration: DeviceRegistrationLookup,
+    private val messageType: String,
 ) {
+    constructor(mapper: ObjectMapper, registration: DeviceRegistrationLookup): this(mapper, registration, "EventMessage")
+    init { require(messageType in setOf("EventMessage", "Heartbeat", "Availability")) }
     private val mapper = objectMapper.copy()
         .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION)
         .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
@@ -41,14 +44,15 @@ class EventMessageValidator(
         val canonical = resource.use { mapper.readTree(it) }
         val eventSchema = mapper.createObjectNode().apply {
             put("\$schema", canonical["\$schema"].asText())
-            put("\$ref", "#/\$defs/EventMessage")
+            put("\$ref", "#/\$defs/$messageType")
             set<JsonNode>("\$defs", canonical["\$defs"])
         }
         JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012).getSchema(
             eventSchema, SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build(),
         )
     }
-    private val eventTopic = Regex("^parking/v2/devices/([^/+#\\u0000]+)/events$")
+    private val family = when(messageType) { "Heartbeat" -> "heartbeat"; "Availability" -> "availability"; else -> "events" }
+    private val eventTopic = Regex("^parking/v2/devices/([^/+#\\u0000]+)/$family$")
 
     fun parse(topic: String, payload: ByteArray): EventParseResult {
         if (payload.size > 65_536) return EventParseResult.Invalid("payload_too_large")
@@ -87,6 +91,7 @@ class EventMessageValidator(
     /** No registration lookup. Ingestion calls this after replaying any committed receipt. */
     fun validateContent(message: JsonNode): EventValidationResult.Invalid? {
         if (schema.validate(message).isNotEmpty()) return invalid("schema")
+        if (messageType == "Availability") return null
 
         val snapshot = message["snapshot"]
         // JSON Schema integers include 10.0; compare numeric values, not Jackson node classes.
@@ -95,6 +100,10 @@ class EventMessageValidator(
         }
         for (field in listOf("boot_id", "clock_synced")) {
             if (message[field] != snapshot[field]) return invalid("snapshot_$field")
+        }
+        if (messageType == "Heartbeat") {
+            if (message["event_id"] != snapshot["current_event_id"]) return invalid("heartbeat_event_identity")
+            return EventMessageSemantics.validate(message)
         }
         val event = message["event"]
         if (!event.isNull && message["event_id"] != event["event_id"]) return invalid("event_identity")

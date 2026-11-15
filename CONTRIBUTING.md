@@ -2,11 +2,15 @@
 
 ## 처음 참여할 때
 
-개인 계정 `yh4752`의 비공개 [parking-system](https://github.com/yh4752/parking-system)을 하나의 개발 저장소로 사용합니다. 소유자에게 GitHub 사용자명을 전달해 초대를 받고, 초대 수락 후 본인 계정으로 클론합니다. 팀원 초대와 브랜치 보호 설정은 저장소 생성과 별개의 작업입니다.
+개인 계정 `yh4752`의 공개 [parking-system](https://github.com/yh4752/parking-system)을 하나의 개발 저장소로 사용합니다. 누구나 열람·클론할 수 있습니다. 원본 저장소에 직접 push할 팀원은 소유자에게 GitHub 사용자명을 전달해 협업자 초대를 받습니다. 쓰기 권한이 없으면 fork에서 작업한 뒤 PR로 제안할 수 있습니다. 공개 전환이 쓰기 권한을 부여하지는 않습니다.
 
 [README](README.md)의 도구·클론·기동 절차부터 따라 하세요. 백엔드 기동만 확인한다면 Docker나 Node.js 설치는 필요하지 않습니다. GitHub CLI를 사용한다면 `gh auth login`으로 인증할 수 있습니다. 토큰을 URL·명령 예제·설정 파일에 적어 공유하지 않습니다.
 
+팀 개발은 `git clone`으로 시작합니다. ZIP은 Git 이력·원격 연결이 없는 코드 사본이므로 AI에 첨부하거나 내용을 살펴보는 용도로만 사용합니다. ZIP 폴더에서 이미 수정했다면 보존한 뒤, 별도로 클론한 저장소의 작업 브랜치에 변경 파일만 비교해 옮깁니다.
+
 ## 작업 하나를 끝내는 흐름
+
+**팀 공통 기준은 `main`입니다.** 프론트·백엔드 모두 최신 main에서 목적별 작업 브랜치를 만들고 main 대상 PR로 합칩니다. main에 직접 push하지 않습니다. 이전 인계 브랜치는 과거 작업을 찾아보기 위해 보존하며 새 작업의 기준으로 사용하지 않습니다.
 
 1. `main`에서 `git pull --ff-only`로 최신 변경을 받습니다. 미커밋 변경이 있으면 먼저 확인하고 보존합니다.
 2. `git switch -c feat/mqtt-ingest`처럼 목적이 드러나는 브랜치를 만듭니다. 문서 작업은 `docs/`, 수정은 `fix/`를 사용할 수 있습니다.
@@ -16,6 +20,19 @@
 6. 변경 이유·실행한 검사·한계·다른 담당자 영향이 PR에 드러나도록 작성하고 관련 담당자 검토와 CI 결과를 확인한 뒤 병합합니다.
 
 기능 구현을 위해 모든 설계 문서를 다시 쓸 필요는 없습니다. 첫 개발 범위는 [첫 구현 작업표](docs/first-slice.md), 현재 완료 상태는 [현재 상태](docs/status.md)를 확인합니다.
+
+## 이전 인계 브랜치에서 작업 중이라면
+
+미커밋 변경은 현재 작업 브랜치에 커밋하거나 별도로 보존한 뒤 진행합니다. 새 작업은 아래처럼 시작합니다.
+
+```sh
+git fetch origin
+git switch main
+git pull --ff-only origin main
+git switch -c feat/console-ui
+```
+
+이미 본인 작업 브랜치에서 수정했다면 그 브랜치에서 `git fetch origin` 후 `git merge origin/main`으로 공통 변경을 받아 충돌을 해결합니다. 기존 작업을 버리거나 강제 push할 필요가 없습니다. 기존 PR의 대상이 인계 브랜치였다면 `main`으로 바꾸고 변경 목록을 확인합니다. `pull --ff-only`가 실패하면 이력을 확인하고 협의하며 `reset --hard`로 덮어쓰지 않습니다.
 
 ## 무엇을 검사할까요?
 
@@ -30,6 +47,8 @@
 | 웹 계약·생성기 | `python3 tools/build_contracts.py --check` 및 `python3 -m unittest discover -s tools/tests -v` | 보존 원본 해시·REST 변경 범위·생성물 일치. 변경 시 생성 명령을 먼저 실행 |
 | Compose 설정 | `cd infra` 후 `docker compose --env-file .env.example config --quiet` | 설정 문법. 컨테이너 기동을 뜻하지 않음 |
 | 통신·저장 기능 | 해당 작업표의 실제 통합 시험 | 브로커·DB를 사용한 흐름. 실행 조건과 결과 기록 |
+| 프론트 | `cd frontend` 후 `npm run generate && npm run format:check && npm test && npm run build` | 계약 생성·코드 서식·단위 시험·타입·빌드 |
+| 프론트 통신·흐름 | [인계 설명서](docs/frontend-handoff.md)의 `npm run test:e2e` | 빈 별도 Docker 환경에서 실제 브라우저·MQTT·DB 시험 |
 
 ```sh
 npm --prefix tools/docs ci
@@ -39,7 +58,7 @@ python3 tools/check_structure.py
 
 Markdown·DOT 원본을 고친 뒤 생성된 HTML·SVG도 커밋합니다. `git diff -- docs`로 생성 결과를 확인하세요. CI는 문서 재생성 후 미커밋 차이가 없는지 검사하므로 생성물을 빠뜨리면 실패합니다.
 
-[GitHub Actions](.github/workflows/verify.yml)는 PR·main push에서 문서/설정 검사와 백엔드 빌드를 따로 실행합니다. 실행 결과는 GitHub의 Actions 탭에서 확인합니다. 기동 테스트가 통과해도 MQTT·DB·실차 시험까지 통과한 것은 아닙니다.
+[GitHub Actions](.github/workflows/verify.yml)는 PR·main push에서 문서/설정, 백엔드·PostgreSQL, 프론트, 새 환경 Docker·브라우저 인계를 각각 검사합니다. 실행 결과는 GitHub의 Actions 탭에서 확인합니다. 가상 장치 시험을 실물 보드·실차 시험으로 표시하지 않습니다.
 
 ## 설계를 바꿀 때
 
@@ -58,7 +77,7 @@ Markdown·DOT 원본을 고친 뒤 생성된 HTML·SVG도 커밋합니다. `git 
 
 | 증상 | 먼저 확인할 것 |
 |---|---|
-| Repository not found | 비공개 저장소 초대 수락 여부와 인증된 GitHub 계정 |
+| Repository not found | 저장소 URL·브랜치 이름·네트워크 확인. push 거부는 협업자 권한 또는 fork 사용 여부 확인 |
 | JDK를 찾지 못함·버전 오류 | `java -version`이 17인지, IDE의 Gradle JVM도 같은지 |
 | Gradle 다운로드 실패 | 인터넷·프록시·방화벽. 실패한 주소와 오류를 공유하되 비밀값 제외 |
 | macOS/Linux에서 gradlew 실행 권한 오류 | `bash ./gradlew test bootJar`로 확인 |

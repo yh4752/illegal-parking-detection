@@ -8,7 +8,7 @@ import java.io.IOException
 import java.security.MessageDigest
 import java.time.Clock
 
-data class CorrelatedEvent(
+data class CorrelatedDeviceMessage(
     val deviceId: String, val zoneId: String, val messageId: String,
     val topic: String, val raw: ByteArray, val message: JsonNode, val canonicalHash: String,
 )
@@ -82,7 +82,7 @@ class EventIngestionService(
         } catch (_: IllegalArgumentException) {
             return EventIngestResult.NotAcknowledged("canonical_json")
         }
-        return store.ingest(CorrelatedEvent(deviceId, zoneId, messageId, topic, payload, message, hash)) {
+        return store.ingest(CorrelatedDeviceMessage(deviceId, zoneId, messageId, topic, payload, message, hash)) {
             validator.validateContent(message)
         }
     }

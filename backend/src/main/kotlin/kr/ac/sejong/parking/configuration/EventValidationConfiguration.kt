@@ -35,7 +35,7 @@ class EventValidationConfiguration {
             setConnectionTimeout(10)
             setReceiveMaximum(8)
             setAutomaticReconnect(true)
-            setAutomaticReconnectDelay(1, 30)
+            setMaxReconnectDelay(8_000) // Paho 1.2.5 reconnect loop uses this millisecond property.
         }
         val subscription = MqttSubscription("parking/v2/devices/+/events", 1).apply {
             // Preserve the publisher's retain flag, including live delivery, for validation.

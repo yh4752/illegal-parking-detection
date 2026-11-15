@@ -9,7 +9,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="../index.html">팀 요약</a><a href="../backend.html">서버 구조</a><a href="../public-demo.html">웹 인계 계획</a><a href="../status.html">현재 상태</a><a href="../review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>공개 데모 설계 검토서</h1>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>공개 데모 설계 검토서</h1>
 <p>2026-11-13 · 동일 에이전트의 자체 검토 · 구현/성능 시험 아님</p>
 <p><strong>판정: 첫 조회 인계판 구현을 시작할 수 있습니다.</strong> 공개 운영 승인이나 v1.43 전체 기능 완성을 뜻하지 않습니다. 코드 작업은 M0부터 시작하며 아래 기능 인수 시험은 모두 실행 전입니다.</p>
 <p>기준은 코드 <code>6c6c172</code>, v1.43 C7/C8/C14~C17, D1/D5/D6, 원본 OpenAPI/JSON Schema/DDL입니다. <a href="public-demo-plan.html">구현 설계</a>와 <a href="../adr/005-public-demo-boundary.html">ADR-005</a>에 검토 결과를 반영했습니다.</p>

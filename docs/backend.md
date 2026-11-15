@@ -15,9 +15,13 @@
 | 상태·이력 조회 | `zone/application`, `zone/adapter/jdbc` | 한 시점의 ZoneView, REPEATABLE READ 목록·상세 |
 | 인증·오류 | `auth`, `web` | 세션·CSRF·계정 재검사·공통 RestError |
 | HTTP 입출력 | `zone/adapter/http` | 정식 조회 API·접근 제어 경계 |
+| 실시간 화면 | `zone/adapter/sse` | 커밋된 전체 상태 조회·권한 재검사·비차단 SSE 출력 |
+| 장치 생존 확인 | HeartbeatReceiver·TelemetryConfiguration | 유효 heartbeat 반영·15/30초 통신 상태 판정 |
 | 조립·설정 | `configuration` | Spring Bean·연결·보안 설정 |
 
 HTTP/MQTT 어댑터가 업무 서비스를 호출하고, SQL은 JDBC 어댑터에 둡니다. 도메인 규칙은 Spring에 의존하지 않게 작성합니다. 저장 포트 등의 인터페이스는 실제 사용처가 생길 때 추가하며 빈 계층을 미리 만들지 않습니다.
+
+React와 함께 실행하려면 [인계 설명서](frontend-handoff.md)를 사용합니다. [ADR-008](adr/008-frontend-handoff-realtime.md)에 1초 상태 조회·SSE 전달과 heartbeat 경계를 기록했습니다. 브라우저는 MQTT 브로커에 직접 접속하지 않습니다.
 
 ## 첫 기능에서 놓치면 안 되는 경계
 

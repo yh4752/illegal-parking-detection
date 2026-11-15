@@ -1,0 +1,12 @@
+.git
+**/node_modules
+**/build
+**/.gradle
+**/.kotlin
+**/dist
+**/.env
+**/.env.*
+**/*.log
+**/test-results
+**/playwright-report
+.local-state

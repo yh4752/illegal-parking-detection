@@ -56,7 +56,8 @@ class WebApiConfiguration {
     @Bean fun readQueries(store: JdbcReadStore, revisions: RevisionReservations, webClock: Clock) = ReadQueries(store, revisions, webClock)
 
     @Bean fun webSecurity(http: HttpSecurity, mapper: ObjectMapper, users: JdbcWebUsers, encoder: PasswordEncoder,
-        json: StrictJson, errors: RestErrors, throttle: LoginThrottle, lifetime: SessionLifetime): SecurityFilterChain {
+        json: StrictJson, errors: RestErrors, throttle: LoginThrottle, lifetime: SessionLifetime,
+        streams: kr.ac.sejong.parking.zone.adapter.sse.ZoneStreams, environment: Environment): SecurityFilterChain {
         val contexts = HttpSessionSecurityContextRepository().apply { setDisableUrlRewriting(true) }
         val csrf = HttpSessionCsrfTokenRepository()
         val provider = DaoAuthenticationProvider(users).apply { setPasswordEncoder(encoder) }
@@ -82,15 +83,17 @@ class WebApiConfiguration {
             errors.write(req, res, ApiProblem(401, "UNAUTHENTICATED", "로그인이 필요합니다."))
         }.accessDeniedHandler { req, res, _ -> errors.write(req, res, ApiProblem(403, "FORBIDDEN", "접근 권한이 없습니다.")) } }
         http.authorizeHttpRequests { it
+            .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.GET, "/actuator/health", "/api/csrf").permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/login").permitAll()
-            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/auth/me", "/api/zones/*/status", "/api/events", "/api/events/*").hasAnyRole("VIEWER", "OPERATOR")
+            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/auth/me", "/api/zones/*/status", "/api/events", "/api/events/*", "/api/stream").hasAnyRole("VIEWER", "OPERATOR")
             .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/logout").authenticated()
             .anyRequest().denyAll()
         }
         val logoutPath = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/api/auth/logout")
         http.logout { it.logoutRequestMatcher { req -> logoutPath.matches(req) && SecurityContextHolder.getContext().authentication?.principal is WebIdentity }
-            .deleteCookies("JSESSIONID").logoutSuccessHandler { _, res, _ -> res.status = 204 } }
+            .addLogoutHandler { req, _, _ -> req.getSession(false)?.let { session -> streams.closeSession(session.id) } }
+            .deleteCookies(environment.getProperty("server.servlet.session.cookie.name", "JSESSIONID")).logoutSuccessHandler { _, res, _ -> res.status = 204 } }
         http.addFilterBefore(SessionGuardFilter(users, lifetime, contexts, errors), CsrfFilter::class.java)
         http.addFilterAt(login, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()

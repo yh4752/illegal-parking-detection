@@ -1,0 +1,20 @@
+digraph Handoff {
+ graph [rankdir=TB, bgcolor="transparent", pad="0.3", nodesep="0.5", ranksep="0.6", fontname="Arial", label="C4 L2 · Frontend handoff · local virtual-device environment", labelloc=t];
+ node [shape=box,style="rounded,filled",fillcolor="#EDF4F5",color="#9FB9C2",fontname="Arial",fontsize=12,margin="0.2,0.14"];
+ edge [fontname="Arial",fontsize=10,color="#557783",arrowsize=0.7];
+ browser [label="Team member\nReact + TypeScript SPA\n127.0.0.1:18081",fillcolor="#DCEFE5"];
+ web [label="Nginx / Vite dev proxy\nStatic UI + same-origin /api"];
+ backend [label="Spring Boot\nSession / grants / reads\nMQTT validation + persistence\nSSE: committed state, 1s polling"];
+ broker [label="Mosquitto\nMQTT 5 · internal network"];
+ db [shape=cylinder,label="PostgreSQL\nparking_handoff\nEvents + snapshots + accounts"];
+ simulator [label="Virtual device\nPython + SQLite outbox\nScenario replay / 5s heartbeat",fillcolor="#FFF0DC"];
+ revisions [shape=folder,label="Revision reservations\nPrimary + local copy\nNot a disaster backup"];
+ browser -> web [label="HTTP (local only)"];
+ web -> backend [label="REST + SSE"];
+ simulator -> broker [label="events QoS 1 / heartbeat QoS 0"];
+ broker -> backend [label="subscribed messages"];
+ backend -> broker [label="application ACK after commit"];
+ broker -> simulator [label="STORED / DUPLICATE / REJECTED"];
+ backend -> db [label="SQL transaction / consistent reads"];
+ backend -> revisions [label="durable revision range"];
+}

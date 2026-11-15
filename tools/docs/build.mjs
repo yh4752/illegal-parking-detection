@@ -23,6 +23,7 @@ const pages = new Map([
   ['first-slice.md', 'first-slice.html'],
   ['contracts.md', 'contracts.html'],
   ['status.md', 'status.html'],
+  ['status-history.md', 'status-history.html'],
   ['adr/001-start-small.md', 'adr/001-start-small.html'],
   ['adr/002-repository-onboarding.md', 'adr/002-repository-onboarding.html'],
   ['adr/003-event-validation-boundary.md', 'adr/003-event-validation-boundary.html'],
@@ -33,6 +34,12 @@ const pages = new Map([
   ['demo-foundation.md', 'demo-foundation.html'],
   ['authenticated-read.md', 'authenticated-read.html'],
   ['frontend-handoff-checklist.md', 'frontend-handoff-checklist.html'],
+  ['frontend-handoff.md', 'frontend-handoff.html'],
+  ['team-handoff.md', 'team-handoff.html'],
+  ['frontend-design-alignment.md', 'frontend-design-alignment.html'],
+  ['adr/009-public-repository-sharing.md', 'adr/009-public-repository-sharing.html'],
+  ['learning-map.md', 'learning-map.html'],
+  ['adr/008-frontend-handoff-realtime.md', 'adr/008-frontend-handoff-realtime.html'],
   ['adr/007-authenticated-read-api.md', 'adr/007-authenticated-read-api.html'],
   ['adr/006-public-demo-foundation.md', 'adr/006-public-demo-foundation.html'],
   ['public-demo.md', 'public-demo.html'],
@@ -69,7 +76,7 @@ for (const [source, target] of pages) {
   const doc = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>${css}</style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴">${nav}<button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page">${html}</article></main>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page">${html}</article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>`;
   await writeFile(path.join(docs, target), doc);
 }
