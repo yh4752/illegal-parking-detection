@@ -8,8 +8,8 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 @media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
 </style></head><body>
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
-<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="first-slice.html">첫 구현</a><a href="status.html">현재 상태</a><a href="review.html">검토 결과</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선만으로 구현 완료를 판단하지 않습니다. 사건 저장·커밋 후 ACK의 코드와 DB 시험을 마쳤으며, 정상 1건의 실제 MQTT 왕복도 확인했습니다. 중복 재전송의 DUPLICATE 수신도 확인했습니다. SQL로 원문 1건도 확인했습니다. 추가 시험·조회 API는 다음 단계입니다. 자세한 근거는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>정식 계약은 여기서 찾습니다</h1>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API를 구현했고 다음 목표는 heartbeat·실시간 화면·공개 배포·프론트 인계입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>정식 계약은 여기서 찾습니다</h1>
 <p>이번 골격에서는 기존 원본을 <code>reference/v1.43</code>에 보존했습니다. 별도 축약 메시지나 임시 제품 API를 만들지 않았습니다. 아래 링크의 파일이 제품 구현 기준입니다.</p>
 <div class="table-scroll"><table>
 <thead>
@@ -50,5 +50,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p>수신 객체를 빠르게 확인하려면 <a href="design/event-message-dto.html">사건 메시지 DTO 필드 명세</a>를 본다. 원본 Schema의 6개 중첩 객체를 펼쳤으며, 현재 JsonNode 구현을 Kotlin DTO 구현 완료로 표현하지 않는다.</p>
 <h2>공개 데모 웹 계약의 실행 기준</h2>
 <p>M0부터 웹은 <a href="../contracts/README.md">유효 OpenAPI·Schema</a>를 사용한다. 보존 원본 + REST 전용 overlay를 생성기로 적용하며 일반 오류 3종만 REST에 보완한다. MQTT 검증은 계속 보존 원본을 사용한다. 성공 DTO·ZoneView·wire schema_version=2는 바꾸지 않는다. <a href="adr/006-public-demo-foundation.html">ADR-006</a>과 <a href="demo-foundation.html">M0 안내</a>를 따른다. 현재 제품 웹 API는 아직 미구현이며 계약 생성 성공이 API 구현 완료를 뜻하지 않는다.</p>
+<p>구현 범위와 인수 조건은 <a href="design/public-demo-plan.html">상세 설계</a>·<a href="adr/005-public-demo-boundary.html">ADR-005</a>·<a href="design/public-demo-workplan.json">작업표</a>를 함께 따른다. <code>docs/design/public-demo-rest-overlay.json</code>은 설계 기록이며 실행 기준은 <code>contracts/overlays/public-demo-rest-v1.json</code>과 생성물이다.</p>
+<p>M1 인증·조회 구현은 <a href="authenticated-read.html">실행 안내</a>와 <a href="adr/007-authenticated-read-api.html">ADR-007</a>을 따른다. 명령·사진 메타데이터 조회는 파일 제공·명령 발행 구현을 뜻하지 않는다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

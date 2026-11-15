@@ -1,0 +1,408 @@
+{
+  "overlay_id": "public-demo-rest-1",
+  "status": "design_only",
+  "decided_at": "2026-11-13",
+  "decision": "docs/adr/005-public-demo-boundary.md",
+  "scope": "REST error vocabulary and declared HTTP responses only; MQTT remains unchanged",
+  "base": {
+    "parking.schema.json": {
+      "path": "reference/v1.43/개발자료/09_구현설계/contracts/parking.schema.json",
+      "sha256": "0227005a6bd202b2bc3b7343a31ce0d30d1adcfc60b51ed5d89bf48baa8e9660"
+    },
+    "openapi.json": {
+      "path": "reference/v1.43/개발자료/09_구현설계/contracts/openapi.json",
+      "sha256": "30e173bff2baeea8d3fd88190d6889c0331e7357d4908ac58f45d4cddd3a697e"
+    }
+  },
+  "schema_patch": [
+    {
+      "op": "replace",
+      "path": "/$defs/RestError/properties/code",
+      "value": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/error_code"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "RATE_LIMITED",
+              "SERVICE_UNAVAILABLE",
+              "INTERNAL_ERROR"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "openapi_patch": [
+    {
+      "op": "replace",
+      "path": "/components/schemas/RestError/properties/code",
+      "value": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/error_code"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "RATE_LIMITED",
+              "SERVICE_UNAVAILABLE",
+              "INTERNAL_ERROR"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1csrf/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1csrf/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1login/post/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1auth~1login/post/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1login/post/responses/429",
+      "value": {
+        "description": "요청/동시 연결 제한: RATE_LIMITED",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "다시 시도하기까지 기다릴 초",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1logout/post/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1auth~1logout/post/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1me/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1auth~1me/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1zones~1{id}~1status/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1zones~1{id}~1status/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1events/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1events/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1events~1{id}/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1events~1{id}/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1stream/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR; request_id로 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1stream/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드; retryable을 확인",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1stream/get/responses/429",
+      "value": {
+        "description": "요청/동시 연결 제한: RATE_LIMITED",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "다시 시도하기까지 기다릴 초",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    }
+  ],
+  "implemented_operations_planned": [
+    {
+      "path": "/api/csrf",
+      "method": "get"
+    },
+    {
+      "path": "/api/auth/login",
+      "method": "post"
+    },
+    {
+      "path": "/api/auth/logout",
+      "method": "post"
+    },
+    {
+      "path": "/api/auth/me",
+      "method": "get"
+    },
+    {
+      "path": "/api/zones/{id}/status",
+      "method": "get"
+    },
+    {
+      "path": "/api/events",
+      "method": "get"
+    },
+    {
+      "path": "/api/events/{id}",
+      "method": "get"
+    },
+    {
+      "path": "/api/stream",
+      "method": "get"
+    }
+  ],
+  "generation_planned": {
+    "schema": "contracts/effective/parking.schema.json",
+    "openapi": "contracts/effective/openapi.json",
+    "mqtt_validator_source": "reference/v1.43/개발자료/09_구현설계/contracts/parking.schema.json"
+  },
+  "examples": [
+    {
+      "http_status": 429,
+      "body": {
+        "code": "RATE_LIMITED",
+        "message": "잠시 후 다시 시도해 주세요.",
+        "details": {},
+        "retryable": true,
+        "request_id": "demo-request-429"
+      }
+    },
+    {
+      "http_status": 503,
+      "body": {
+        "code": "SERVICE_UNAVAILABLE",
+        "message": "현재 서비스에 연결할 수 없습니다.",
+        "details": {},
+        "retryable": true,
+        "request_id": "demo-request-503"
+      }
+    },
+    {
+      "http_status": 500,
+      "body": {
+        "code": "INTERNAL_ERROR",
+        "message": "요청을 처리하지 못했습니다. 요청 ID를 알려 주세요.",
+        "details": {},
+        "retryable": false,
+        "request_id": "demo-request-500"
+      }
+    }
+  ],
+  "invariants": [
+    "reference/v1.43 files and reference/source.json are unchanged",
+    "shared MQTT error_code enum is unchanged",
+    "schema_version remains 2",
+    "RestError required fields and additionalProperties are unchanged",
+    "all successful response schemas are unchanged",
+    "this overlay is not consumed by runtime until M0 is implemented"
+  ]
+}

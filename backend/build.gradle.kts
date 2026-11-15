@@ -73,6 +73,7 @@ tasks.register<Test>("databaseTest") {
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
     useJUnitPlatform { includeTags("database") }
+    systemProperty("parking.test.runtimeClasspath", sourceSets["test"].runtimeClasspath.asPath)
     shouldRunAfter(tasks.test)
     // The database is external state; never reuse a previous successful test result.
     outputs.upToDateWhen { false }
@@ -84,4 +85,12 @@ tasks.register<JavaExec>("initializeDemoZone") {
     group = "application"
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("kr.ac.sejong.parkingtools.DemoInitializationCliKt")
+}
+
+tasks.register<JavaExec>("manageWebAccount") {
+    description = "Explicit local operator account/grant management. Password from console or owner-only secret file."
+    group = "application"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("kr.ac.sejong.parkingtools.WebAccountCliKt")
+    standardInput = System.`in`
 }

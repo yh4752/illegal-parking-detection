@@ -117,6 +117,19 @@ class DemoFoundationDatabaseTest(
         assertThatThrownBy { initializer.inspect(request) }.hasMessage("zone_already_open")
     }
 
+    @Test fun `조회 gate는 파일 유실 후 복구만으로 자동 재개하지 않는다`() {
+        reservations().use { r ->
+            r.initialize(); initializer.apply(request, r)
+            val end=jdbc.queryForObject("SELECT revision_range_end FROM zone_view",Long::class.java)!!
+            r.checkReadable("zone-01",end)
+            val bytes=Files.readAllBytes(backup)
+            Files.delete(backup)
+            assertThatThrownBy { r.checkReadable("zone-01",end) }.isInstanceOf(IllegalStateException::class.java)
+            Files.write(backup,bytes)
+            assertThatThrownBy { r.checkReadable("zone-01",end) }.isInstanceOf(IllegalStateException::class.java)
+        }
+    }
+
     @Test fun `수신 이력이 있으면 기존 자료를 보존하고 초기화하지 않는다`() {
         jdbc.update("""INSERT INTO inbound_receipt(device_id,message_id,family,payload_sha256,outcome,first_received_at)
             VALUES ('edge-01','keep','events',?,'STORED',now())""", "a".repeat(64))

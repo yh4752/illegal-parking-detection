@@ -3,6 +3,10 @@ spring:
     name: parking-backend
   profiles:
     group:
+      web-api:
+        - database
+      app-local:
+        - web-api
       mqtt-validation-local:
         - database
       mqtt-ingest-local:
@@ -11,6 +15,10 @@ spring:
 server:
   address: 127.0.0.1
   port: 8080
+  servlet:
+    session:
+      cookie:
+        secure: true
 
 management:
   endpoints:

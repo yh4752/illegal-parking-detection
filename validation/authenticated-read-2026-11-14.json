@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-14",
+  "timezone": "Asia/Seoul",
+  "scope": "M1 세션 인증·구역 권한·7개 auth/REST 경로·계정 CLI",
+  "base_commit": "51e951f",
+  "branch": "feat/authenticated-read-api",
+  "source_identity": "최종 소스는 아래 SHA256으로 식별. 최초 구현 d30d521 이후 로컬 프로필 쿠키 우선순위를 보완했다.",
+  "design_continuity": {
+    "reference": "reference/v1.43",
+    "preserved_files": 127,
+    "local_plan_commit": "052fa95",
+    "foundation_commit": "7ec0792",
+    "reconciliation_commit": "51e951f"
+  },
+  "local_environment": {
+    "java": "OpenJDK 17.0.18",
+    "gradle": "8.12.1",
+    "postgres": "17.11 at loopback 15432",
+    "database_isolation": "별도 it_<UUID> 스키마. 시험 종료 후 해당 스키마만 삭제. 사용자 public 자료/계정/실행 서버 미변경.",
+    "execution_adjustments": [
+      "기존 Gradle 배포 바이너리 직접 실행; /tmp 전용 GRADLE_USER_HOME; 기존 caches를 GRADLE_RO_DEP_CACHE로 읽기",
+      "offline + 임시 init script의 세 의존성 로컬 저장소 + Mockito startup agent. 저장소의 Maven 설정은 변경하지 않음"
+    ]
+  },
+  "commands": [
+    {
+      "cwd": "backend",
+      "standard": "./gradlew test databaseTest bootJar",
+      "actual_equivalent": "Gradle 8.12.1 -p backend test databaseTest bootJar --offline --no-daemon --no-watch-fs -Pkotlin.compiler.execution.strategy=in-process -I /tmp/parking-validation.init.gradle",
+      "result": "BUILD SUCCESSFUL",
+      "counts": {
+        "test": {
+          "tests": 140,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "databaseTest": {
+          "tests": 64,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "cwd": ".",
+      "command": "python3 tools/build_contracts.py --check",
+      "result": "PASS"
+    },
+    {
+      "cwd": ".",
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "result": "PASS: 6"
+    },
+    {
+      "cwd": ".",
+      "command": "npm --prefix tools/docs run build",
+      "result": "PASS: 6 SVG, 21 HTML"
+    },
+    {
+      "cwd": ".",
+      "command": "python3 tools/check_structure.py",
+      "result": "PASS: 39 Markdown, 21 HTML, 6 SVG, 466 local links, 127 preserved reference files"
+    },
+    {
+      "cwd": ".",
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  ],
+  "new_test_cases": {
+    "WebPolicyTest": 10,
+    "WebReadDatabaseTest": 17,
+    "DemoFoundationDatabaseTest_added_read_gate": 1
+  },
+  "verified": [
+    "기존 마이그레이션·저장·ACK·중복/충돌/역순 회귀",
+    "CSRF 검사, 세션/토큰 교체, logout, idle 30분·absolute 8시간 경계",
+    "두 사용자·두 구역·OPERATOR의 구역 grant 검사; 권한/역할/활성 상태 변경 반영",
+    "실제 HTTP 서버의 Secure/HttpOnly/SameSite 쿠키와 과거 세션 ID 거부",
+    "같은 시각 keyset 정렬·서명/필터 검증·UTC from 포함/to 제외·limit",
+    "저장 서비스→HTTP 조회 DTO를 유효 JSON Schema로 검증; 역순 원문은 보존하고 최신 seq 유지",
+    "계속 실행 중인 쓰기와 30회 HTTP 조회에서 snapshot·revision 일치",
+    "30일 보관 만료 전/정각/후·배치 전 제외·410/404/403·snapshot 보존",
+    "실제 저장 명령 22개/사진 메타데이터 11개의 조회 제한·만료 표시·OPERATOR 토큰 마스킹",
+    "DB 자료 접근 불능 시 안전한 503; 트랜잭션 연결 실패 오류 매핑·예상 밖 500; SQL/비밀번호 원문 미노출",
+    "로그인 5회 실패 후 429/Retry-After; 인증 저장소 장애를 실패 예산에서 제외; 제한 저장소 상한/TTL",
+    "복구 hold 및 예약 파일 불일치 거부; 파일 유실을 발견한 프로세스는 복사본 복구만으로 자동 재개하지 않음",
+    "별도 Java 프로세스 계정 CLI 4회: 사용자 생성·grant·회수·비활성; BCrypt 검증·감사 4행·기존 세션 반영",
+    "Spring ConfigData 실제 프로필 확장: app-local HTTP는 Secure=false, web-api는 true, app-local+mqtt-ingest-local은 false"
+  ],
+  "attempts_and_fixes": [
+    "초기 Wrapper 다운로드는 네트워크/쓰기 환경에서 실패. 기존 배포·읽기 전용 의존성 캐시로 실행.",
+    "Spring CSRF 구성 API 사용 오류를 지원 API로 수정한 뒤 컴파일 통과.",
+    "초기 새 조회 시험 7개는 fixture snapshot의 event_id 오타로 계약 거부. current_event_id로 고쳐 제품 검증을 유지한 채 통과.",
+    "실행/검토 중 인증 저장소 장애를 로그인 실패 횟수에서 제외하고 트랜잭션 연결 실패를 503으로 보완. 이후 전체 회귀 재실행.",
+    "최종 프로필 조합 시험으로 app-local 그룹의 web-api 설정이 Secure=false를 덮는 오류를 재현. Secure=true 기본값을 공통 설정으로 옮기고 app-local만 false로 덮도록 수정. app-local/web-api/app-local+mqtt-ingest-local의 결과 및 전체 회귀 통과."
+  ],
+  "limits": [
+    "HTTP 시험은 loopback이며 실제 HTTPS 프록시·외부 접속 시험이 아님",
+    "DB 장애 시험은 격리 스키마의 테이블 접근 불능이며 사용자 DB 서버를 정지하지 않음",
+    "CLI는 테스트 runtime classpath의 별도 Java 프로세스; 새 기본 계정/사용자 public grant는 만들지 않음",
+    "이번 MQTT 브로커 왕복·실보드·부하 시험 없음",
+    "동일 예약 범위 내 과거 DB 복원 자동 탐지는 미구현",
+    "세션·로그인 제한은 단일 프로세스 메모리, 재시작 시 재로그인 필요"
+  ],
+  "not_implemented": [
+    "M2 heartbeat/availability·SSE",
+    "M3 React",
+    "M4 가상 장치·브라우저 통합",
+    "M5 배포·HTTPS·기존 상태 인수/복원",
+    "M6 외부 URL·인계",
+    "명령/정책 변경·사진 파일·실물 보드/AI"
+  ],
+  "github_ci": {
+    "status": "completed",
+    "conclusion": "success",
+    "code_commit": "36ff6a13071d68119e5c0e04981d8f253b7849e3",
+    "run_url": "https://github.com/yh4752/parking-system/actions/runs/43578261661",
+    "backend_job_id": 132397215511,
+    "documents_job_id": 132397215767,
+    "environment": "GitHub ubuntu-24.04 / Temurin 17 / PostgreSQL 17.11 service",
+    "command": "bash ./gradlew test databaseTest bootJar --no-daemon",
+    "pr_url": "https://github.com/yh4752/parking-system/pull/2",
+    "initial_code_run": "https://github.com/yh4752/parking-system/actions/runs/43578018045"
+  },
+  "source_files_sha256": {
+    "backend/src/main/kotlin/kr/ac/sejong/parking/ParkingApplication.kt": "6e6907fa16b804f92d351945599701a59bec100d9c4e09167eb98633d1ff25fa",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/auth/JsonLoginFilter.kt": "f68e18998f231ad887c9881058c7c80040a8e9fd0658f89cb077dfa56f6d2a59",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/auth/LoginThrottle.kt": "69126b56d42da7d733da4ee775e108e99f30d56c158866ed6c477c784dcb9730",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/auth/SessionLifetime.kt": "42f6b1d727f8b3a958f03eedc889b5c79331bd951261636f4394760cdbdf4a6b",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/auth/WebIdentity.kt": "88762a31fe40537519c31b21427d280d21f0bbdd1bf5e3580be0cb8c90373a21",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/EventIngestionConfiguration.kt": "5fee29926d5d46cb951295f12683396be10cfa73c1ac3a285ae526abe2539a58",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/EventValidationConfiguration.kt": "fd0738347c59db4281f8facf9c562c58a7b885bf66fccd6ef7360bfd3607c741",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/MqttLearningConfiguration.kt": "f9f1e7a7eacd8479df43b03a15280069ded20fe351421c6e977cb530466bc08f",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/MqttLearningMessageHandler.kt": "a0c99d7b282f6bbd547de6bdc5293781b65de18e8686aa36ada91ab65a595639",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/RevisionConfiguration.kt": "3313a9b453beb2090520736512145697e6c9b1886da918328f7087d05fb77159",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/SecurityConfiguration.kt": "e7ed31a9513bf9684a8085dcf2328f4ed218277872835d53aa0e3ca3373adb4a",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/WebApiConfiguration.kt": "8ffa84ba82ca28eb2fca702af501de566cb25b9a0d01f247845eb9d7ea24df8a",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/adapter/jdbc/EventTransactionStore.kt": "c91428dc402befd6a587c05e9b832713cc86b1be73d64831ce203874681dcd29",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/adapter/jdbc/JdbcDeviceRegistrationLookup.kt": "1384766effeee43858a76082512d8c509147552c10bcbf7a847d8b94c7f5c9d1",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/adapter/jdbc/RevisionReservations.kt": "fcb84946c08f51f5f6a6ac307f5e7c16bbcd6c00addb085f1d12e36095af9ef5",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/adapter/mqtt/EventIngestionMessageHandler.kt": "d0370129bc614621219e13aa6e5e6adca4de71560777c93185373b4705784c06",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/adapter/mqtt/EventValidationMessageHandler.kt": "e9f68e07b6dbfa6f5f252f49752662a45665c46140e3a520f8d9abc01851a345",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/application/EventIngestion.kt": "d9fa8bf780c4618c44114de37ac9841483a120e0ba813d31683b14d1fcbe3ac8",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/application/EventMessageSemantics.kt": "b035772a531ed38fdf166a864d01758e4013ce3d2c07eb33894eacddbc898c6e",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/device/application/EventMessageValidator.kt": "93bc25d57bf2e19c44f3320df7d2bb248af57d75ed9dda36bcba80843cdb0324",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/operations/FreshDemoInitializer.kt": "8b1a96c2e0d4107be5ae572722ebc46c4ca1118a91f1dd3443dc10704a61cf5e",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/web/RestSupport.kt": "ee4aa1f080048e0670998d22f4d1866a4acbde7963a12fbd14eb3c3928e73c63",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/zone/adapter/http/ReadController.kt": "aee7d5934e3de45365c71a7f4f6e5e9e987f75728204975e5441322757f8bc85",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/zone/adapter/jdbc/JdbcReadStore.kt": "4bf4f37db1606ef13f4ff34c805d9b5dca8dc31b52ff63473cea01523452da21",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/zone/application/EventCursor.kt": "d0c728083448e15b12ed01cc58c12173521e71bff86668eb3c2d035e967e8096",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/zone/application/ReadQueries.kt": "4d7806aae87e6f31d30e19caba92a20d2e0aa8cc0c40b0949649f5bfad3d6da1",
+    "backend/src/main/kotlin/kr/ac/sejong/parkingtools/DemoInitializationCli.kt": "7ba56747ec6f7f01d45ac58ddf9d0fc09f3d4291faf1303ab6d3233256419980",
+    "backend/src/main/kotlin/kr/ac/sejong/parkingtools/WebAccountCli.kt": "5780e7d646584d8ea5d77f1c94487b09e456880fcb182e0dd027dda1870decd0",
+    "backend/src/main/resources/application-app-local.yml": "84b633c65d96f0ac25ec1dcd91146e3ffe099ead84358736906b1b054d884264",
+    "backend/src/main/resources/application-database.yml": "345a82939e2a381f07783eeb97cec27fc5a0faebf6794fca08b8abbeab50ff58",
+    "backend/src/main/resources/application-mqtt-ingest-local.yml": "d23ecc0468561b4c52f75307aa12d4778596e09dbc49425640132387d4d96cde",
+    "backend/src/main/resources/application-mqtt-learning.yml": "66d5bec71fe46c96f3125d3a1c133518bb919a5eaa211e4e7770c53fc702b763",
+    "backend/src/main/resources/application-web-api.yml": "c44a17e2aeeb7397166c92244a3210a7a6cc9f8dc5e189cd9d4798d1ce725398",
+    "backend/src/main/resources/application.yml": "d25de36f37299632d0530e10c96673f3959f2930f1044ecd3848daddb36bfdee",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/BootstrapHttpTest.kt": "08d5907b075a83aae2c047994dda8d61d588e0bb752e993396894abc7492e0e9",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/configuration/MqttLearningMessageHandlerTest.kt": "c44bbccc96d6472964d709a47208a36e450a87de574baa4c6173d65bfa472db4",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/contracts/RestContractTest.kt": "4e03a56e5cef49e9a8284ac4b6387cc04cfa059a25a6902be1e46cbe00b2f06c",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/device/EventMessageSemanticsTest.kt": "a4befc04cc58cf524f993bb44d32f12bbf5198ed4997b037e88f2efacbdf47cb",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/device/EventMessageValidatorTest.kt": "8a7391f551229bbe5e88629a60d7462713520a5afe97a99bce88da23251ad1c7",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/device/EventValidationMessageHandlerTest.kt": "95f549fbdf88e5440a06b48e9ae484a70f369e8d726449d6b2bc0aa8ff014fbd",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/device/application/EventCanonicalizerTest.kt": "1e00ce9d0f99c176cae9c89f1c66faeb7f0e09cbb8f7ff076eda9da31824c1f3",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/operations/InitializationArgumentsTest.kt": "c722cbd436d7b703ad41c540fb2f6c20c2b5f2e3abce9fce5f78799ce9a9a1be",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/storage/DatabaseMigrationTest.kt": "af0bdee553783e0259b57ca9c2f83624466175ce102449b7b656a82688adddc1",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/storage/DemoFoundationDatabaseTest.kt": "55abad05c0f9a3615e832260c36a6bd75a55da11a69ca4d75fc50823f7a82219",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/storage/EventIngestionDatabaseTest.kt": "20e66c2a53132a55ca41a5a7109ba13baa8d4edffec5599a8820b06b2d25edf9",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/web/WebPolicyTest.kt": "8411f3b8633c56d63da6e1fe775588e8d4409aea7ea81645ef73dc2858c6731e",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/web/WebReadDatabaseTest.kt": "d99e87632ac8e3db9ef3075051038107cbd35fbd6852778af2fe03c3bf9440dd"
+  },
+  "code_commit": "36ff6a13071d68119e5c0e04981d8f253b7849e3"
+}
