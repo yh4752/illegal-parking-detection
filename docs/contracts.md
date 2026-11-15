@@ -11,6 +11,12 @@
 | SQL 초기 후보 | [schema.sql](../reference/v1.43/개발자료/09_구현설계/db/schema.sql) |
 | SDK 내부 함수·자료형 | [내부 계약](../reference/v1.43/개발자료/07_보드내부_SDK_연동계약_v1.4.json) |
 
-문서 v1.43과 `schema_version=2`는 별개입니다. SQL은 실제 적용 검증 후 Flyway 마이그레이션으로 승격합니다. 승격 이후에는 실행용 마이그레이션을 수정하지 않고 새 변경으로 관리하며, 기존 설계 SQL과의 관계를 기록합니다.
+문서 v1.43과 `schema_version=2`는 별개입니다. SQL은 원본 DDL을 유지해 Flyway V1으로 승격했고 PostgreSQL 17.11에서 적용을 확인했습니다. [DB 안내](database.md)를 참고합니다. 승격 이후에는 실행용 마이그레이션을 수정하지 않고 새 변경으로 관리하며, 기존 설계 SQL과의 관계를 기록합니다.
 
 계약을 바꾸면 원본·예제·의미 검사·관련 구현과 시험·C4/arc42 영향을 함께 확인합니다. 작업표나 그림을 고쳤다는 이유로 wire 계약이 자동 변경되는 것은 아닙니다.
+
+## 사건 검증의 구현 보완 기준
+
+2026-11-13에 [사건 수신·저장 전 검증 기준 v1](design/event-ingest-v1.md)을 확정했다. 필드·타입은 위 원본을 유지하며 메시지 내부 조건·DB 조건·엣지 책임과 정상 허용 사례를 구분한다. [결정 기록](adr/003-event-validation-boundary.md)과 [수신 예제·DB 인수 시나리오](design/event-validation-cases.json)를 함께 따른다. 추가 의미 검사 V04~V12는 구현·자동 테스트를 마쳤다. quarantine V2·DB 상태 검사·사건 저장·응용 ACK도 구현해 일반·PostgreSQL 시험을 마쳤다. [ADR-004](adr/004-event-storage-and-ack.md)의 범위·복구 제한과 [실행 안내](event-storage.md)를 함께 따른다. 새 프로필의 정상 1건 MQTT 왕복은 사용자 실습으로 확인했다. 중복 재전송의 DUPLICATE 수신도 확인했다. SQL로 원문 1건도 확인했다. 추가 수신 시험·조회 API는 다음 단계다.
+
+수신 객체를 빠르게 확인하려면 [사건 메시지 DTO 필드 명세](design/event-message-dto.md)를 본다. 원본 Schema의 6개 중첩 객체를 펼쳤으며, 현재 JsonNode 구현을 Kotlin DTO 구현 완료로 표현하지 않는다.

@@ -24,7 +24,12 @@ const pages = new Map([
   ['contracts.md', 'contracts.html'],
   ['status.md', 'status.html'],
   ['adr/001-start-small.md', 'adr/001-start-small.html'],
-  ['adr/002-repository-onboarding.md', 'adr/002-repository-onboarding.html']
+  ['adr/002-repository-onboarding.md', 'adr/002-repository-onboarding.html'],
+  ['adr/003-event-validation-boundary.md', 'adr/003-event-validation-boundary.html'],
+  ['adr/004-event-storage-and-ack.md', 'adr/004-event-storage-and-ack.html'],
+  ['event-storage.md', 'event-storage.html'],
+  ['design/event-ingest-v1.md', 'design/event-ingest-v1.html'],
+  ['design/event-message-dto.md', 'design/event-message-dto.html']
 ]);
 const css = `
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
@@ -48,13 +53,14 @@ for (const [source, target] of pages) {
   html = html.replace(/<p><img src="([^"]+)" alt="([^"]*)"\s*\/?><\/p>/g,
     (_, src, alt) => `<figure class="figure"><img src="${src}" alt="${alt}"><a href="${src}" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>`);
   html = html.replaceAll('<table>', '<div class="table-scroll"><table>').replaceAll('</table>', '</table></div>');
-  const prefix = target.startsWith('adr/') ? '../' : '';
+  const parentPath = path.posix.relative(path.posix.dirname(target), '.');
+  const prefix = parentPath ? `${parentPath}/` : '';
   const nav = [['index.html','팀 요약'],['backend.html','서버 구조'],['first-slice.html','첫 구현'],['status.html','현재 상태'],['review.html','검토 결과']]
     .map(([f,label])=>`<a${f===target?' class="active"':''} href="${prefix}${f}">${label}</a>`).join('');
   const doc = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>${css}</style></head><body>
-<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 시작 자료 v0.2 · 업무 기능 미구현</span></header>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴">${nav}<button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선은 목표 설계입니다. 현재는 기동 코드·설정·문서만 작성했고 MQTT 수신·DB 저장·조회 기능은 다음에 구현합니다.</p></aside><article class="page">${html}</article></main>
+<main><aside class="intro"><p><strong>팀원은 팀 요약, 백엔드 담당은 서버 구조와 첫 구현을 보세요.</strong></p><p>그림의 연결선만으로 구현 완료를 판단하지 않습니다. 사건 저장·커밋 후 ACK의 코드와 DB 시험을 마쳤으며, 정상 1건의 실제 MQTT 왕복도 확인했습니다. 중복 재전송의 DUPLICATE 수신도 확인했습니다. SQL로 원문 1건도 확인했습니다. 추가 시험·조회 API는 다음 단계입니다. 자세한 근거는 현재 상태에서 확인하세요.</p></aside><article class="page">${html}</article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>`;
   await writeFile(path.join(docs, target), doc);
 }

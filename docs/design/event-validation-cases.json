@@ -1,0 +1,449 @@
+{
+  "design_version": "event-ingest-v1",
+  "wire_schema_version": 2,
+  "scope": "Single-message semantic acceptance fixtures; not executable application-test results. Registration and DB policy prerequisites must be supplied separately.",
+  "canonical_examples": "../../reference/v1.43/개발자료/09_구현설계/contracts/examples.json",
+  "cases": [
+    {
+      "id": "E01",
+      "description": "원본 안내 완료 예제",
+      "base_example": "guidance_complete",
+      "changes": {},
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E02",
+      "description": "원본 수동 종료 예제",
+      "base_example": "manual_close_event",
+      "changes": {},
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E03",
+      "description": "원본 사진 상태 예제",
+      "base_example": "automatic_photo_available",
+      "changes": {},
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E04",
+      "description": "현재 snapshot과 다른 과거 사건",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/current_event_id": "evt-new"
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E05",
+      "description": "안내 이력을 유지한 정차 후보 초기화",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event/continuous_stop_ms": 0,
+        "/snapshot/continuous_stop_ms": 0
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E06",
+      "description": "GUIDING 선저장 뒤 실제 출력 시작 전",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event_type": "GUIDANCE_ATTEMPTED",
+        "/event/state": "GUIDING",
+        "/snapshot/incident_state": "GUIDING"
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E07",
+      "description": "10분 도달 때 이미 재생 중인 출력 유지",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event_type": "LONG_UNRESOLVED",
+        "/event/state": "LONG_UNRESOLVED",
+        "/snapshot/incident_state": "LONG_UNRESOLVED",
+        "/event/overdue": true,
+        "/snapshot/overdue": true,
+        "/snapshot/output_status": "PLAYING"
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E08",
+      "description": "시간 정책 적용 대기",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/received_policy_version": 4
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E09",
+      "description": "시각 불신이어도 과거 started_at 보존",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event_type": "OBSERVATION_HELD",
+        "/clock_synced": false,
+        "/occurred_at": null,
+        "/event/state": "HELD",
+        "/event/continuous_stop_ms": 0,
+        "/snapshot/incident_state": "HELD",
+        "/snapshot/clock_synced": false,
+        "/snapshot/observed_at": null,
+        "/snapshot/clock_status/state": "UNTRUSTED",
+        "/snapshot/continuous_stop_ms": 0,
+        "/snapshot/reason_codes": [
+          "CLOCK_UNTRUSTED"
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E10",
+      "description": "시각 신뢰 회복 뒤 정상 5초 대기",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event_type": "OBSERVATION_HELD",
+        "/event/state": "HELD",
+        "/snapshot/incident_state": "HELD",
+        "/event/continuous_stop_ms": 0,
+        "/snapshot/continuous_stop_ms": 0,
+        "/snapshot/reason_codes": [
+          "CLOCK_UNTRUSTED"
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E11",
+      "description": "시각 불신인데 정차시간을 유지",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event_type": "OBSERVATION_HELD",
+        "/clock_synced": false,
+        "/occurred_at": null,
+        "/event/state": "HELD",
+        "/event/continuous_stop_ms": 304000,
+        "/snapshot/incident_state": "HELD",
+        "/snapshot/clock_synced": false,
+        "/snapshot/observed_at": null,
+        "/snapshot/clock_status/state": "UNTRUSTED",
+        "/snapshot/continuous_stop_ms": 304000,
+        "/snapshot/reason_codes": [
+          "CLOCK_UNTRUSTED"
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V04"
+    },
+    {
+      "id": "E12",
+      "description": "시각 불신인데 사유 코드 누락",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event_type": "OBSERVATION_HELD",
+        "/clock_synced": false,
+        "/occurred_at": null,
+        "/event/state": "HELD",
+        "/event/continuous_stop_ms": 0,
+        "/snapshot/incident_state": "HELD",
+        "/snapshot/clock_synced": false,
+        "/snapshot/observed_at": null,
+        "/snapshot/clock_status/state": "UNTRUSTED",
+        "/snapshot/continuous_stop_ms": 0,
+        "/snapshot/reason_codes": []
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V04"
+    },
+    {
+      "id": "E13",
+      "description": "ACTIVE 중지인데 AUTO",
+      "base_example": "automatic_photo_available",
+      "changes": {
+        "/snapshot/mode": "AUTO"
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V05"
+    },
+    {
+      "id": "E14",
+      "description": "ACK_REQUIRED 중지인데 AUTO",
+      "base_example": "manual_close_event",
+      "changes": {
+        "/snapshot/mode": "AUTO"
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V05"
+    },
+    {
+      "id": "E15",
+      "description": "활성 정책 없이 현재 사건 표시",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/active_policy_version": null
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V06"
+    },
+    {
+      "id": "E16",
+      "description": "received보다 큰 active 정책",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/received_policy_version": 2
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V07"
+    },
+    {
+      "id": "E17",
+      "description": "GUIDED인데 안내 시도 0회",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event/guidance_count": 0,
+        "/snapshot/guidance_count": 0
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V08"
+    },
+    {
+      "id": "E18",
+      "description": "LONG_UNRESOLVED인데 overdue=false",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event/state": "LONG_UNRESOLVED",
+        "/snapshot/incident_state": "LONG_UNRESOLVED"
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V08"
+    },
+    {
+      "id": "E19",
+      "description": "overdue인데 GUIDED 우선 표시",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event/overdue": true,
+        "/snapshot/overdue": true
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V09"
+    },
+    {
+      "id": "E20",
+      "description": "수동 종료 요약인데 이탈 종료 event_type",
+      "base_example": "manual_close_event",
+      "changes": {
+        "/event_type": "EVENT_CLOSED_EXIT"
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V10"
+    },
+    {
+      "id": "E21",
+      "description": "동일 사건의 요약 횟수 모순",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/guidance_count": 2
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V11"
+    },
+    {
+      "id": "E22",
+      "description": "서로 다른 사건의 횟수는 달라도 됨",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/current_event_id": "evt-new",
+        "/snapshot/guidance_count": 2
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E23",
+      "description": "보류 우선 상태에서 미해소 사실 유지",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/event/state": "HELD",
+        "/snapshot/incident_state": "HELD",
+        "/event/overdue": true,
+        "/snapshot/overdue": true,
+        "/snapshot/camera_health": "SUSPECT",
+        "/snapshot/reason_codes": [
+          "OCCLUSION_SUSPECT"
+        ],
+        "/event/continuous_stop_ms": 0,
+        "/snapshot/continuous_stop_ms": 0
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    },
+    {
+      "id": "E24",
+      "description": "현재 카메라 이상인데 GUIDED로 표시",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/camera_health": "SUSPECT",
+        "/snapshot/reason_codes": [
+          "OCCLUSION_SUSPECT"
+        ],
+        "/event/continuous_stop_ms": 0,
+        "/snapshot/continuous_stop_ms": 0
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V12"
+    },
+    {
+      "id": "E25",
+      "description": "같은 pause_id를 중복 포함",
+      "base_example": "automatic_photo_available",
+      "changes": {
+        "/snapshot/pauses": [
+          {
+            "pause_id": "pause-001",
+            "source": "USER",
+            "scope": "EVENT",
+            "target_event_id": "evt-001",
+            "starts_at": "2026-11-03T03:05:05Z",
+            "expires_at": null,
+            "status": "ACTIVE",
+            "reason": "현장 확인"
+          },
+          {
+            "pause_id": "pause-001",
+            "source": "USER",
+            "scope": "EVENT",
+            "target_event_id": "evt-001",
+            "starts_at": "2026-11-03T03:05:05Z",
+            "expires_at": null,
+            "status": "ACTIVE",
+            "reason": "현장 확인"
+          }
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": false,
+      "primary_rule": "V05"
+    },
+    {
+      "id": "E26",
+      "description": "미래 예약 중지만 있으면 현재 mode는 AUTO",
+      "base_example": "guidance_complete",
+      "changes": {
+        "/snapshot/pauses": [
+          {
+            "pause_id": "pause-001",
+            "source": "USER",
+            "scope": "ZONE",
+            "target_event_id": null,
+            "starts_at": "2026-11-03T04:00:00Z",
+            "expires_at": null,
+            "status": "SCHEDULED",
+            "reason": "현장 확인"
+          }
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_semantic_v1_valid": true,
+      "primary_rule": null
+    }
+  ],
+  "stateful_scenarios": [
+    {
+      "id": "DB01",
+      "input": "same device_id/message_id and same canonical payload after STORED",
+      "expect": "DUPLICATE; no extra state update or retention extension"
+    },
+    {
+      "id": "DB02",
+      "input": "same device_id/message_id with different canonical payload",
+      "expect": "separate quarantine committed, REJECTED/MESSAGE_ID_CONFLICT; original receipt preserved"
+    },
+    {
+      "id": "DB03",
+      "input": "same rejected message resent unchanged",
+      "expect": "original REJECTED/error_code; never successful DUPLICATE"
+    },
+    {
+      "id": "DB04",
+      "input": "seq 12 followed by new message_id seq 10",
+      "expect": "history may be stored; device snapshot not regressed; incident ordering evaluated separately"
+    },
+    {
+      "id": "DB05",
+      "input": "closed incident followed by a newer nonterminal summary",
+      "expect": "quarantine; no incident reopening or partial snapshot update"
+    },
+    {
+      "id": "DB06",
+      "input": "newer summary decreases guidance_count on same incident",
+      "expect": "quarantine; existing count preserved"
+    },
+    {
+      "id": "DB07",
+      "input": "referenced policy absent from zone_policy",
+      "expect": "quarantine then REJECTED/VERSION_CONFLICT; do not create guessed policy"
+    },
+    {
+      "id": "DB08",
+      "input": "DB or quarantine commit fails",
+      "expect": "no application ACK; transaction rolled back"
+    },
+    {
+      "id": "DB09",
+      "input": "commit succeeds but ACK is lost; same payload resent",
+      "expect": "DUPLICATE without repeating effects"
+    },
+    {
+      "id": "DB10",
+      "input": "first state update while revision range remains 0",
+      "expect": "reserve valid range per D6 before state commit; do not bypass constraint"
+    },
+    {
+      "id": "DB11",
+      "input": "history is replayed without a fresh heartbeat",
+      "expect": "connection_state and last_heartbeat_at unchanged"
+    },
+    {
+      "id": "DB12",
+      "input": "snapshot current incident absent in incident but full current summary provided",
+      "expect": "apply C9 summary projection; preserve unknown timestamps as null; do not manufacture times"
+    }
+  ]
+}

@@ -4,14 +4,14 @@
 
 ![C4 L3 — 서버 내부 책임](diagrams/03-components.svg)
 
-이 그림은 앞으로 구현할 책임 구분입니다. 현재 실제 코드는 기동 클래스와 접근 제한 설정이며, 아래 업무 패키지는 기능을 만들 때 생성합니다. 각 상자는 별도 서버가 아닙니다.
+현재 사건 검증·저장·응용 ACK 코드와 실제 PostgreSQL 시험까지 완료했습니다. [저장 실습](event-storage.md)에서 정상 1건의 실제 MQTT 저장·ACK 수신을 확인했습니다. 동일 메시지의 DUPLICATE 수신도 확인했으며, SQL 직접 조회로 원문 1건을 확인했습니다. 그림의 조회 부분은 아직 미구현입니다. 예약 파일은 DB와 별도이며, 각 내부 상자는 별도 서버가 아닙니다.
 
-| 책임 | 향후 위치 | 맡을 일 |
+| 책임 | 코드 위치 또는 계획 | 맡을 일 |
 |---|---|---|
 | MQTT 입출력 | `device/adapter/mqtt` | MQTT 5 수신·토픽 확인·응용 ACK 발행 |
 | 수신 업무 | `device/application` | 검증·중복·순서·트랜잭션 처리 조정 |
-| 업무 규칙 | `device/domain` | 메시지 동일성·순서 규칙. 차량 정차를 다시 판단하지 않음 |
-| 저장 접근 | `device/adapter/jdbc` | 기존 SQL·제약·행 잠금·이력·현재 상태 저장 |
+| 동일성·순서 | EventCanonicalizer·EventTransactionStore | 원문 동일성·DB의 기존 상태 비교. 빈 domain 패키지는 없음 |
+| 저장 접근 | `device/adapter/jdbc` | 기존 SQL·제약·행 잠금·이력·현재 상태 저장, revision 예약 |
 | 상태 조회 | `zone/application` | 동일 시점의 ZoneView 읽기 |
 | HTTP 입출력 | `zone/adapter/http` | 정식 조회 API·접근 제어 경계 |
 | 조립·설정 | `configuration` | Spring Bean·연결·보안 설정 |

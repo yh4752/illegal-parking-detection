@@ -16,8 +16,19 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.flywaydb:flyway-core")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.springframework.integration:spring-integration-mqtt")
+    implementation("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("io.github.erdtman:java-json-canonicalization:1.1")
+    implementation("com.networknt:json-schema-validator:1.5.9") {
+        // The wire contract and schema are JSON only.
+        exclude(group = "com.fasterxml.jackson.dataformat", module = "jackson-dataformat-yaml")
+    }
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -28,6 +39,37 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     compilerOptions { freeCompilerArgs.add("-Xjsr305=strict") }
 }
 
-tasks.withType<Test>().configureEach { useJUnitPlatform() }
+// Package the authoritative contract directly; do not maintain a second schema copy.
+val contractDirectory = layout.projectDirectory.dir("../reference/v1.43/개발자료/09_구현설계/contracts")
+tasks.processResources {
+    from(contractDirectory) {
+        include("parking.schema.json")
+        into("contracts")
+    }
+}
+tasks.processTestResources {
+    from(contractDirectory) {
+        include("examples.json")
+        into("contracts")
+    }
+    from(layout.projectDirectory.dir("../docs/design")) {
+        include("event-validation-cases.json")
+        into("design")
+    }
+}
 
-// MQTT/JDBC/Flyway 구현은 첫 수직 기능에서 추가한다. 현재는 기동 골격만 포함한다.
+tasks.test {
+    useJUnitPlatform { excludeTags("database") }
+}
+
+tasks.register<Test>("databaseTest") {
+    description = "Tests the v1.43 migration and constraints against a running PostgreSQL."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform { includeTags("database") }
+    shouldRunAfter(tasks.test)
+    // The database is external state; never reuse a previous successful test result.
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+}

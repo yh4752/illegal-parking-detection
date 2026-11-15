@@ -1,0 +1,7 @@
+# Local rehearsal only. Two local directories are not independent disaster backups.
+parking:
+  mqtt:
+    broker-url: ${PARKING_MQTT_URL:tcp://127.0.0.1:11883}
+  revision:
+    primary: ${PARKING_REVISION_PRIMARY:../.local-state/revisions/revision-reservations.json}
+    backup: ${PARKING_REVISION_BACKUP:../.local-state/revisions-copy/revision-reservations.json}

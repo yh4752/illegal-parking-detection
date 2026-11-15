@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${PARKING_DB_URL:jdbc:postgresql://127.0.0.1:15432/parking}
+    username: ${PARKING_DB_USERNAME:parking}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      connection-init-sql: "SET lock_timeout = '1s'; SET statement_timeout = '3s'; SET TIME ZONE 'UTC'"
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true
