@@ -27,6 +27,8 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - run: python3 tools/check_structure.py
+      - run: python3 tools/build_contracts.py --check
+      - run: python3 -m unittest discover -s tools/tests -v
       - run: npm --prefix tools/docs ci
       - run: npm --prefix tools/docs run build
       - name: Require updated generated documentation

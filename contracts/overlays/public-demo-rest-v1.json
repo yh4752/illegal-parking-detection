@@ -1,0 +1,327 @@
+{
+  "overlay_id": "public-demo-rest-1",
+  "status": "active_generation",
+  "decision": "docs/adr/006-public-demo-foundation.md",
+  "base": {
+    "parking.schema.json": {
+      "path": "reference/v1.43/개발자료/09_구현설계/contracts/parking.schema.json",
+      "sha256": "0227005a6bd202b2bc3b7343a31ce0d30d1adcfc60b51ed5d89bf48baa8e9660"
+    },
+    "openapi.json": {
+      "path": "reference/v1.43/개발자료/09_구현설계/contracts/openapi.json",
+      "sha256": "30e173bff2baeea8d3fd88190d6889c0331e7357d4908ac58f45d4cddd3a697e"
+    }
+  },
+  "schema_patch": [
+    {
+      "op": "replace",
+      "path": "/$defs/RestError/properties/code",
+      "value": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/error_code"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "RATE_LIMITED",
+              "SERVICE_UNAVAILABLE",
+              "INTERNAL_ERROR"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "openapi_patch": [
+    {
+      "op": "replace",
+      "path": "/components/schemas/RestError/properties/code",
+      "value": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/error_code"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "RATE_LIMITED",
+              "SERVICE_UNAVAILABLE",
+              "INTERNAL_ERROR"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1csrf/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1csrf/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1login/post/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1auth~1login/post/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1login/post/responses/429",
+      "value": {
+        "description": "요청/동시 연결 제한: RATE_LIMITED",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "재시도까지 기다릴 초",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1logout/post/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1auth~1logout/post/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1auth~1me/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1auth~1me/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1zones~1{id}~1status/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1zones~1{id}~1status/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1events/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1events/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1events~1{id}/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1events~1{id}/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1stream/get/responses/500",
+      "value": {
+        "description": "예기치 않은 서버 오류: INTERNAL_ERROR",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/paths/~1api~1stream/get/responses/503",
+      "value": {
+        "description": "일시 이용 불가: SERVICE_UNAVAILABLE 또는 기존 업무 코드",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1api~1stream/get/responses/429",
+      "value": {
+        "description": "요청/동시 연결 제한: RATE_LIMITED",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RestError"
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "재시도까지 기다릴 초",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    }
+  ]
+}

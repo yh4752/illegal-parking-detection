@@ -27,6 +27,7 @@
 | 백엔드 | `cd backend` 후 `./gradlew test bootJar` | 컴파일·DB 없는 테스트·실행 파일 생성 |
 | DB 마이그레이션·저장 | DB 실행·환경변수 설정 후 `cd backend`에서 `./gradlew databaseTest` | 실제 PostgreSQL 적용·제약 검사. [실행 안내](docs/database.md) |
 | 문서·그림 | 아래 문서 검사 명령 | 링크·그림·기존 원본 보존·생성물 일치 |
+| 웹 계약·생성기 | `python3 tools/build_contracts.py --check` 및 `python3 -m unittest discover -s tools/tests -v` | 보존 원본 해시·REST 변경 범위·생성물 일치. 변경 시 생성 명령을 먼저 실행 |
 | Compose 설정 | `cd infra` 후 `docker compose --env-file .env.example config --quiet` | 설정 문법. 컨테이너 기동을 뜻하지 않음 |
 | 통신·저장 기능 | 해당 작업표의 실제 통합 시험 | 브로커·DB를 사용한 흐름. 실행 조건과 결과 기록 |
 

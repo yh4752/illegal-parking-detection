@@ -7,6 +7,9 @@ Kotlin + Spring Boot 애플리케이션 하나다. 학습·검증 전용 프로�
 | `configuration` | SecurityConfiguration, MQTT 학습·검증·저장 구성 | 빈 조립·연결·보안 설정 |
 | `device` | 검증기, EventIngestionService, EventTransactionStore, MQTT 핸들러 | MQTT 입출력, 수신 업무, 순서 규칙, JDBC 저장 |
 | `zone` | README만 있음 | 상태 조회 서비스·HTTP API |
+| `operations` | FreshDemoInitializer | 신규 단일 구역 데모의 검사·명시 초기화 |
+
+초기화 명령의 엔트리포인트는 `kr.ac.sejong.parkingtools`에 분리했다. 웹 애플리케이션의 컴포넌트 검색에 포함하지 않으며, HTTP·MQTT를 시작하지 않는다. [신규 데모 초기화 안내](../docs/demo-foundation.md)를 따르고 기존 사건 데이터가 있는 DB에는 적용하지 않는다.
 
 기능 작성 전에 해당 폴더 안내와 [첫 기능 작업표](../docs/first-slice.md)를 읽는다. DTO·서비스·Repository는 실제 사용처와 함께 추가한다.
 

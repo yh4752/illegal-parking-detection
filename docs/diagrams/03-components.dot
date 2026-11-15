@@ -1,33 +1,36 @@
 digraph Components {
-  graph [rankdir=TB, bgcolor="transparent", pad="0.4", nodesep="0.7", ranksep="0.7", fontname="Apple SD Gothic Neo", label="C4 L3 · Spring 서버 내부의 책임\n사건 저장·ACK 코드 및 DB 시험 완료 · 정상 1건 MQTT 왕복 확인 · 조회 미구현", labelloc=t, fontsize=20, fontcolor="#19354a"];
+  graph [rankdir=TB, bgcolor="transparent", pad="0.4", nodesep="0.7", ranksep="0.7", fontname="Apple SD Gothic Neo", label="C4 L3 · Spring 서버 내부의 책임\n사건 저장·ACK 및 신규 초기화 도구 · 점선은 미구현 조회 경로", labelloc=t, fontsize=20, fontcolor="#19354a"];
   node [shape=box, style="rounded,filled", fontname="Apple SD Gothic Neo", fontsize=14, margin="0.2,0.15", color="#216582", fillcolor="#e0f0f7", fontcolor="#19354a"];
   edge [fontname="Apple SD Gothic Neo", fontsize=11, color="#326e8a", fontcolor="#486478", arrowsize=0.75];
   broker [label="Mosquitto\n[외부 Container]", fillcolor="#edf1f5", color="#9aadb9"];
   client [label="조회 클라이언트\n[외부: 프론트 또는 API 도구]", fillcolor="#edf1f5", color="#9aadb9"];
   db [shape=cylinder, label="PostgreSQL\n[외부 Container]", fillcolor="#edf1f5", color="#9aadb9"];
   manifest [shape=folder, label="revision 예약 파일 + 복사본\n[DB 복원 경로 밖 · 로컬 디스크]\n현재 단일 호스트 유실 보호 없음", fillcolor="#edf1f5", color="#9aadb9"];
+  initcli [label="신규 데모 초기화 CLI\n[별도 운영 프로세스 · 같은 코드 저장소]\n기본 검사 / 명시 적용 · HTTP/MQTT 없음", fillcolor="#fff0d5", color="#af7c2f"];
   {rank=same;broker;client;}
   subgraph cluster_backend {
     label="백엔드 앱 경계"; labeljust=l; color="#b7cad6"; style=rounded; fontsize=16;
     mqtt [label="MQTT 입출력\n[Component · Spring Integration / MQTT 5]\ndevice/adapter/mqtt"];
-    api [label="상태 조회 HTTP\n[Component · Spring MVC]\nzone/adapter/http"];
+    api [label="상태 조회 HTTP · 미구현\n[Component · Spring MVC]\nzone/adapter/http", style="rounded,filled,dashed"];
     ingest [label="메시지 수신 업무\n[Component · 검증 조정]\ndevice/application\n파싱·상관·canonical hash"];
-    query [label="구역 상태 조회 업무\n[Component · 한 시점 읽기]\nzone/application"];
+    query [label="구역 상태 조회 업무 · 미구현\n[Component · 한 시점 읽기]\nzone/application", style="rounded,filled,dashed"];
     repo [label="사건 트랜잭션·저장\n[Component · Spring JDBC]\ndevice/adapter/jdbc\n잠금·중복·순서·원자 저장"];
     reservation [label="revision 범위 예약\n[Component · RevisionReservations]\nDB 잠금 밖 파일 I/O"];
     {rank=same;mqtt;api;}
     {rank=same;ingest;query;}
     mqtt -> ingest [label="수신 내용·토픽\n검증 후 업무 호출"];
     ingest -> mqtt [label="DB 커밋 후\n응용 ACK 발행", constraint=false];
-    api -> query [label="접근 검사 뒤 조회"];
+    api -> query [label="접근 검사 뒤 조회", style=dashed];
     ingest -> repo [label="저장 요청\n커밋 결과 반환"];
     repo -> reservation [label="쓰기 전 번호 범위 확보"];
-    query -> repo [label="일관된 ZoneView 읽기"];
+    query -> repo [label="일관된 ZoneView 읽기", style=dashed];
   }
   broker -> mqtt [label="MQTT 5 사건 수신"];
   mqtt -> broker [label="MQTT 5 응용 ACK", constraint=false];
-  client -> api [label="HTTP 상태 조회"];
+  client -> api [label="HTTP 상태 조회", style=dashed];
   repo -> db [label="JDBC / SQL"];
   reservation -> manifest [label="먼저 내구 예약"];
   reservation -> db [label="예약 후 범위 반영"];
+  initcli -> reservation [label="공통 예약 코드 재사용\n초기화 claim 먼저 내구 저장"];
+  initcli -> db [label="검사 뒤 hold·audit 원자 반영"];
 }
