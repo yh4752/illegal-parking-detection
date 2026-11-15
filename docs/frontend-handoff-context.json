@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-14",
+  "updated_at": "2026-11-15",
   "project": "parking-system",
   "product_design": "v1.43",
   "repository": "https://github.com/yh4752/parking-system",
-  "branch": "feat/frontend-handoff",
+  "branch": "main",
   "checkout": {
     "method": "git_clone",
-    "clone_command": "git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git",
+    "clone_command": "git clone https://github.com/yh4752/parking-system.git",
     "working_directory": "parking-system",
     "work_branch_example": "git switch -c feat/console-ui",
-    "pull_request_base": "feat/frontend-handoff",
+    "pull_request_base": "main",
     "zip_usage": "Reference attachment for AI only; use a Git clone for collaborative development. Preserve any edits made in a ZIP folder before copying changed files into a work branch."
   },
   "pull_request": "https://github.com/yh4752/parking-system/pull/3",
@@ -22,6 +22,7 @@
     "AGENTS.md",
     "frontend/AGENTS.md",
     "docs/frontend-handoff.md",
+    "docs/frontend-design-alignment.md",
     "docs/frontend-handoff-checklist.md",
     "docs/contracts.md",
     "validation/frontend-handoff-2026-11-14.json"
@@ -85,7 +86,9 @@
     "Event history refreshes through REST even if the zone revision does not change.",
     "SSE sends committed full snapshots every second, coalesces intermediate revisions, and is not an audit log.",
     "Keep virtual-device labels. Reported stopping duration is simulated and must not be called real AI inference.",
-    "Keep v1.43 originals unchanged; use effective contracts and documented ADR changes."
+    "Keep v1.43 originals unchanged; use effective contracts and documented ADR changes.",
+    "Apply the supplied HTML visual design to the existing React app without copying its mock state transitions. v1.43 behavior remains the baseline; the UI displays edge-reported state and does not decide guidance locally.",
+    "The discussed two-class emergency-vehicle model and 300-second manager-only notification are a pending product/contract change, not current v1.43 behavior or an implemented API."
   ],
   "checks": {
     "frontend": [
@@ -100,7 +103,7 @@
     ],
     "evidence": "validation/frontend-handoff-2026-11-14.json"
   },
-  "git_workflow": "Create a work branch from feat/frontend-handoff and target PR to that branch until parent PRs merge; main is not yet the handoff code.",
+  "git_workflow": "Create a work branch from updated main; commit and push that branch, then open a PR targeting main. Preserve existing work and merge origin/main into an existing work branch; do not force-reset it.",
   "not_implemented": [
     "public HTTPS deployment",
     "production backup/restore workflow",

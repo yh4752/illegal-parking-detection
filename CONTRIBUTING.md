@@ -10,7 +10,7 @@
 
 ## 작업 하나를 끝내는 흐름
 
-**이번 프론트 인계의 기준은 `feat/frontend-handoff`입니다.** `main`은 아직 초기 골격이므로 아래 일반 절차 대신 `git switch feat/frontend-handoff` → `git pull --ff-only` → `git switch -c feat/console-ui`로 시작하고, PR의 기준 브랜치도 `feat/frontend-handoff`로 지정합니다. 인계 PR들이 main에 병합된 뒤에는 아래 일반 절차를 사용합니다. 미커밋 변경이 있으면 먼저 보존합니다.
+**팀 공통 기준은 `main`입니다.** 프론트·백엔드 모두 최신 main에서 목적별 작업 브랜치를 만들고 main 대상 PR로 합칩니다. main에 직접 push하지 않습니다. 이전 인계 브랜치는 과거 작업을 찾아보기 위해 보존하며 새 작업의 기준으로 사용하지 않습니다.
 
 1. `main`에서 `git pull --ff-only`로 최신 변경을 받습니다. 미커밋 변경이 있으면 먼저 확인하고 보존합니다.
 2. `git switch -c feat/mqtt-ingest`처럼 목적이 드러나는 브랜치를 만듭니다. 문서 작업은 `docs/`, 수정은 `fix/`를 사용할 수 있습니다.
@@ -20,6 +20,19 @@
 6. 변경 이유·실행한 검사·한계·다른 담당자 영향이 PR에 드러나도록 작성하고 관련 담당자 검토와 CI 결과를 확인한 뒤 병합합니다.
 
 기능 구현을 위해 모든 설계 문서를 다시 쓸 필요는 없습니다. 첫 개발 범위는 [첫 구현 작업표](docs/first-slice.md), 현재 완료 상태는 [현재 상태](docs/status.md)를 확인합니다.
+
+## 이전 인계 브랜치에서 작업 중이라면
+
+미커밋 변경은 현재 작업 브랜치에 커밋하거나 별도로 보존한 뒤 진행합니다. 새 작업은 아래처럼 시작합니다.
+
+```sh
+git fetch origin
+git switch main
+git pull --ff-only origin main
+git switch -c feat/console-ui
+```
+
+이미 본인 작업 브랜치에서 수정했다면 그 브랜치에서 `git fetch origin` 후 `git merge origin/main`으로 공통 변경을 받아 충돌을 해결합니다. 기존 작업을 버리거나 강제 push할 필요가 없습니다. 기존 PR의 대상이 인계 브랜치였다면 `main`으로 바꾸고 변경 목록을 확인합니다. `pull --ff-only`가 실패하면 이력을 확인하고 협의하며 `reset --hard`로 덮어쓰지 않습니다.
 
 ## 무엇을 검사할까요?
 

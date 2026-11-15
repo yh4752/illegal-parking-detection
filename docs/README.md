@@ -5,7 +5,7 @@
 1. 팀 전체: `architecture.md` 또는 `index.html`에서 핵심 구조와 역할 확인.
 2. 백엔드: `backend.md`의 L3 → `first-slice.md` → 필요한 정식 계약 확인.
 3. 코드 작업 전: `status.html`로 작성·실행·미구현 범위 확인.
-4. 오늘 프론트 인계: [체크리스트](frontend-handoff-checklist.md)에서 남은 일과 완료 기준 확인.
+4. 프론트 인계: [체크리스트](frontend-handoff-checklist.md)에서 완료 범위를, [시안 적용 기준](frontend-design-alignment.md)에서 이번 UI 작업 범위를 확인.
 5. 전체 다음 구현: [웹 인계 계획](public-demo.md)으로 범위를 보고, [상세 설계](design/public-demo-plan.md)와 [작업 JSON](design/public-demo-workplan.json)으로 착수.
 
 HTML·SVG는 이미 생성되어 있어 보는 사람은 설치할 것이 없습니다. 파일을 수정하고 다시 만들 때만 아래 도구가 필요합니다.

@@ -1,6 +1,6 @@
 # 프론트 인계 설명서
 
-2026-11-14 · 전달 브랜치 `feat/frontend-handoff` · 제품 기준 v1.43
+2026-11-15 · 공통 기준 브랜치 `main` · 제품 기준 v1.43
 
 ## 무엇을 받게 되나요?
 
@@ -16,7 +16,7 @@
 
 **전달 기준:** [작업표](frontend-handoff-checklist.md)와 [검증 기록](../validation/frontend-handoff-2026-11-14.json)을 확인합니다. 로컬 실행판과 공개 HTTPS 완료는 별개입니다. 현재 공개 URL·배포 서버·DNS가 지정되지 않았습니다.
 
-사람은 이 문서부터 읽습니다. 코딩 AI에는 [인계 컨텍스트 JSON](frontend-handoff-context.json)과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 현재 브랜치는 [PR #3](https://github.com/yh4752/parking-system/pull/3)에서 확인하고, main에 미병합된 상태임에 유의합니다.
+사람은 이 문서부터 읽습니다. 코딩 AI에는 [인계 컨텍스트 JSON](frontend-handoff-context.json)과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 실행 코드와 문서는 `main`을 기준으로 합니다. 기존 인계 구현의 변경 이력은 [PR #3](https://github.com/yh4752/parking-system/pull/3), 새 시안의 적용 범위는 [시안 적용 기준](frontend-design-alignment.md)에서 확인합니다.
 
 ![실제 가상 장치 데이터로 실행한 구역 현황](screenshots/zone-desktop.png)
 
@@ -27,7 +27,7 @@
 필요한 것은 Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24.13.0도 필요합니다(`frontend/.nvmrc`).
 
 ```sh
-git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git
+git clone https://github.com/yh4752/parking-system.git
 cd parking-system
 python3 tools/handoff.py prepare
 ```
@@ -92,7 +92,7 @@ PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev
 
 React 19, TypeScript 5.9, Vite 8, React Router 7, CSS Modules입니다. 정확한 버전은 package/lockfile을 따릅니다. `npm run format`으로 코드 서식을 맞추고, `npm run format:check`로 검사합니다. 처음부터 기능을 다시 만드는 대신 실행되는 화면의 디자인·사용성을 개선하면 됩니다.
 
-수정은 인계 브랜치에서 본인 작업 브랜치를 만들어 진행합니다. 예를 들어 `git switch -c feat/console-ui`로 시작하고 PR의 기준을 `feat/frontend-handoff`로 지정합니다. 현재 main에서 새로 시작하면 이번 구현이 없습니다. 첫 작업은 **구역 현황의 카드·여백·모바일 배치 개선**을 권합니다. 기존 가상 장치의 정상/통신 지연 표시를 유지하며 변경 전후 화면과 검사 결과를 PR에 첨부합니다.
+최신 `main`에서 본인 작업 브랜치를 만들어 진행합니다. 예를 들어 `git switch -c feat/console-ui`로 시작하고 PR의 기준을 `main`으로 지정합니다. 기존 브랜치에서 작업 중이면 [전환 절차](../CONTRIBUTING.md)를 따릅니다. 첫 작업은 **시안의 색·메뉴·구역 현황 배치를 기존 React 화면에 적용**하는 것입니다. 동작 차이는 [시안 적용 기준](frontend-design-alignment.md)에 정리했습니다. 기존 가상 장치의 정상/통신 지연 표시를 유지하며 변경 전후 화면과 검사 결과를 PR에 첨부합니다.
 
 ## 4. 알고 바꿔야 하는 통신 규칙
 

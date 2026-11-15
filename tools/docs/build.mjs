@@ -36,6 +36,7 @@ const pages = new Map([
   ['frontend-handoff-checklist.md', 'frontend-handoff-checklist.html'],
   ['frontend-handoff.md', 'frontend-handoff.html'],
   ['team-handoff.md', 'team-handoff.html'],
+  ['frontend-design-alignment.md', 'frontend-design-alignment.html'],
   ['adr/009-public-repository-sharing.md', 'adr/009-public-repository-sharing.html'],
   ['learning-map.md', 'learning-map.html'],
   ['adr/008-frontend-handoff-realtime.md', 'adr/008-frontend-handoff-realtime.html'],

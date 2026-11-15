@@ -1,8 +1,8 @@
 # 현재 구현 범위
 
-2026-11-14 · `feat/frontend-handoff` · 제품 기준 v1.43
+2026-11-15 · 공통 기준 `main` · 제품 기준 v1.43
 
-**실제 API에 연결된 React 인계판을 구현했습니다. 공개 HTTPS 배포와 받는 분의 PC 인수는 아직 완료하지 않았습니다.** 코드·문서는 공개 [저장소](https://github.com/yh4752/parking-system)의 [PR #3](https://github.com/yh4752/parking-system/pull/3)에 있습니다. main에는 아직 병합하지 않았습니다.
+**실제 API에 연결된 React 인계판을 구현했습니다. 공개 HTTPS 배포와 받는 분의 PC 인수는 아직 완료하지 않았습니다.** 코드·문서는 공개 [저장소의 main](https://github.com/yh4752/parking-system/tree/main)을 공통 기준으로 사용합니다. MQTT → 조회 기반 → 인증·조회 → React 인계의 기존 누적 이력은 PR #4 → #1 → #2 → #3으로 통합합니다. 새 작업은 main에서 브랜치를 만들고 main 대상 PR로 올립니다. 프론트 시안의 적용 범위와 v1.43 차이는 [적용 기준](frontend-design-alignment.md)에 정리했습니다. 시안의 디자인 변경 자체는 아직 구현하지 않았습니다.
 
 ## 현재 사용할 수 있는 것
 

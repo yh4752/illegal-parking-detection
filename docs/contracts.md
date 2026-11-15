@@ -17,13 +17,13 @@
 
 ## 사건 검증의 구현 보완 기준
 
-2026-11-13에 [사건 수신·저장 전 검증 기준 v1](design/event-ingest-v1.md)을 확정했다. 필드·타입은 위 원본을 유지하며 메시지 내부 조건·DB 조건·엣지 책임과 정상 허용 사례를 구분한다. [결정 기록](adr/003-event-validation-boundary.md)과 [수신 예제·DB 인수 시나리오](design/event-validation-cases.json)를 함께 따른다. 추가 의미 검사 V04~V12는 구현·자동 테스트를 마쳤다. quarantine V2·DB 상태 검사·사건 저장·응용 ACK도 구현해 일반·PostgreSQL 시험을 마쳤다. [ADR-004](adr/004-event-storage-and-ack.md)의 범위·복구 제한과 [실행 안내](event-storage.md)를 함께 따른다. 새 프로필의 정상 1건 MQTT 왕복은 사용자 실습으로 확인했다. 중복 재전송의 DUPLICATE 수신도 확인했다. SQL로 원문 1건도 확인했다. 추가 수신 시험·조회 API는 다음 단계다.
+2026-11-13에 [사건 수신·저장 전 검증 기준 v1](design/event-ingest-v1.md)을 확정했다. 필드·타입은 위 원본을 유지하며 메시지 내부 조건·DB 조건·엣지 책임과 정상 허용 사례를 구분한다. [결정 기록](adr/003-event-validation-boundary.md)과 [수신 예제·DB 인수 시나리오](design/event-validation-cases.json)를 함께 따른다. 추가 의미 검사 V04~V12는 구현·자동 테스트를 마쳤다. quarantine V2·DB 상태 검사·사건 저장·응용 ACK도 구현해 일반·PostgreSQL 시험을 마쳤다. [ADR-004](adr/004-event-storage-and-ack.md)의 범위·복구 제한과 [실행 안내](event-storage.md)를 함께 따른다. 새 프로필의 정상 1건 MQTT 왕복은 사용자 실습으로 확인했다. 중복 재전송의 DUPLICATE 수신도 확인했다. SQL로 원문 1건도 확인했다. 추가 수신·조회·실시간 화면의 현재 구현과 검증은 [현재 상태](status.md)를 따른다.
 
 수신 객체를 빠르게 확인하려면 [사건 메시지 DTO 필드 명세](design/event-message-dto.md)를 본다. 원본 Schema의 6개 중첩 객체를 펼쳤으며, 현재 JsonNode 구현을 Kotlin DTO 구현 완료로 표현하지 않는다.
 
 ## 공개 데모 웹 계약의 실행 기준
 
-M0부터 웹은 [유효 OpenAPI·Schema](../contracts/README.md)를 사용한다. 보존 원본 + REST 전용 overlay를 생성기로 적용하며 일반 오류 3종만 REST에 보완한다. MQTT 검증은 계속 보존 원본을 사용한다. 성공 DTO·ZoneView·wire schema_version=2는 바꾸지 않는다. [ADR-006](adr/006-public-demo-foundation.md)과 [M0 안내](demo-foundation.md)를 따른다. 현재 제품 웹 API는 아직 미구현이며 계약 생성 성공이 API 구현 완료를 뜻하지 않는다.
+M0부터 웹은 [유효 OpenAPI·Schema](../contracts/README.md)를 사용한다. 보존 원본 + REST 전용 overlay를 생성기로 적용하며 일반 오류 3종만 REST에 보완한다. MQTT 검증은 계속 보존 원본을 사용한다. 성공 DTO·ZoneView·wire schema_version=2는 바꾸지 않는다. [ADR-006](adr/006-public-demo-foundation.md)과 [M0 안내](demo-foundation.md)를 따른다. 인증·상태·이력 조회 API와 SSE는 구현했으며, 명령·정책 변경·사진 파일 기능은 남아 있다. 계약 파일에 경로가 있다는 사실만으로 구현 완료를 뜻하지 않는다.
 
 구현 범위와 인수 조건은 [상세 설계](design/public-demo-plan.md)·[ADR-005](adr/005-public-demo-boundary.md)·[작업표](design/public-demo-workplan.json)를 함께 따른다. `docs/design/public-demo-rest-overlay.json`은 설계 기록이며 실행 기준은 `contracts/overlays/public-demo-rest-v1.json`과 생성물이다.
 

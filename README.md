@@ -8,10 +8,10 @@
 
 ## 바로 실행하기
 
-저장소는 공개되어 누구나 열람·클론할 수 있습니다. **팀 개발은 ZIP 다운로드 대신 아래 명령으로 클론해서 시작합니다.** [팀 전달 자료](docs/team-handoff.md)에서 작업 브랜치와 협업 절차를 확인하세요. 현재 인계 코드는 **`feat/frontend-handoff`** 브랜치에 있습니다. `main`에는 아직 병합하지 않았습니다. Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2가 필요합니다. Windows는 WSL2를 사용합니다.
+저장소는 공개되어 누구나 열람·클론할 수 있습니다. **팀 개발은 ZIP 다운로드 대신 아래 명령으로 클론해서 시작합니다.** [팀 전달 자료](docs/team-handoff.md)에서 작업 브랜치와 협업 절차를 확인하세요. 팀의 공통 개발 기준은 **`main`**입니다. 최신 main에서 각자 작업 브랜치를 만들고, PR도 main을 대상으로 올립니다. Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2가 필요합니다. Windows는 WSL2를 사용합니다.
 
 ```sh
-git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git
+git clone https://github.com/yh4752/parking-system.git
 cd parking-system
 python3 tools/handoff.py prepare
 ```

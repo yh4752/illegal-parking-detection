@@ -10,7 +10,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>프론트 개발 인계 — 여기서 시작하세요</h1>
-<p>2026-11-14 · 현재 브랜치 <strong><code>feat/frontend-handoff</code></strong> · 제품 설계 v1.43</p>
+<p>2026-11-15 · 공통 기준 브랜치 <strong><code>main</code></strong> · 제품 설계 v1.43</p>
 <p>로그인, 구역 현황, 사건 목록·상세가 실제 백엔드와 연결된 React 앱을 전달합니다. 가상 장치가 MQTT로 보낸 상태를 Spring Boot가 PostgreSQL에 저장하고 화면에 반영합니다. 프론트 담당자는 이 코드를 실행한 뒤 디자인·배치·반응형과 사용성을 개선하면 됩니다.</p>
 <h2>필요한 자료</h2>
 <div class="table-scroll"><table>
@@ -21,8 +21,8 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tr>
 </thead>
 <tbody><tr>
-<td><a href="https://github.com/yh4752/parking-system/tree/feat/frontend-handoff">현재 개발 브랜치</a></td>
-<td>실행 코드와 문서. main은 아직 초기 골격</td>
+<td><a href="https://github.com/yh4752/parking-system/tree/main">공통 개발 기준</a></td>
+<td>실행 코드와 문서. 각자 작업 브랜치와 PR은 main 기준</td>
 </tr>
 <tr>
 <td><a href="frontend-handoff.html">인계 설명서</a></td>
@@ -36,12 +36,16 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <td><a href="frontend-handoff-checklist.html">인계 판정표</a></td>
 <td>확인한 기능과 남은 범위</td>
 </tr>
+<tr>
+<td><a href="frontend-design-alignment.html">프론트 시안 적용 기준</a></td>
+<td>v1.43과 다른 동작, 이번 작업 범위·PR 확인 항목</td>
+</tr>
 </tbody></table></div>
 <p><strong>팀 개발은 아래 명령으로 저장소를 클론해서 시작합니다.</strong> ZIP으로 받은 <code>parking-system-feat-frontend-handoff</code> 폴더에는 Git 이력과 원격 저장소 설정이 없습니다. 클론하면 <code>parking-system</code> 폴더가 생기고, 이후 pull·push·PR로 변경 내용을 주고받을 수 있습니다.</p>
-<p>사람은 설명서부터 읽고, 코딩 AI에는 클론한 저장소와 시작 JSON을 함께 제공합니다. 저장소를 읽을 수 없고 파일 첨부만 가능한 AI에는 <a href="https://github.com/yh4752/parking-system/archive/refs/heads/feat/frontend-handoff.zip">코드 ZIP</a>을 참고 자료로 사용할 수 있습니다. JSON만으로 전체 구현을 알 수는 없습니다.</p>
+<p>사람은 설명서부터 읽고, 코딩 AI에는 클론한 저장소와 시작 JSON을 함께 제공합니다. 저장소를 읽을 수 없고 파일 첨부만 가능한 AI에는 <a href="https://github.com/yh4752/parking-system/archive/refs/heads/main.zip">코드 ZIP</a>을 참고 자료로 사용할 수 있습니다. JSON만으로 전체 구현을 알 수는 없습니다.</p>
 <h2>첫 실행</h2>
 <p>Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2가 필요합니다. Windows는 WSL2를 사용합니다. 프론트 수정에는 Node.js 24.13.0이 필요합니다.</p>
-<pre><code class="language-sh">git clone --branch feat/frontend-handoff https://github.com/yh4752/parking-system.git
+<pre><code class="language-sh">git clone https://github.com/yh4752/parking-system.git
 cd parking-system
 git switch -c feat/console-ui
 python3 tools/handoff.py prepare
@@ -53,7 +57,7 @@ python3 tools/handoff.py prepare
 <li>본인 PC에서 로그인·구역 상태·사건 상세까지 실행되는지 확인해 주세요.</li>
 <li>구역 카드·메뉴·모바일 화면을 먼저 살펴보고 개선할 UI를 정해 주세요.</li>
 <li>현재 데이터는 가상 장치 보고입니다. 연결이 끊기면 마지막 관측을 유지하며, 영상·사진·제어 버튼 등 미구현 기능을 성공한 것처럼 표시하지 않습니다.</li>
-<li>수정은 본인 작업 브랜치에서 진행하고, 커밋·push 후 <code>feat/frontend-handoff</code>를 기준으로 PR을 만들어 주세요. 세션·CSRF·API·SSE 계약 변경이 필요하면 백엔드 담당자와 먼저 맞춥니다.</li>
+<li>수정은 본인 작업 브랜치에서 진행하고, 커밋·push 후 <code>main</code>을 기준으로 PR을 만들어 주세요. 세션·CSRF·API·SSE 계약 변경이 필요하면 백엔드 담당자와 먼저 맞춥니다.</li>
 <li>팀원은 협업자 초대를 위해 GitHub 사용자명 또는 프로필 링크를 알려주세요. 초대 수락 후 본인 브랜치를 원본 저장소에 push할 수 있습니다. 공개 저장소의 열람·클론과 로컬 작업은 초대 전에도 가능합니다.</li>
 </ol>
 <p>실행 오류는 OS·Docker·Node 버전, 커밋, 실행 명령과 오류 메시지를 함께 알려주세요. 비밀번호·쿠키·환경 파일은 첨부하지 않습니다.</p>
