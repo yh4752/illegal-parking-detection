@@ -1,7 +1,25 @@
 import copy
 import unittest
+from unittest.mock import Mock, patch
 from local_https import validate_network_boundary
 from local_monitoring import validate_monitoring
+from verify_o3 import wait_positive_metric
+
+
+class InitialMetricTest(unittest.TestCase):
+    def test_missing_initial_sample_is_not_a_numeric_value(self):
+        stack = Mock()
+        stack.prom.side_effect = [None, 0, 1024]
+        with patch('verify_o3.time.sleep'):
+            wait_positive_metric(stack, 'node_memory_MemTotal_bytes')
+        self.assertEqual(stack.prom.call_count, 3)
+
+    def test_missing_metric_fails_with_its_name_after_deadline(self):
+        stack = Mock()
+        stack.prom.return_value = None
+        with patch('verify_o3.time.sleep'), patch('verify_o3.time.monotonic', side_effect=[0, 0, 2]):
+            with self.assertRaisesRegex(AssertionError, 'positive metric: node_memory_MemTotal_bytes'):
+                wait_positive_metric(stack, 'node_memory_MemTotal_bytes', seconds=1)
 
 
 class MonitoringBoundaryTest(unittest.TestCase):

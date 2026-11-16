@@ -109,6 +109,15 @@
       "o2": "O2_ACCEPTANCE_PASSED after both corrections: gateway 502/504 and portable automatic IP allocation; includes real Chromium.",
       "o4": "NOT COMPLETED: first attempt address pools exhausted; sequential retry simulator Docker command timed out at 34 seconds. Do not count either as success. Independent Linux CI completed the full O4 drill."
     },
-    "last_updated_kst": "2026-11-17"
+    "last_updated_kst": "2026-11-17",
+    "initial_metric_followup": {
+      "run": "https://github.com/yh4752/parking-system/actions/runs/43891981754",
+      "o2": "success",
+      "o3_failure": "None numeric comparison; exact expression was absent from original failure log",
+      "fix": "Bounded wait for singleton positive metrics; require four targets; metric name in timeout",
+      "unit_tests": 32,
+      "read_only_existing_monitoring": "PASS: four up targets and six positive metrics; no fault injection or environment changes",
+      "local_note": "Python 3.14 emitted ResourceWarning for existing SQLite test fixtures; all 32 tests passed"
+    }
   }
 }

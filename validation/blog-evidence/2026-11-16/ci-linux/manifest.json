@@ -41,6 +41,13 @@
       "source_url": "https://github.com/yh4752/parking-system/actions/runs/43888329071/job/133379709327",
       "source_commit": "25d6fdcbc7ead7f5be9168924725ecbd1665744a",
       "transformation": "Selected traceback; checkout path replaced with <checkout>; trailing whitespace removed"
+    },
+    {
+      "file": "o3-initial-metric-failure.txt",
+      "sha256": "327e6cc611fc4b7a3e4a1320df576c17a5c821fcaf84c9ad05bc605e1b2e962a",
+      "source_url": "https://github.com/yh4752/parking-system/actions/runs/43891981754/job/133385351433",
+      "source_commit": "71b12c6f70a322fe47ea164242669e9bd88724e3",
+      "transformation": "Selected traceback; checkout path replaced with <checkout>; trailing whitespace removed"
     }
   ],
   "limits": [
@@ -54,5 +61,15 @@
     "passed_jobs": 7,
     "o2_attempt1": "Maven Central HTTP 429 during dependency download",
     "o2_attempt2": "Explicit --ip unsupported on automatically configured subnet; use automatic allocation and retain different-IP assertion"
+  },
+  "initial_metric_followup": {
+    "run_id": 43891981754,
+    "commit": "71b12c6f70a322fe47ea164242669e9bd88724e3",
+    "o2": "success",
+    "o3": "None numeric comparison in initial metric assertion",
+    "limits": "Original log does not identify the metric or distinguish missing from multiple series",
+    "correction": "Require all four targets and bounded wait for each positive singleton metric; missing/multiple values fail with metric name after deadline",
+    "fixture_tests_added": 2,
+    "current_production_python_tests": 32
   }
 }

@@ -52,6 +52,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p>PR 반영 전 재검사와 원격 CI는 <a href="../validation/pr5-publication-2026-11-16.json">PR 공유 검증 기록</a>을 기준으로 한다. 원격 실행은 로컬 수치와 구분하며, GitHub Checks 통과도 실제 외부 배포·팀원 PC 인수를 대신하지 않는다.</p>
 <p>첫 Linux CI(<code>3654f91</code>)는 8개 작업 중 6개가 통과했고 O2·O4에서 환경 차이를 발견했다. O2는 중단된 backend의 504를 502로 바뀔 때까지 기다리던 검사 가정을 수정했고, O4는 비공개 원장 폴더의 소유자 UID:GID로 실행하도록 수정했다. <a href="operations-learning-evidence.html#6-linux-ci%EC%97%90%EC%84%9C-%ED%99%95%EC%9D%B8%ED%95%9C-%ED%99%98%EA%B2%BD-%EC%B0%A8%EC%9D%B4">실패 발췌·권한 재현 근거</a>를 보존했다. 과거 O4 해시 기록은 변경하지 않으며, 수정 후 정확한 커밋과 최종 원격 결과는 <a href="https://github.com/yh4752/parking-system/pull/5/checks">PR #5 Checks</a>와 PR 본문에서 확인한다.</p>
 <p>후속 Linux 검증에서는 O4 전체 복원을 포함해 7개 작업이 통과했고, O2의 자동 subnet에 특정 IP를 지정하던 시험도 주소 자동 할당으로 수정했다. 새 backend IP가 실제로 달라야 한다는 검사는 유지한다. 로컬 O2 재검사는 통과했으며, 추가 로컬 O4는 Docker 실행 환경 오류·시간 초과로 미완료여서 Linux 인수 성공과 구분한다.</p>
+<p><code>71b12c6</code>의 Linux O2 인수도 통과했다. O3 반복 검증에서는 초기 지표의 단일 값이 없을 때 비교 오류가 나와, 네 수집 대상의 존재와 각 지표의 실제 양수 값을 제한 시간 안에 확인하도록 보강했다. 미수집·지속 부재 회귀 시험 2개를 더한 현재 Python 운영 도구 검사는 <strong>32개</strong>이며, 과거 O4의 30개 기록은 그대로 둔다.</p>
 <h2>현재 사용할 수 있는 것</h2>
 <div class="table-scroll"><table>
 <thead>

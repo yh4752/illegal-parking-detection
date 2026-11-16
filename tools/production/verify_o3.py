@@ -29,6 +29,13 @@ def alert(stack, name, firing=True):
     return found if firing else not found
 
 
+def wait_positive_metric(stack, expression, seconds=90):
+    def sampled_positive():
+        value = stack.prom(expression)
+        return value is not None and value > 0
+    wait(sampled_positive, 'positive metric: ' + expression, seconds=seconds)
+
+
 def outbox(stack):
     return int(stack.dc('run', '--rm', '--no-deps', '--entrypoint', 'python3', 'simulator', '-c',
                        "import sqlite3; print(sqlite3.connect('/state/device.sqlite').execute(\"SELECT count(*) FROM outbox WHERE status='PENDING'\").fetchone()[0])").strip())
@@ -61,7 +68,8 @@ def verify(stack):
     client = Client(stack)
     for path in ('/actuator/prometheus','/actuator/health/readiness','/grafana','/prometheus'):
         assert client.request(path)[0] == 404
-    wait(lambda: stack.prom('min(up)') == 1, 'all scrape targets')
+    # min(up)=1 does not prove that targets with no first scrape are present yet.
+    wait(lambda: stack.prom('count(up)') == 4 and stack.prom('min(up)') == 1, 'all four scrape targets')
     wait(lambda: stack.prom('parking_readiness_ready') == 1, 'read readiness')
     wait(lambda: stack.prom('min(parking_mqtt_connected)') == 1, 'all MQTT channels')
     wait(lambda: stack.prom('probe_success{job="https-internal"}') == 1, 'strict internal HTTPS probe')
@@ -69,7 +77,7 @@ def verify(stack):
     for expression in ('node_memory_MemTotal_bytes', 'sum(node_cpu_seconds_total)',
                        'node_filesystem_size_bytes{mountpoint="/"}', 'node_filesystem_files{mountpoint="/"}',
                        'sum(jvm_memory_used_bytes)', 'hikaricp_connections_max'):
-        assert stack.prom(expression) > 0, expression
+        wait_positive_metric(stack, expression)
     # Both series must exist; `active or pending` would silently discard pending.
     assert stack.prom('count({__name__=~"hikaricp_connections_(active|pending)"})') == 2
     print('PASS: authenticated private management, bound images/ports, actual JVM/DB pool/Linux filesystem/HTTPS metrics', flush=True)

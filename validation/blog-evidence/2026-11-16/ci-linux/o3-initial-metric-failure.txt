@@ -1,0 +1,12 @@
+2026-11-16T15:05:19.7379688Z Traceback (most recent call last):
+2026-11-16T15:05:19.7380377Z   File "<checkout>/tools/production/verify_o3.py", line 242, in <module>
+2026-11-16T15:05:19.7380909Z     if __name__ == '__main__': main()
+2026-11-16T15:05:19.7381196Z                                ^^^^^^
+2026-11-16T15:05:19.7381687Z   File "<checkout>/tools/production/verify_o3.py", line 228, in main
+2026-11-16T15:05:19.7382124Z     evidence = verify(stack)
+2026-11-16T15:05:19.7382337Z                ^^^^^^^^^^^^^
+2026-11-16T15:05:19.7383078Z   File "<checkout>/tools/production/verify_o3.py", line 72, in verify
+2026-11-16T15:05:19.7383563Z     assert stack.prom(expression) > 0, expression
+2026-11-16T15:05:19.7383852Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-16T15:05:19.7384227Z TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2026-11-16T15:05:19.7604056Z ##[error]Process completed with exit code 1.
