@@ -10,7 +10,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>운영 작업 학습·블로그 근거 모음</h1>
-<p>2026-11-16 · O1~O4 로컬 구현·인수, O5 준비 문서 · 외부 배포 없음</p>
+<p>2026-11-16<del>17 · O1</del>O4 로컬 구현·인수, O5 준비 문서·CI 보완 · 외부 배포 없음</p>
 <p>이 문서는 완성된 블로그나 학습자의 회고를 대신하지 않는다. <strong>실제로 남아 있는 문제·선택·검증을 찾아서 자기 설명으로 연결하기 위한 자료 지도</strong>다. 구현·시험·문서 작성에는 Codex의 도움을 받았으며, 학습자의 직접 실습·이해·선택 이유에 대한 답변은 아직 수집하지 않았다. 과거 로그를 이번 보존 작업에서 새로 실행한 결과로 표시하지 않는다.</p>
 <h2>1. 읽는 순서와 설명할 수 있어야 하는 것</h2>
 <div class="table-scroll"><table>
@@ -199,9 +199,15 @@ PY
 <td>호스트 사용자 소유 <code>0700</code> 폴더에 권한을 제거한 root로 접근했다. 폴더 소유자의 UID:GID를 Compose 실행 계정에 고정하고 재개 시 대조</td>
 <td><code>0700</code>, read-only root filesystem, <code>cap_drop: ALL</code>, 내부망·토큰 인증. 폴더를 전체 공개하거나 권한 우회 capability를 추가하지 않음</td>
 </tr>
+<tr>
+<td>후속 O2: IP 예약용 컨테이너의 <code>--ip</code>를 Linux Docker가 거부</td>
+<td>자동 생성 subnet에서는 특정 IP 지정이 제한됐다. 임시 컨테이너가 주소를 자동 할당받게 변경</td>
+<td>새 backend IP가 이전과 다르다는 명시 검사. 같으면 실패하며 DNS 복구 성공으로 세지 않음</td>
+</tr>
 </tbody></table></div>
 <p>실패 발췌는 <a href="../validation/blog-evidence/2026-11-16/ci-linux/o2-failure-excerpt.txt">O2</a>·<a href="../validation/blog-evidence/2026-11-16/ci-linux/o4-failure-excerpt.txt">O4</a>에 있다. checkout 경로만 가리고 필요한 구간을 골랐다. O4 권한 원인은 Linux named volume에서 폴더 소유자를 <code>1001:1001</code>, 권한을 <code>0700</code>으로 만든 뒤 실행 계정 하나만 바꿔 재현했다. root는 종료 코드 <strong>1</strong>, 소유자 계정은 <strong>0 / LEDGER_INITIALIZED</strong>였다. <a href="../validation/blog-evidence/2026-11-16/ci-linux/ledger-permissions-probe.py">재현 스크립트</a>와 <a href="../validation/blog-evidence/2026-11-16/ci-linux/ledger-permissions-result.json">실제 결과</a>를 보존했다. 이 작은 재현은 권한 가설만 검증하며 전체 복원 성공을 뜻하지 않는다.</p>
 <p>재현 스크립트는 이미 빌드한 원장 이미지의 ID/태그를 <code>--image</code>에 받고 임시 volume만 만든 뒤 삭제한다. 예: <code>python3 validation/blog-evidence/2026-11-16/ci-linux/ledger-permissions-probe.py --image parking-revision-ledger:parking-backup</code>. 새 결과가 필요하면 기존 보존 JSON을 덮어쓰지 않고 다른 파일로 저장한다. <a href="../validation/blog-evidence/2026-11-16/ci-linux/manifest.json">별도 manifest</a>는 이 추가 자료의 해시와 출처를 기록한다.</p>
 <p>학습 질문: “root면 모든 파일을 읽을 수 있다”는 예상은 어떤 조건을 빠뜨렸는가? Mac에서 성공한 시험이 Linux에서도 성공한다는 근거가 될까? 502만 요구하는 조건을 바꿀 때 어떤 실제 복구 검사를 남겨야 검증이 약해지지 않을까? 직접 답한 뒤 원본 설정·로그·수정 diff와 비교한다. 최종 CI 결과는 특정 커밋의 PR Checks에서 확인하고, 실패가 있었다는 사실도 글에 함께 남긴다.</p>
+<p>후속 커밋 <code>25d6fdc</code>에서는 O1·O3·O4를 포함한 7개 작업이 통과했다. O2의 첫 시도는 Maven Central의 HTTP 429로 빌드가 중단됐고, 재시도에서 <a href="../validation/blog-evidence/2026-11-16/ci-linux/o2-ip-allocation-failure.txt">IP 지정 제한</a>을 발견했다. 다운로드 제한과 기능 시험 실패를 구분했다. 로컬 O2는 통과했지만 추가 로컬 O4 실행은 네트워크 공간 부족·Docker 명령 시간 초과로 끝났으므로 새 성공으로 세지 않는다. 수정된 O4의 전체 복원 성공은 Linux CI의 <code>O4_ACCEPTANCE_PASSED</code>로 확인했다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

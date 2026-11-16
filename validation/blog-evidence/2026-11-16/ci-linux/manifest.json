@@ -34,11 +34,25 @@
       "source_url": "https://github.com/yh4752/parking-system/actions/runs/43885948091/job/133363996278",
       "source_commit": "3654f9158c76e9c00229f9eecacc7e12d9f63600",
       "transformation": "Selected gateway/traceback lines; checkout path replaced with <checkout>; trailing whitespace removed"
+    },
+    {
+      "file": "o2-ip-allocation-failure.txt",
+      "sha256": "25247501c691e18972dc030e4c455518e2ab897e627b0b6e2d23c785e35c4896",
+      "source_url": "https://github.com/yh4752/parking-system/actions/runs/43888329071/job/133379709327",
+      "source_commit": "25d6fdcbc7ead7f5be9168924725ecbd1665744a",
+      "transformation": "Selected traceback; checkout path replaced with <checkout>; trailing whitespace removed"
     }
   ],
   "limits": [
     "Permission probe is not complete O4 acceptance",
     "Final fixed-commit status is in PR #5 Checks and PR description",
     "No external deployment"
-  ]
+  ],
+  "followup_ci": {
+    "run_id": 43888329071,
+    "commit": "25d6fdcbc7ead7f5be9168924725ecbd1665744a",
+    "passed_jobs": 7,
+    "o2_attempt1": "Maven Central HTTP 429 during dependency download",
+    "o2_attempt2": "Explicit --ip unsupported on automatically configured subnet; use automatic allocation and retain different-IP assertion"
+  }
 }

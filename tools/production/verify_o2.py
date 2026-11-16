@@ -175,7 +175,9 @@ def verify(stack):
     stack.dc('rm', '-f', 'backend')
     holder = stack.release['project'] + '-dns-reservation'
     try:
-        stack.run('docker', 'run', '-d', '--name', holder, '--network', network, '--ip', old_ip,
+        # Consume the next available address without requiring a user-defined subnet.
+        # The assertion below proves that the replacement actually got a different IP.
+        stack.run('docker', 'run', '-d', '--name', holder, '--network', network,
                   '--entrypoint', '/bin/sh', stack.release['images']['web']['image_id'], '-c', 'sleep 180')
         stack.dc('up', '-d', 'backend')
         new_container = stack.dc('ps', '-q', 'backend').strip()

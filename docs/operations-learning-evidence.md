@@ -1,6 +1,6 @@
 # 운영 작업 학습·블로그 근거 모음
 
-2026-11-16 · O1~O4 로컬 구현·인수, O5 준비 문서 · 외부 배포 없음
+2026-11-16~17 · O1~O4 로컬 구현·인수, O5 준비 문서·CI 보완 · 외부 배포 없음
 
 이 문서는 완성된 블로그나 학습자의 회고를 대신하지 않는다. **실제로 남아 있는 문제·선택·검증을 찾아서 자기 설명으로 연결하기 위한 자료 지도**다. 구현·시험·문서 작성에는 Codex의 도움을 받았으며, 학습자의 직접 실습·이해·선택 이유에 대한 답변은 아직 수집하지 않았다. 과거 로그를 이번 보존 작업에서 새로 실행한 결과로 표시하지 않는다.
 
@@ -104,9 +104,12 @@ PY
 |---|---|---|
 | O2: 서버 중단 뒤 504가 반복되고 `No 502` 실패 | Docker DNS/연결 상태에 따라 gateway 오류가 504로 남을 수 있는데 15초 안의 502 전환을 요구했다. 502/504를 허용하고 실제 코드를 기록 | 실제 다른 IP로 backend 재생성, 재접속, 세션 무효화, 이력·SSE·query 로그 비노출 |
 | O4: SQLite 초기화에서 `ledger_corrupt_or_unavailable` | 호스트 사용자 소유 `0700` 폴더에 권한을 제거한 root로 접근했다. 폴더 소유자의 UID:GID를 Compose 실행 계정에 고정하고 재개 시 대조 | `0700`, read-only root filesystem, `cap_drop: ALL`, 내부망·토큰 인증. 폴더를 전체 공개하거나 권한 우회 capability를 추가하지 않음 |
+| 후속 O2: IP 예약용 컨테이너의 `--ip`를 Linux Docker가 거부 | 자동 생성 subnet에서는 특정 IP 지정이 제한됐다. 임시 컨테이너가 주소를 자동 할당받게 변경 | 새 backend IP가 이전과 다르다는 명시 검사. 같으면 실패하며 DNS 복구 성공으로 세지 않음 |
 
 실패 발췌는 [O2](../validation/blog-evidence/2026-11-16/ci-linux/o2-failure-excerpt.txt)·[O4](../validation/blog-evidence/2026-11-16/ci-linux/o4-failure-excerpt.txt)에 있다. checkout 경로만 가리고 필요한 구간을 골랐다. O4 권한 원인은 Linux named volume에서 폴더 소유자를 `1001:1001`, 권한을 `0700`으로 만든 뒤 실행 계정 하나만 바꿔 재현했다. root는 종료 코드 **1**, 소유자 계정은 **0 / LEDGER_INITIALIZED**였다. [재현 스크립트](../validation/blog-evidence/2026-11-16/ci-linux/ledger-permissions-probe.py)와 [실제 결과](../validation/blog-evidence/2026-11-16/ci-linux/ledger-permissions-result.json)를 보존했다. 이 작은 재현은 권한 가설만 검증하며 전체 복원 성공을 뜻하지 않는다.
 
 재현 스크립트는 이미 빌드한 원장 이미지의 ID/태그를 `--image`에 받고 임시 volume만 만든 뒤 삭제한다. 예: `python3 validation/blog-evidence/2026-11-16/ci-linux/ledger-permissions-probe.py --image parking-revision-ledger:parking-backup`. 새 결과가 필요하면 기존 보존 JSON을 덮어쓰지 않고 다른 파일로 저장한다. [별도 manifest](../validation/blog-evidence/2026-11-16/ci-linux/manifest.json)는 이 추가 자료의 해시와 출처를 기록한다.
 
 학습 질문: “root면 모든 파일을 읽을 수 있다”는 예상은 어떤 조건을 빠뜨렸는가? Mac에서 성공한 시험이 Linux에서도 성공한다는 근거가 될까? 502만 요구하는 조건을 바꿀 때 어떤 실제 복구 검사를 남겨야 검증이 약해지지 않을까? 직접 답한 뒤 원본 설정·로그·수정 diff와 비교한다. 최종 CI 결과는 특정 커밋의 PR Checks에서 확인하고, 실패가 있었다는 사실도 글에 함께 남긴다.
+
+후속 커밋 `25d6fdc`에서는 O1·O3·O4를 포함한 7개 작업이 통과했다. O2의 첫 시도는 Maven Central의 HTTP 429로 빌드가 중단됐고, 재시도에서 [IP 지정 제한](../validation/blog-evidence/2026-11-16/ci-linux/o2-ip-allocation-failure.txt)을 발견했다. 다운로드 제한과 기능 시험 실패를 구분했다. 로컬 O2는 통과했지만 추가 로컬 O4 실행은 네트워크 공간 부족·Docker 명령 시간 초과로 끝났으므로 새 성공으로 세지 않는다. 수정된 O4의 전체 복원 성공은 Linux CI의 `O4_ACCEPTANCE_PASSED`로 확인했다.

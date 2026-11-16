@@ -92,10 +92,23 @@
     "followup_local_checks": {
       "permission_hypothesis": "Root denied; matching UID/GID initializes on Linux named volume",
       "production_python_tests": 30,
-      "documentation_local_links": 1016,
+      "documentation_local_links": 1018,
       "contracts": "PASS",
       "diff_whitespace": "PASS"
     },
-    "historical_hash_note": "The 105 source/25 configuration match above was checked before the CI fixes. Historical O4 records remain frozen; infra/backup/compose.yaml changed afterward. Current exact commit and acceptance result must be read from GitHub Checks and PR description."
+    "historical_hash_note": "The 105 source/25 configuration match above was checked before the CI fixes. Historical O4 records remain frozen; infra/backup/compose.yaml changed afterward. Current exact commit and acceptance result must be read from GitHub Checks and PR description.",
+    "second_run": {
+      "url": "https://github.com/yh4752/parking-system/actions/runs/43888329071",
+      "commit": "25d6fdcbc7ead7f5be9168924725ecbd1665744a",
+      "passed_jobs": 7,
+      "o4_result": "O4_ACCEPTANCE_PASSED",
+      "o2_attempt1": "Maven Central HTTP 429 before acceptance",
+      "o2_attempt2": "Docker requires explicitly configured subnet for --ip; removed explicit address while retaining new_ip != old_ip assertion"
+    },
+    "additional_local_acceptance": {
+      "o2": "O2_ACCEPTANCE_PASSED after both corrections: gateway 502/504 and portable automatic IP allocation; includes real Chromium.",
+      "o4": "NOT COMPLETED: first attempt address pools exhausted; sequential retry simulator Docker command timed out at 34 seconds. Do not count either as success. Independent Linux CI completed the full O4 drill."
+    },
+    "last_updated_kst": "2026-11-17"
   }
 }
