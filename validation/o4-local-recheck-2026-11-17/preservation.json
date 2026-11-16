@@ -1,0 +1,9 @@
+{
+  "result": "EXISTING_O4_DATA_UNCHANGED",
+  "before_manifest_sha256": "a9137a829e7a8991f3284632ae7ab1da750e2a668e866dc975c564cdbdaf8251",
+  "after_manifest_sha256": "a9137a829e7a8991f3284632ae7ab1da750e2a668e866dc975c564cdbdaf8251",
+  "offline_named_volumes": 7,
+  "volume_entries": 1833,
+  "private_entries": 47,
+  "scope": "Existing stopped parking-backup volumes, backup-demo files, independent ledger and encryption key; no database dump or secrets included in public record"
+}

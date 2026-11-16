@@ -1,0 +1,109 @@
+{
+  "stage": "O1",
+  "status": "ACCEPTED_LOCAL",
+  "date": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "baseline_commit": "4ea34bcb56fae9ba4998408338b87b310a87c439",
+  "branch": "feat/production-boundaries",
+  "source_state": "uncommitted working tree; source_sha256 identifies validated implementation",
+  "environment": {
+    "host_os": "Darwin",
+    "host_architecture": "arm64",
+    "runtime": "Docker Desktop; isolated Linux PostgreSQL 17.11 / Mosquitto 2.0.22 / Java 17 containers",
+    "backend_test_image_id": "sha256:19c7077506e0eb59e720a11eb3f851477dc33314461b86fa62260fb51ba68fe3",
+    "image_scope": "local test image, not a published release digest",
+    "container_platform": "linux/arm64"
+  },
+  "checks": [
+    {
+      "command": "./gradlew test bootJar --no-daemon",
+      "cwd": "backend",
+      "status": "PASS",
+      "tests": 154
+    },
+    {
+      "command": "./gradlew databaseTest --no-daemon",
+      "cwd": "backend",
+      "setup": "new disposable PostgreSQL container and random loopback port, supplied PARKING_DB_URL and test-only password",
+      "status": "PASS",
+      "tests": 75
+    },
+    {
+      "command": "python3 -m unittest discover -s simulator -v",
+      "cwd": ".",
+      "status": "PASS",
+      "tests": 6
+    },
+    {
+      "command": "python3 tools/build_contracts.py --check; python3 -m unittest discover -s tools/tests -v",
+      "cwd": ".",
+      "status": "PASS",
+      "tests": 6
+    },
+    {
+      "command": "python3 tools/production/verify_o1.py",
+      "cwd": ".",
+      "status": "PASS",
+      "expected_and_observed": "O1_ACCEPTANCE_PASSED"
+    },
+    {
+      "command": "npm --prefix tools/docs run build; python3 tools/check_structure.py; git diff --check",
+      "cwd": ".",
+      "status": "PASS",
+      "preserved_baseline_files": 127
+    }
+  ],
+  "acceptance_observed": [
+    "Separate one-shot migration, repeat migration, runtime migration rejection",
+    "Actual runtime login, row locks, denied DDL/raw event UPDATE/policy/device/account/migration writes",
+    "Operator account/access/audit DML and read-only backup pg_dump; operator/backup writes outside scope denied",
+    "Anonymous/bad password/untrusted CA/wrong SAN rejected; device B write/read and own ACK forgery denied",
+    "Production local-profile mix and Flyway enabled rejected before DB connection",
+    "Actual JVM rejects missing file secrets despite environment fallback and privileged login with runtime role",
+    "Actual JVM rejects untrusted CA, mismatched hostname and wrong account password",
+    "Actual simulator rejects untrusted CA, mismatched hostname and wrong password with a live backend; three queued events retained",
+    "app-prod runtime event and heartbeat persistence; post-commit application ACK",
+    "Duplicate/conflicting/late messages; failed DB transaction gets no success ACK or receipt; retry succeeds",
+    "Runtime retention deletes expired raw/summary, keeps tombstone and durable receipt"
+  ],
+  "review_fixes": [
+    "Replaced superuser SET ROLE test with direct restricted-role login",
+    "Removed unused raw event UPDATE grant after observing UPDATE 0 was permitted",
+    "Required actual secret files matching final values; two regression tests failed before fix",
+    "Checked session_user as well as current_user",
+    "Exercised real JVM and simulator negative TLS paths; simulator negative tests run with backend ready",
+    "Corrected retention fixture to a schema-valid closed incident"
+  ],
+  "not_executed": [
+    "GitHub Actions remote run",
+    "Linux x86_64 deployment acceptance",
+    "O2 HTTPS/reverse proxy",
+    "O3 monitoring/alerts",
+    "O4 independent revision backup/restore",
+    "O5 external server/public access",
+    "real board/AI/physical outputs"
+  ],
+  "cleanup": "test-owned Compose projects and volumes removed; existing local services preserved",
+  "source_sha256": {
+    ".github/workflows/verify.yml": "0b98ad2eafb72af5db78d32d9583708d6e833008f17e1e0ca1e6cb7578508d67",
+    ".gitignore": "9e901c1e71c1d9dc9a90dd55e7e1a9b5114c5575aa4b8ddbb315c1d011c76914",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/EventIngestionConfiguration.kt": "e48d1fab20548c012edb9d07bec908ec1eeb189fc918e95c43b27839ebe98d30",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/MqttTransportConfiguration.kt": "9fc6099e21c42218bdaa4bade12e36308966aee627b818ba63cd1da23294c428",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/ProductionEnvironment.kt": "847375291256f8207a022db2143178b5ef833409b9f839200e0fe6c7b85d3b90",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/RevisionConfiguration.kt": "751e8245ef48f5a510ce0a3d3b87aeda25ad463a43cb00c8c7195d8f863e9011",
+    "backend/src/main/kotlin/kr/ac/sejong/parking/configuration/TelemetryConfiguration.kt": "65c6bcb490c57ffe6684a5e5947f79896e17e248be1e8f0129494b4cc4bcb8ea",
+    "backend/src/main/kotlin/kr/ac/sejong/parkingtools/MigrateDatabaseCli.kt": "f45c195de6ecf406d5d8d4a3d7455499b47cd7b63eed24e4ee19f7f012ff4889",
+    "backend/src/main/resources/META-INF/spring.factories": "e69c2cc4174a17cdc785a29fd4f6edf33cf5d0b4581cec7c6047deacd1c62d2c",
+    "backend/src/main/resources/application-app-prod.yml": "8ac4078769fb77a5f31f11154f8023251985625216c516b7894a8d3f129891a9",
+    "backend/src/main/resources/application-database.yml": "9c9ebc15a399a8e7f0cbeeb891d3d79ed7deb5a2bd8a69c3261c28662c7d3170",
+    "backend/src/main/resources/application.yml": "bf812d00a0a3bf9cf4f04f53a24136f574a23e235aad858a1c7a7c117dede308",
+    "backend/src/test/kotlin/kr/ac/sejong/parking/configuration/ProductionConfigurationTest.kt": "9aeb364ba97e1427b239eca5df15cc216bcf38b8bbe038df2cfb1ed1c67f8e57",
+    "infra/deploy/mosquitto/acl": "419440dedc74bc51ef16163b8d257fb97a00906889a3577e9611ade84bdcf247",
+    "infra/deploy/mosquitto/mosquitto.conf": "5409396e4d55fd5fb560aba977aee18037a899923370c71c462c1c41e1718f3f",
+    "infra/deploy/sql/create-roles.sql": "e3769d9959858a867adc46158f3606a2d7f6a130a1b9bc66fd8792f1d8a53f5e",
+    "infra/deploy/sql/grants.sql": "b568eb97c19b46f693951c4ecac3b4d668b077771d7d3067f41b9542209d54de",
+    "simulator/device.py": "057ed78c0968ff5283eaf4d110243407ee51f21ec9d41a5eb6e0b18e81606df0",
+    "simulator/test_transport.py": "4089d0db1ba9df15e2e6ef6ab779aeef7d75c87b7b220d8c4aa8cc43f16e4bf8",
+    "tools/production/verify_o1.py": "b1f3b12b6d34927444045cc73774a1b83b4e403ba3008c148291442db9739356"
+  }
+}

@@ -1,0 +1,25 @@
+digraph LocalHTTPS {
+ graph [rankdir=TB, bgcolor="transparent", pad="0.3", nodesep="0.4", ranksep="0.55", fontname="Arial", label="C4 container / deployment view · O2 localhost only", labelloc=t];
+ node [shape=box,style="rounded,filled",fillcolor="#EDF4F5",color="#9FB9C2",fontname="Arial",fontsize=11,margin="0.15,0.12"];
+ edge [fontname="Arial",fontsize=9,color="#557783",arrowsize=0.7];
+ browser [label="Browser [Person / React SPA]\nIsolated local test session",fillcolor="#DCEFE5"];
+ subgraph cluster_compose {
+  label="Docker Compose · parking-https · local computer"; color="#9FB9C2";
+  web [label="Nginx [Container]\nTLS / static UI / API + SSE proxy\nOnly published ports: loopback 18443, 18480"];
+  app [label="Spring Boot [Container]\napp-prod / login / REST / SSE / MQTT"];
+  db [shape=cylinder,label="PostgreSQL [Container]\nSeparate runtime / migration / operator roles"];
+  mqtt [label="Mosquitto [Container]\nTLS / account / topic ACL"];
+  sim [label="Virtual device [Container]\nFixture events / SQLite outbox",fillcolor="#FFF0DC"];
+  revision [shape=folder,label="Revision pair [Volumes]\nLocal restart protection"];
+  web -> app [label="app internal network\nHTTP 8080 / streaming SSE"];
+  app -> db [label="data internal network\nSQL 5432 / commit"];
+  sim -> mqtt [label="mqtt internal network\nTLS 8883 / events + heartbeat"];
+  mqtt -> app [label="events / telemetry"];
+  app -> mqtt [label="application ACK after commit"];
+  app -> revision [label="reserve / persist"];
+ }
+ browser -> web [label="HTTPS localhost:18443\nHTTP :18480 → 308 redirect"];
+ operator [label="Operator [Person]\nLocal helper / one-shot CLI",fillcolor="#DCEFE5"];
+ operator -> db [label="One-shot operator container\nAccount / access changes",style=dashed];
+ limits [shape=note,label="No external deployment\nNo OS trust-store changes\nO3 monitoring / O4 restore pending",fillcolor="#FFF0DC"];
+}

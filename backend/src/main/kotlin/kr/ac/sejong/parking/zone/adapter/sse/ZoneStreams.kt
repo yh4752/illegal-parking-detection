@@ -6,13 +6,15 @@ import jakarta.servlet.http.*
 import kr.ac.sejong.parking.auth.*
 import kr.ac.sejong.parking.web.ApiProblem
 import kr.ac.sejong.parking.zone.application.ReadQueries
+import kr.ac.sejong.parking.operations.OperationalMetrics
 import org.springframework.scheduling.annotation.Scheduled
 import java.util.UUID
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 /** Single-instance, bounded, latest-state delivery. Poll only committed consistent DB reads. */
-class ZoneStreams(private val queries: ReadQueries, private val users: JdbcWebUsers, private val lifetime: SessionLifetime): AutoCloseable {
+class ZoneStreams(private val queries: ReadQueries, private val users: JdbcWebUsers, private val lifetime: SessionLifetime,
+    private val metrics: OperationalMetrics? = null): AutoCloseable {
     private class Connection(val id:String,val zone:String,val user:String,val session:HttpSession,val sessionId:String,val output:NonBlockingSse) {
         val polling=AtomicBoolean()
         @Volatile var checkedAt=System.nanoTime()
@@ -26,8 +28,10 @@ class ZoneStreams(private val queries: ReadQueries, private val users: JdbcWebUs
     @Synchronized fun open(zone:String,user:String,session:HttpSession,request:HttpServletRequest,response:HttpServletResponse,initial:JsonNode) {
         if(!lifetime.valid(session)) throw ApiProblem(401,"UNAUTHENTICATED","다시 로그인해 주세요.")
         val sid=session.id
-        if(streams.size >= 50 || streams.values.count { it.sessionId == sid } >= 3)
+        if(streams.size >= 50 || streams.values.count { it.sessionId == sid } >= 3) {
+            metrics?.sseRejected()
             throw ApiProblem(429,"RATE_LIMITED","열려 있는 실시간 화면이 많습니다.",10)
+        }
         response.contentType="text/event-stream"; response.characterEncoding="UTF-8"
         response.setHeader("Cache-Control","no-store");response.setHeader("X-Accel-Buffering","no")
         val async=request.startAsync();async.timeout=0
@@ -36,7 +40,7 @@ class ZoneStreams(private val queries: ReadQueries, private val users: JdbcWebUs
         val writer=NonBlockingSse(output,{
             streams.remove(id)
             try{async.complete()}catch(_:IllegalStateException){}
-        })
+        }, onSlowClose = { metrics?.sseSlowClosed() })
         val connection=Connection(id,zone,user,session,sid,writer)
         streams[id]=connection
         async.addListener(object:AsyncListener {
@@ -61,7 +65,8 @@ class ZoneStreams(private val queries: ReadQueries, private val users: JdbcWebUs
     @Scheduled(fixedDelay=1000,initialDelay=1000)
     fun tick() {
         for(c in streams.values) {
-            if(c.output.stalled() || !lifetime.valid(c.session) || System.nanoTime()-c.checkedAt>15_000_000_000L) {c.output.close();continue}
+            if(c.output.closeIfStalled()) continue
+            if(!lifetime.valid(c.session) || System.nanoTime()-c.checkedAt>15_000_000_000L) {c.output.close();continue}
             if(!c.polling.compareAndSet(false,true)) continue
             try { workers.execute {
                 try {

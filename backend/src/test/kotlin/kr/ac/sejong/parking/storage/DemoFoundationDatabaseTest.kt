@@ -5,6 +5,8 @@ import kr.ac.sejong.parking.device.adapter.jdbc.RevisionReservations
 import kr.ac.sejong.parking.device.application.EventCanonicalizer
 import kr.ac.sejong.parking.operations.DemoInitializationRequest
 import kr.ac.sejong.parking.operations.FreshDemoInitializer
+import kr.ac.sejong.parking.operations.ReadinessProbe
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.assertj.core.api.Assertions.*
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
@@ -127,6 +129,33 @@ class DemoFoundationDatabaseTest(
             assertThatThrownBy { r.checkReadable("zone-01",end) }.isInstanceOf(IllegalStateException::class.java)
             Files.write(backup,bytes)
             assertThatThrownBy { r.checkReadable("zone-01",end) }.isInstanceOf(IllegalStateException::class.java)
+        }
+    }
+
+    @Test fun `운영 readiness는 읽기만 하며 hold와 예약 파일 오류를 숨기지 않는다`() {
+        val registry=SimpleMeterRegistry()
+        reservations().use { r ->
+            r.initialize()
+            ReadinessProbe(jdbc,r,registry).use { probe ->
+                val original=Files.readAllBytes(primary)
+                val row=jdbc.queryForMap("SELECT * FROM zone_view")
+                probe.check()
+                assertThat(probe.health().status.code).isEqualTo("DOWN")
+                assertThat(registry.get("parking.database.available").gauge().value()).isEqualTo(1.0)
+                assertThat(Files.readAllBytes(primary)).isEqualTo(original)
+                assertThat(jdbc.queryForMap("SELECT * FROM zone_view")).isEqualTo(row)
+                initializer.apply(request,r)
+                probe.check()
+                assertThat(probe.health().status.code).isEqualTo("UP")
+                val copy=Files.readAllBytes(backup)
+                Files.delete(backup)
+                probe.check()
+                assertThat(probe.health().status.code).isEqualTo("DOWN")
+                Files.write(backup,copy)
+                probe.check()
+                assertThat(probe.health().status.code).isEqualTo("DOWN")
+                assertThat(registry.get("parking.revision.ready").gauge().value()).isEqualTo(0.0)
+            }
         }
     }
 

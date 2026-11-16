@@ -1,0 +1,28 @@
+# Explicit O3 profile only. No host publication of this authenticated management listener.
+management:
+  server:
+    address: 0.0.0.0
+    port: 9091
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,parkingReadiness
+  metrics:
+    enable:
+      # Spring Integration's generic tags are not the business outcome counters.
+      spring.integration: false
+spring:
+  datasource:
+    hikari:
+      connection-timeout: 3000
+      validation-timeout: 1000

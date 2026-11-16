@@ -20,6 +20,8 @@ Actuator health의 UP는 애플리케이션 기동만 뜻한다. `database` 프�
 
 선택 버전: Spring Boot 3.5.16, Kotlin 2.1.21, Gradle 8.12.1. Spring Integration MQTT는 Boot BOM 버전을 사용하며 Paho MQTT 5는 1.2.5로 고정한다. JDBC·Flyway·PostgreSQL 드라이버도 Boot BOM 버전을 사용한다.
 
+운영 준비용 `app-prod`는 공통 MQTT TLS/인증과 웹 조회를 켜며 runtime DB 권한만 사용하고 자동 Flyway를 금지한다. 필수 secret 파일·독립 migration CLI·DB GRANT·격리 시험은 [운영 설정 안내](../infra/deploy/README.md)를 따른다. 공개 HTTPS와 복원 인수는 다음 단계다.
+
 학습 실행과 코드 설명은 [MQTT 학습 안내](../docs/mqtt-learning.md)를 따른다.
 
 제품 DB 실행과 마이그레이션 검사는 [DB 준비 안내](../docs/database.md)를 따른다. 기본 `test`와 실제 PostgreSQL을 사용하는 `databaseTest`를 구분한다.
@@ -27,3 +29,9 @@ Actuator health의 UP는 애플리케이션 기동만 뜻한다. `database` 프�
 정식 메시지는 [사건 수신·검증 안내](../docs/event-validation.md)의 `mqtt-validation-local` 프로필로 확인한다. 이 프로필은 `database`를 함께 활성화하며 저장 완료 ACK를 보내지 않는다.
 
 저장과 응답 확인은 [사건 저장 실습](../docs/event-storage.md)을 따른다. V2 격리 테이블과 별도 revision 예약 파일을 사용한다. 기존 검증 서버를 종료한 뒤 `mqtt-ingest-local`로 실행한다. 기본 `bootRun`은 저장 기능을 켜지 않는다.
+
+O3 관리 계측과 실제 장애 시험은 [로컬 모니터링 안내](../docs/local-monitoring.md)를 따른다.
+
+## O4 복구 도구
+
+[로컬 백업·복원 안내](../docs/local-backup.md)를 따릅니다. `RevisionLedger`는 O4에서 필수인 로컬 독립 기록 어댑터입니다. `RecoveryCli`는 웹/MQTT를 열지 않는 오프라인 owner 도구이며 `adopt`, `fence`, `prepare`, `reconcile`, `accept`를 제공합니다. runtime 계정이나 일반 초기화 명령으로 복구 hold를 우회하지 않습니다.

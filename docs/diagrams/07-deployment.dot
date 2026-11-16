@@ -1,0 +1,29 @@
+digraph Deployment {
+ graph [rankdir=TB, bgcolor="transparent", pad="0.3", nodesep="0.4", ranksep="0.55", fontname="Arial", label="C4 deployment view · Target only · NOT DEPLOYED", labelloc=t];
+ node [shape=box,style="rounded,filled",fillcolor="#EDF4F5",color="#9FB9C2",fontname="Arial",fontsize=11,margin="0.15,0.12"];
+ edge [fontname="Arial",fontsize=9,color="#557783",arrowsize=0.7];
+ browser [label="Team browser\nReact SPA / session",fillcolor="#DCEFE5"];
+ admin [label="Operator\nRestricted SSH + tunnel",fillcolor="#DCEFE5"];
+ subgraph cluster_host {
+ label="Single Linux host / Docker Compose"; color="#9FB9C2";
+ web [label="Nginx\nTLS + static UI + API proxy"];
+ app [label="Spring Boot · 1 instance\nREST / SSE / MQTT ingest"];
+ broker [label="Mosquitto\nInternal TLS + per-device ACL"];
+ sim [label="Virtual device\nSQLite outbox",fillcolor="#FFF0DC"];
+ db [shape=cylinder,label="PostgreSQL\nNo published port"];
+ rev [shape=folder,label="Revision manifest pair\nLocal restart protection"];
+ mon [label="Prometheus / Grafana\nInternal management metrics"];
+ web -> app [label="Internal HTTP / SSE"];
+ sim -> broker [label="TLS MQTT 5"];
+ broker -> app [label="events / heartbeat"];
+ app -> broker [label="Post-commit ACK"];
+ app -> db [label="Runtime SQL"];
+ app -> rev [label="Durable reservation"];
+ mon -> app [label="Private scrape"];
+ }
+ external [shape=cylinder,label="Independent storage\nVersioned reservation record\nEncrypted DB backups",fillcolor="#FFF0DC"];
+ browser -> web [label="HTTPS 443"];
+ admin -> mon [label="SSH tunnel"];
+ app -> external [label="Reservation confirmed before use\nNEW implementation required",style=dashed];
+ db -> external [label="Backup job / daily + pre-release",style=dashed];
+}

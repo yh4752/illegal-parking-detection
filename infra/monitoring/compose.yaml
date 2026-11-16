@@ -1,0 +1,114 @@
+# O3 overlay; paths are relative to the first Compose file in infra/deploy.
+x-logging: &logging
+  driver: json-file
+  options: {max-size: 10m, max-file: '3'}
+services:
+  backend:
+    environment:
+      SPRING_PROFILES_ACTIVE: app-prod,monitoring
+    secrets:
+      - {source: monitoring-password, target: parking.monitoring.password}
+    networks: [monitoring]
+  prometheus:
+    image: ${PARKING_MONITORING_PROMETHEUS_IMAGE:?Prepare monitoring first}
+    pull_policy: never
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=1GB
+    volumes:
+      - ../monitoring/prometheus:/etc/prometheus:ro
+      - prometheus:/prometheus
+    secrets: [monitoring-password]
+    networks: [monitoring]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    logging: *logging
+  grafana:
+    image: ${PARKING_MONITORING_GRAFANA_IMAGE:?Prepare monitoring first}
+    pull_policy: never
+    environment:
+      GF_SECURITY_ADMIN_USER: monitoring-admin
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana-password
+      GF_AUTH_ANONYMOUS_ENABLED: 'false'
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_PATHS_PLUGINS: /opt/parking-plugins
+      GF_PLUGINS_PREINSTALL_DISABLED: 'true'
+      GF_PLUGINS_PREINSTALL_AUTO_UPDATE: 'false'
+      GF_PLUGINS_PLUGIN_ADMIN_ENABLED: 'false'
+      GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_DISABLED: 'true'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: 'false'
+      GF_SECURITY_COOKIE_SAMESITE: strict
+      GF_SERVER_ROOT_URL: http://localhost:${PARKING_GRAFANA_PORT:?}
+      GF_AUTH_BASIC_ENABLED: 'true'
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/dashboards/parking.json
+    ports: ['127.0.0.1:${PARKING_GRAFANA_PORT}:3000']
+    volumes:
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana:/var/lib/grafana
+    secrets: [grafana-password]
+    networks: [monitoring, monitoring-ui]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    logging: *logging
+  node-exporter:
+    image: ${PARKING_MONITORING_NODE_IMAGE:?Prepare monitoring first}
+    pull_policy: never
+    command:
+      - --collector.disable-defaults
+      - --collector.cpu
+      - --collector.meminfo
+      - --collector.filesystem
+      - '--collector.filesystem.fs-types-exclude=^(proc|sysfs|tmpfs|devtmpfs|cgroup2?|nsfs|mqueue|devpts|tracefs|securityfs|debugfs|configfs|pstore|fusectl|autofs|binfmt_misc)$'
+    # No Docker socket, privileged mode, host PID namespace or host-root mount.
+    networks: [monitoring]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    logging: *logging
+  blackbox:
+    image: ${PARKING_MONITORING_BLACKBOX_IMAGE:?Prepare monitoring first}
+    pull_policy: never
+    command: [--config.file=/etc/blackbox/config.yml]
+    volumes:
+      - ../monitoring/blackbox.yml:/etc/blackbox/config.yml:ro
+      - ${PARKING_HTTPS_STATE}/pki/ca.crt:/tls/ca.crt:ro
+    networks: [monitoring, app]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    logging: *logging
+  probe:
+    profiles: [tools]
+    image: ${PARKING_HTTPS_SIMULATOR_IMAGE}
+    pull_policy: never
+    entrypoint: [python3, '-']
+    command: []
+    stdin_open: true
+    secrets: [monitoring-password]
+    networks: [monitoring, app]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+secrets:
+  monitoring-password: {file: '${PARKING_HTTPS_STATE}/secrets/monitoring-password'}
+  grafana-password: {file: '${PARKING_HTTPS_STATE}/secrets/grafana-password'}
+networks:
+  monitoring: {internal: true}
+  monitoring-ui:
+volumes:
+  prometheus:
+  grafana:

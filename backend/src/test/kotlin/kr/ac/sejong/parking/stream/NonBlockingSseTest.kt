@@ -8,6 +8,19 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 
 class NonBlockingSseTest {
+    @Test fun `slow close is counted once and ordinary close is not counted`() {
+        var now=0L;var slow=0
+        val stream=NonBlockingSse(Output(), {}, {now}, {slow++})
+        stream.offer("pending".toByteArray())
+        assertThat(stream.closeIfStalled()).isFalse()
+        now=5_000_000_001L
+        assertThat(stream.closeIfStalled()).isTrue()
+        assertThat(stream.isClosed).isTrue()
+        stream.closeIfStalled();stream.close()
+        assertThat(slow).isEqualTo(1)
+        NonBlockingSse(Output(), {}, {now}, {slow++}).close()
+        assertThat(slow).isEqualTo(1)
+    }
     private class Output:ServletOutputStream(){
         var ready=false;val bytes=ByteArrayOutputStream();var maximumChunk=Int.MAX_VALUE
         override fun isReady()=ready

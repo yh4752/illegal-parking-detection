@@ -1,0 +1,92 @@
+{
+  "format_version": 1,
+  "status": "ILLUSTRATIVE_NOT_A_QUOTE_OR_SPENDING_AUTHORIZATION",
+  "checked_at": "2026-11-16",
+  "currency": "KRW",
+  "exchange_krw_per_usd_assumption": 1500,
+  "tax_and_payment_contingency_fraction_assumption": 0.1,
+  "domain_annual_krw_assumption": 25000,
+  "domain_actual_quote_obtained": false,
+  "free_trials_or_promotions_assumed": false,
+  "lightsail_source": "https://aws.amazon.com/lightsail/pricing/",
+  "s3_source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/ap-northeast-2/index.json",
+  "s3_price_publication_date": "2026-11-16T07:13:00Z",
+  "s3_price_effective_date": "2026-11-01T00:00:00Z",
+  "s3_region": "ap-northeast-2",
+  "s3_class": "Standard, general purpose buckets",
+  "s3_rate_usd": {
+    "gb_month_first_tier": "0.025",
+    "get_other_per_request": "0.00000035",
+    "put_copy_post_list_per_request": "0.0000045"
+  },
+  "s3_assumed_monthly_usage_not_measured": {
+    "stored_gb_including_versions": 10,
+    "get_other_requests": 20000000,
+    "put_copy_post_list_requests": 10000
+  },
+  "s3_calculated_usd_month": 7.295,
+  "s3_budget_usd_month": 8,
+  "sse_illustration": {
+    "tabs": 5,
+    "polls_per_second_per_tab": 1,
+    "days_continuously_open": 30,
+    "assumed_direct_gets_per_poll": 1,
+    "get_requests": 12960000,
+    "get_cost_usd": 4.536,
+    "other_reads_excluded": true,
+    "not_measured": true
+  },
+  "formula_monthly_krw": "(host_usd_month + s3_budget_usd_month) * exchange_krw_per_usd_assumption * (1 + contingency_fraction) + domain_annual_krw_assumption / 12",
+  "candidates": [
+    {
+      "id": "cloud_4gb_trial",
+      "provider": "AWS Lightsail",
+      "region_candidate": "ap-northeast-2",
+      "plan": "Linux/Unix General Purpose with public IPv4",
+      "vcpu": 2,
+      "memory_gb": 4,
+      "ssd_gb": 80,
+      "host_usd_month": 24,
+      "cloud_krw_month_with_contingency": 52800,
+      "monthly_krw_rounded": 54883,
+      "proposed_monthly_management_limit_krw": 60000,
+      "first_month_cash_krw": 77800,
+      "three_month_cash_with_one_year_domain_krw": 183400,
+      "load_tested": false
+    },
+    {
+      "id": "cloud_8gb_headroom",
+      "provider": "AWS Lightsail",
+      "region_candidate": "ap-northeast-2",
+      "plan": "Linux/Unix General Purpose with public IPv4",
+      "vcpu": 2,
+      "memory_gb": 8,
+      "ssd_gb": 160,
+      "host_usd_month": 44,
+      "cloud_krw_month_with_contingency": 85800,
+      "monthly_krw_rounded": 87883,
+      "proposed_monthly_management_limit_krw": 100000,
+      "first_month_cash_krw": 110800,
+      "three_month_cash_with_one_year_domain_krw": 282400,
+      "load_tested": false
+    }
+  ],
+  "excluded_or_requote_if_needed": [
+    "excess network traffic and large restore downloads",
+    "extra disks or snapshots",
+    "paid monitoring, alerting or vault plans",
+    "AI/GPU model training or inference",
+    "offline recovery media purchase",
+    "usage above the stated S3 example"
+  ],
+  "limits": [
+    "No guarantee of staying below the proposed monthly limit",
+    "Cost alerts are delayed notifications, not a hard billing cap",
+    "Domain charged annually; monthly value is an allocation",
+    "Aggregate both application and backup accounts",
+    "Stopped Lightsail instances are still charged",
+    "Confirm provider region, plan availability, exchange rate, taxes and renewal quote before purchase"
+  ],
+  "resources_created": false,
+  "user_budget_selected": null
+}

@@ -1,0 +1,18 @@
+# O1 boundary only: HTTPS deployment and independent revision recovery remain prerequisites for publication.
+spring:
+  config:
+    import: "configtree:${PARKING_SECRETS_DIR:/run/secrets/}"
+server:
+  address: 0.0.0.0
+  servlet:
+    session:
+      cookie:
+        secure: true
+parking:
+  mqtt:
+    broker-url: ${PARKING_MQTT_URL}
+    username: parking-server
+    ca-file: ${PARKING_MQTT_CA_FILE}
+  revision:
+    primary: ${PARKING_REVISION_PRIMARY}
+    backup: ${PARKING_REVISION_BACKUP}

@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "scope": "O1-O5 commit/PR preparation; educational additions and public evidence preservation",
+  "status": "LOCAL_CHECKS_PASSED",
+  "pr_url": "https://github.com/yh4752/parking-system/pull/5",
+  "pr_head_branch": "docs/deployment-operations-plan",
+  "external_deployment_performed": false,
+  "historical_acceptance": [
+    "validation/production-boundaries-2026-11-16.json",
+    "validation/local-https-2026-11-16.json",
+    "validation/local-monitoring-2026-11-16.json",
+    "validation/local-backup-2026-11-16.json"
+  ],
+  "preserved_evidence": "validation/blog-evidence/2026-11-16/manifest.json",
+  "local_checks": [
+    {
+      "command": "backend: ./gradlew test bootJar --no-daemon --max-workers=2",
+      "result": "BUILD SUCCESSFUL",
+      "scope": "All 8 tasks UP-TO-DATE; retained 169-test report, no fresh test execution claimed"
+    },
+    {
+      "command": "frontend: npm run generate && npm run format:check && npm test && npm run build",
+      "result": "PASS",
+      "tests": 24,
+      "note": "Existing Vite 500kB chunk advisory remains"
+    },
+    {
+      "command": "python -m unittest discover -s tools/production -p test_*.py -v",
+      "result": "PASS",
+      "tests": 30,
+      "environment": "Isolated local venv, requirements-backup.txt"
+    },
+    {
+      "command": "python -m unittest discover -s simulator -v",
+      "result": "PASS",
+      "tests": 6,
+      "environment": "Same isolated venv, simulator/requirements.txt"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "result": "PASS",
+      "tests": 6
+    },
+    {
+      "command": "npm --prefix tools/docs run build; python3 tools/check_structure.py; python3 tools/build_contracts.py --check; git diff --check",
+      "result": "PASS",
+      "preserved_baseline_files": 127
+    },
+    {
+      "method": "SHA-256 comparison of evidence manifest and latest O4 source/config records",
+      "result": "PASS",
+      "preserved_assets": 9,
+      "source_records": 6,
+      "accepted_source_files": 105,
+      "accepted_configuration_files": 25
+    }
+  ],
+  "remote_ci": {
+    "status_source": "LIVE_GITHUB_CHECKS_FOR_PR_HEAD",
+    "url": "https://github.com/yh4752/parking-system/pull/5/checks",
+    "note": "This file records pre-publication local checks. The current remote result and exact tested commit are published in GitHub Checks and the PR description; not inferred from local evidence."
+  },
+  "independent_review": {
+    "scope": "Existing implementation/CI/public candidate files; new teaching docs and evidence",
+    "confirmed_blocking_findings": 0,
+    "corrected_minor_findings": [
+      "Link actual session_user/current_user checks to RevisionConfiguration.kt"
+    ],
+    "note": "A suspected hidden-parent artifact issue was withdrawn after inspecting pinned action implementation; no change applied."
+  },
+  "public_file_review": {
+    "staged_file_count": 153,
+    "local_secret_values_compared": 42,
+    "exact_secret_matches": 0,
+    "private_key_or_token_pattern_findings": 0,
+    "scope": "All staged added/modified text and binary files; manually reviewed four preserved screenshots"
+  },
+  "ci_followup": {
+    "first_run": "https://github.com/yh4752/parking-system/actions/runs/43885948091",
+    "tested_commit": "3654f9158c76e9c00229f9eecacc7e12d9f63600",
+    "passed_jobs": 6,
+    "failed_jobs": [
+      "O2 stopped-backend response convergence assumption",
+      "O4 private ledger directory UID/GID mismatch"
+    ],
+    "corrections": [
+      "Accept 502/504 while retaining forced IP change and full recovery checks; record observed status",
+      "Run ledger as host directory owner without adding capabilities or broadening permissions"
+    ],
+    "evidence": "validation/blog-evidence/2026-11-16/ci-linux/manifest.json",
+    "followup_local_checks": {
+      "permission_hypothesis": "Root denied; matching UID/GID initializes on Linux named volume",
+      "production_python_tests": 30,
+      "documentation_local_links": 1018,
+      "contracts": "PASS",
+      "diff_whitespace": "PASS"
+    },
+    "historical_hash_note": "The 105 source/25 configuration match above was checked before the CI fixes. Historical O4 records remain frozen; infra/backup/compose.yaml changed afterward. Current exact commit and acceptance result must be read from GitHub Checks and PR description.",
+    "second_run": {
+      "url": "https://github.com/yh4752/parking-system/actions/runs/43888329071",
+      "commit": "25d6fdcbc7ead7f5be9168924725ecbd1665744a",
+      "passed_jobs": 7,
+      "o4_result": "O4_ACCEPTANCE_PASSED",
+      "o2_attempt1": "Maven Central HTTP 429 before acceptance",
+      "o2_attempt2": "Docker requires explicitly configured subnet for --ip; removed explicit address while retaining new_ip != old_ip assertion"
+    },
+    "additional_local_acceptance": {
+      "o2": "O2_ACCEPTANCE_PASSED after both corrections: gateway 502/504 and portable automatic IP allocation; includes real Chromium.",
+      "o4": "NOT COMPLETED: first attempt address pools exhausted; sequential retry simulator Docker command timed out at 34 seconds. Do not count either as success. Independent Linux CI completed the full O4 drill."
+    },
+    "last_updated_kst": "2026-11-17",
+    "initial_metric_followup": {
+      "run": "https://github.com/yh4752/parking-system/actions/runs/43891981754",
+      "o2": "success",
+      "o3_failure": "None numeric comparison; exact expression was absent from original failure log",
+      "fix": "Bounded wait for singleton positive metrics; require four targets; metric name in timeout",
+      "unit_tests": 32,
+      "read_only_existing_monitoring": "PASS: four up targets and six positive metrics; no fault injection or environment changes",
+      "local_note": "Python 3.14 emitted ResourceWarning for existing SQLite test fixtures; all 32 tests passed"
+    }
+  }
+}

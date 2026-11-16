@@ -1,0 +1,20 @@
+2026-11-16T14:56:16.4851676Z Traceback (most recent call last):
+2026-11-16T14:56:16.4853206Z   File "<checkout>/tools/production/verify_o2.py", line 222, in <module>
+2026-11-16T14:56:16.4854265Z     main()
+2026-11-16T14:56:16.4855182Z   File "<checkout>/tools/production/verify_o2.py", line 205, in main
+2026-11-16T14:56:16.4856569Z     evidence = verify(stack)
+2026-11-16T14:56:16.4857068Z                ^^^^^^^^^^^^^
+2026-11-16T14:56:16.4858437Z   File "<checkout>/tools/production/verify_o2.py", line 178, in verify
+2026-11-16T14:56:16.4859733Z     stack.run('docker', 'run', '-d', '--name', holder, '--network', network, '--ip', old_ip,
+2026-11-16T14:56:16.4860872Z   File "<checkout>/tools/production/local_https.py", line 80, in run
+2026-11-16T14:56:16.4861873Z     raise RuntimeError('Command failed: ' + args[0] + '\n' + self.redact((result.stdout + result.stderr)[-8000:]))
+2026-11-16T14:56:16.4862463Z RuntimeError: Command failed: docker
+2026-11-16T14:56:16.4863119Z docker: Error response from daemon: invalid config for network parking-o2-591a5f1d_app: invalid endpoint settings:
+2026-11-16T14:56:16.4863970Z user specified IP address is supported only when connecting to networks with user configured subnets
+2026-11-16T14:56:16.4864392Z
+2026-11-16T14:56:16.4864588Z Run 'docker run --help' for more information
+2026-11-16T14:56:16.4864846Z
+2026-11-16T14:56:16.5022711Z ##[error]Process completed with exit code 1.
+2026-11-16T14:56:16.5092208Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-16T14:56:16.5092909Z with:
+2026-11-16T14:56:16.5093152Z   name: local-https-browser-evidence

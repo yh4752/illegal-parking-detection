@@ -5,7 +5,9 @@ COPY contracts/effective/ contracts/effective/
 COPY reference/v1.43/개발자료/09_구현설계/contracts/ reference/v1.43/개발자료/09_구현설계/contracts/
 COPY infra/sql/ infra/sql/
 WORKDIR /source/backend
-RUN bash gradlew bootJar --no-daemon
+RUN bash gradlew bootJar --no-daemon --max-workers=2 \
+    -Dorg.gradle.jvmargs="-Xmx512m -XX:MaxMetaspaceSize=384m" \
+    -Pkotlin.compiler.execution.strategy=in-process
 FROM eclipse-temurin:17-jre-jammy
 RUN groupadd -g 10001 parking && useradd -u 10001 -g parking -m parking
 WORKDIR /app

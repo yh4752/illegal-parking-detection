@@ -1,0 +1,48 @@
+{
+  "stage": "O4",
+  "source_file": "validation/local-backup-2026-11-16.json",
+  "source_sha256": "72ec3531a6a890c2cdb571fd4e0fc1c9ea6138369e1653551392ac500ece3ad1",
+  "environment": "Single local Docker Desktop host, Linux ARM64 containers, small virtual-device fixture",
+  "scenario_runs": 1,
+  "measurements": [
+    {
+      "name": "restore_to_readiness_seconds",
+      "source_field": "restore.rto_seconds",
+      "value": 85.65117907524109,
+      "formula": "restore.accepted_at - restore.started_at",
+      "start_epoch_seconds": 1794819358.164264,
+      "end_epoch_seconds": 1794819443.815443,
+      "excludes": [
+        "pre-validation",
+        "quiesce/shutdown",
+        "new host provisioning",
+        "off-host download",
+        "off-host key retrieval"
+      ],
+      "not_a_production_rto": true
+    },
+    {
+      "name": "backup_age_at_restore_start_seconds",
+      "source_field": "restore.backup_age_at_outage_seconds",
+      "value": 72.8108880519867,
+      "formula": "restore.started_at - restore.backup_started_at",
+      "not_a_guaranteed_rpo": true
+    },
+    {
+      "name": "acked_events_missing_from_older_restored_database",
+      "source_field": "acked_post_backup_rows_missing_from_restored_backup",
+      "value": 1,
+      "unit": "events",
+      "claim": "ACKed after the selected backup; absent from the restored snapshot",
+      "not_a_general_loss_rate": true
+    }
+  ],
+  "comparison": "All public table row counts and sorted-row hashes before acceptance",
+  "not_measured": [
+    "production throughput or latency percentiles",
+    "performance improvement over a baseline",
+    "power-loss durability",
+    "external deployment availability",
+    "real vehicle/AI/board performance"
+  ]
+}

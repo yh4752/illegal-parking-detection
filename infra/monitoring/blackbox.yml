@@ -1,0 +1,13 @@
+modules:
+  parking_https:
+    prober: http
+    timeout: 4s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      valid_status_codes: [200]
+      follow_redirects: false
+      tls_config:
+        ca_file: /tls/ca.crt
+        server_name: localhost
+        insecure_skip_verify: false

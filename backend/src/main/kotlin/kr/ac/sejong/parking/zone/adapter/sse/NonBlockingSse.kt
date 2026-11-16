@@ -9,6 +9,7 @@ class NonBlockingSse(
     private val output: ServletOutputStream,
     private val finish: () -> Unit,
     private val nanoTime: () -> Long = System::nanoTime,
+    private val onSlowClose: () -> Unit = {},
 ) : WriteListener {
     private var frame: ByteArray? = null
     private var offset = 0
@@ -24,6 +25,12 @@ class NonBlockingSse(
         drain()
     }
     @Synchronized fun stalled(): Boolean = !isClosed && (frame != null || dirty) && nanoTime()-progressAt > 5_000_000_000L
+    @Synchronized fun closeIfStalled(): Boolean {
+        if(!stalled() || !closed.compareAndSet(false,true)) return false
+        onSlowClose()
+        finish()
+        return true
+    }
     @Synchronized override fun onWritePossible() = drain()
     override fun onError(error: Throwable) = close()
     @Synchronized private fun drain() {

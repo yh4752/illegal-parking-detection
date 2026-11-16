@@ -3,28 +3,22 @@ package kr.ac.sejong.parking.configuration
 import com.fasterxml.jackson.databind.ObjectMapper
 import kr.ac.sejong.parking.device.adapter.jdbc.EventTransactionStore
 import kr.ac.sejong.parking.device.application.*
-import org.eclipse.paho.mqttv5.client.MqttConnectionOptions
+import kr.ac.sejong.parking.operations.*
 import org.eclipse.paho.mqttv5.common.MqttSubscription
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.*
 import org.springframework.integration.dsl.IntegrationFlow
-import org.springframework.integration.mqtt.inbound.Mqttv5PahoMessageDrivenChannelAdapter
 import org.springframework.integration.mqtt.support.MqttHeaders
 import org.springframework.messaging.MessageHandler
 import org.springframework.scheduling.annotation.Scheduled
 
 @Configuration
-@Profile("mqtt-ingest-local")
-class TelemetryConfiguration(@Value("\${parking.mqtt.broker-url}") private val broker: String) {
+@Profile("mqtt-ingest-local", "mqtt-ingest")
+class TelemetryConfiguration(private val transport: MqttTransportConfiguration) {
     @Bean fun heartbeatReceiver(mapper: ObjectMapper, store: EventTransactionStore) = HeartbeatReceiver(mapper, store)
-    @Bean fun telemetryInbound(receiver: HeartbeatReceiver): IntegrationFlow {
-        val options = MqttConnectionOptions().apply {
-            setServerURIs(arrayOf(broker)); setCleanStart(true); setSessionExpiryInterval(0L)
-            setKeepAliveInterval(15); setConnectionTimeout(10); setAutomaticReconnect(true)
-            setMaxReconnectDelay(8_000) // Paho 1.2.5 reconnect loop uses this millisecond property.
-        }
-        val adapter = Mqttv5PahoMessageDrivenChannelAdapter(options,"servertelemetry0001",
+    @Bean fun telemetryInbound(receiver: HeartbeatReceiver, metrics: OperationalMetrics): IntegrationFlow {
+        val options = transport.options()
+        val adapter = ObservedMqttInbound(options,"servertelemetry0001", MqttChannel.TELEMETRY, metrics,
             MqttSubscription("parking/v2/devices/+/heartbeat",0).apply { setRetainAsPublished(true) },
             MqttSubscription("parking/v2/devices/+/availability",1).apply { setRetainAsPublished(true) }).apply { setPayloadType(ByteArray::class.java) }
         return IntegrationFlow.from(adapter).handle(MessageHandler { message ->

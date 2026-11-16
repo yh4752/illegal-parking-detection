@@ -1,0 +1,73 @@
+# LOCAL_ONLY reference ledger. Its data is outside the application/backup state directory.
+x-ledger: &ledger
+  PARKING_REVISION_LEDGER_REQUIRED: 'true'
+  PARKING_REVISION_LEDGER_SCOPE: LOCAL_ONLY
+  PARKING_REVISION_LEDGER_URL: http://revision-ledger:8088
+  PARKING_REVISION_LEDGER_ID: ${PARKING_LEDGER_ID:?}
+  PARKING_REVISION_LEDGER_TOKEN_FILE: /run/secrets/revision-ledger-token
+services:
+  revision-ledger:
+    image: ${PARKING_LEDGER_IMAGE:?}
+    # Match the owner of the private (0700) host directory on Linux as well as Docker Desktop.
+    user: ${PARKING_LEDGER_USER:?}
+    pull_policy: never
+    command: [serve, --db, /ledger/revisions.sqlite, --store-id, '${PARKING_LEDGER_ID}', --token-file, /run/secrets/revision-ledger-token, --port, '8088', --bind, 0.0.0.0]
+    secrets: [revision-ledger-token]
+    volumes: ['${PARKING_LEDGER_DIRECTORY:?}:/ledger']
+    networks: [ledger]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    logging: {driver: json-file, options: {max-size: 10m, max-file: '3'}}
+  backend:
+    environment:
+      <<: *ledger
+      PARKING_DB_URL: jdbc:postgresql://postgres:5432/${PARKING_RECOVERY_DATABASE:-parking_handoff}
+      PARKING_BACKUP_STATUS_FILE: /backup-status/status.json
+    secrets: [revision-ledger-token]
+    volumes: ['${PARKING_HTTPS_STATE}/backup-status:/backup-status:ro']
+    networks: [ledger]
+    depends_on: [revision-ledger]
+  initialize-local:
+    environment: *ledger
+    secrets: [revision-ledger-token]
+    networks: [ledger]
+  recovery:
+    profiles: [tools]
+    image: ${PARKING_HTTPS_BACKEND_IMAGE}
+    pull_policy: never
+    entrypoint: [java, -Xmx256m, -Dloader.main=kr.ac.sejong.parkingtools.RecoveryCliKt, -cp, /app/app.jar, org.springframework.boot.loader.launch.PropertiesLauncher]
+    environment:
+      <<: *ledger
+      PARKING_DB_URL: jdbc:postgresql://postgres:5432/${PARKING_RECOVERY_DATABASE:-parking_handoff}
+      PARKING_DB_USERNAME: parking_migrator
+      SPRING_CONFIG_IMPORT: configtree:/run/secrets/
+      PARKING_REVISION_PRIMARY: /state/revisions.json
+      PARKING_REVISION_BACKUP: /state-copy/revisions.json
+    secrets:
+      - {source: migrator-password, target: POSTGRES_PASSWORD}
+      - revision-ledger-token
+    volumes:
+      - revision:/state
+      - revision-copy:/state-copy
+      - ${PARKING_HTTPS_STATE}/recovery:/recovery
+    networks: [data, ledger]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  prometheus:
+    command:
+      - --config.file=/etc/backup/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=1GB
+    volumes: ['../backup:/etc/backup:ro']
+  grafana:
+    volumes: ['${PARKING_HTTPS_STATE}/backup-dashboards:/etc/grafana/dashboards:ro']
+secrets:
+  revision-ledger-token: {file: '${PARKING_HTTPS_STATE}/secrets/revision-ledger-token'}
+networks:
+  ledger: {internal: true}

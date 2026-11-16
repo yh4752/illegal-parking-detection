@@ -1,0 +1,285 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>O5 배포 준비 — 서버·비용·도메인·백업·키를 정하는 방법</h1>
+<p>2026-11-17 · <strong>추천안·후속 작업 정리 완료, 구매·외부 배포·외부 인수 미수행</strong></p>
+<p>O1~O4는 로컬에서 검증했다. 이번 O5 작업은 사용할 자원과 운영 책임을 결정할 수 있게 준비하는 단계다. 아래 추천을 채택해도 곧바로 배포할 수 있는 것은 아니다. 실제 외부 저장소 어댑터와 운영 백업 자동화 등 남은 구현은 마지막 표에 따로 적었다.</p>
+<h2>먼저 추천 조합을 보면</h2>
+<p><strong>학교에서 관리하는 서버가 있고 아래 조건을 충족하면 먼저 활용한다. 없다면 서울 리전의 AWS Lightsail 4GB를 시험 후보로, 전체 월 예산 6만 원을 제안한다.</strong> 메모리가 부족하거나 운영 여유를 우선하면 8GB·월 10만 원 후보로 올린다. 확정 구매안이나 성능 보장이 아니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>정할 것</th>
+<th>추천안</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>서버</td>
+<td>Linux x86_64 한 대. 기존 서버 우선, 새 서버는 Lightsail Linux/Unix·공인 IPv4 포함·일반형</td>
+<td>현재 Compose 구조를 유지하고 서버 기본요금을 예측하기 쉽다</td>
+</tr>
+<tr>
+<td>월 예산</td>
+<td>4GB 시험안 6만 원 / 8GB 여유안 10만 원. 운영 기간·납부자도 함께 결정</td>
+<td>서버 외에 저장·조회·도메인 비용이 생긴다</td>
+</tr>
+<tr>
+<td>도메인</td>
+<td>변경 권한이 있는 학교/기존 도메인의 서브도메인 우선. 없으면 새 도메인 연 2만 5천 원을 임시 예산으로 배정</td>
+<td>주소 소유권·갱신 책임을 팀이 유지해야 한다</td>
+</tr>
+<tr>
+<td>독립 저장소</td>
+<td>별도 AWS 계정의 S3 일반 목적 버킷 두 개: 암호화 백업 / 최신 revision 기록. 초기 후보는 서울 리전</td>
+<td>서버 유실과 앱 계정의 실수에 함께 휩쓸리지 않게 한다</td>
+</tr>
+<tr>
+<td>암호화 키</td>
+<td>서버 밖 Bitwarden 공유 조직에 주·부 담당자 두 명, 별도 장소에 오프라인 복구 사본</td>
+<td>백업 파일이 있어도 키를 잃으면 복호화할 수 없다</td>
+</tr>
+</tbody></table></div>
+<p>Lightsail 공식 월 기본요금은 4GB·2 vCPU·SSD 80GB가 <strong>US$24</strong>, 8GB·2 vCPU·SSD 160GB가 <strong>US$44</strong>다. 여기서는 공인 IPv4 포함 상품을 비교했다. 할인·무료 체험은 예산에 넣지 않았다. <a href="https://aws.amazon.com/lightsail/pricing/">Lightsail 가격</a></p>
+<figure class="figure"><img src="diagrams/11-deployment-readiness.svg" alt="O5 추천 배포와 복구 자료 보관 경계 — 아직 외부에 생성하지 않음"><a href="diagrams/11-deployment-readiness.svg" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
+<h2>1. 서버: 우리 프로그램이 계속 실행되는 컴퓨터</h2>
+<p>이 서버에서 Nginx, Spring Boot, PostgreSQL, MQTT, Prometheus, Grafana와 가상 장치를 함께 실행한다. AI 모델 학습이나 영상 추론용 GPU 비용은 이 구성에 포함하지 않는다. 처음에는 가상 장치만 사용한다.</p>
+<p>학교 서버를 쓸 수 있다는 말만으로 결정하지 않는다. 다음 조건을 관리자에게 확인한다.</p>
+<ul>
+<li>Linux x86_64, Docker/Compose 설치·재시작 권한, 전용 데이터 경로가 있는가?</li>
+<li>학기 동안 계속 켜 둘 수 있고, 재부팅·점검·반납 일정을 알 수 있는가?</li>
+<li>외부 HTTPS 443과 인증서용 80, 제한된 관리자 SSH 접속이 가능한가? 학교 방화벽 변경 권한은 누구에게 있는가?</li>
+<li>다른 팀 작업을 제외한 실제 여유 RAM·디스크가 있는가? 초기 가정은 2 vCPU·4GiB·40GiB 이상이며 사용량 측정으로 확인한다.</li>
+<li>학교 서버와 다른 장애 범위에 백업·revision·키를 둘 수 있는가?</li>
+</ul>
+<p>학교 서버 조건을 충족하지 못하면 Lightsail 후보를 검토한다. OS는 지원 중인 Linux LTS와 <code>linux/amd64</code> 이미지를 맞춘다. 서버에서 소스를 빌드하지 않고 검증된 이미지를 내려받는다. 서버에 연결한 고정 IP로 DNS를 유지한다. <a href="https://docs.aws.amazon.com/lightsail/latest/userguide/understanding-static-ip-addresses-in-amazon-lightsail.html">Lightsail 고정 IP</a></p>
+<p>4GB 적합성은 아직 측정하지 않았다. 공개 전에는 <strong>예상 동시 접속 수의 2배 + 가상 사건 수신 + 모니터링 + 백업 작업</strong>으로 시험한다. OOM·재시작이 없어야 하고, 사용 가능한 메모리 20% 이상과 디스크 여유 30% 이상을 초기 운영 판단 기준으로 제안한다. 부족하면 백업 방식·지표 보관 기간을 점검하거나 8GB로 올린다. CPU 버스트 지속성과 외부 원장 지연도 함께 측정한다. 이 수치는 프로젝트의 제안 기준이며 공급자의 성능 보장이 아니다.</p>
+<p>최초 공개는 80/443만 일반 접근을 허용한다. SSH 22는 관리자 IP 대역으로 제한하고, DB 5432·앱 8080·관리 9091·Prometheus 9090·Grafana 3000·MQTT 8883은 공개하지 않는다. Grafana는 SSH 터널로 본다. 실제 적용은 클라우드 방화벽과 Docker 포트 설정을 함께 검증한다.</p>
+<h2>2. 예산: 서버 가격과 전체 청구액은 다르다</h2>
+<p>다음은 <strong>2026-11-16 확인 요금으로 계산한 계획값</strong>이다. 환율 1달러=1,500원은 계산용 가정이며 현재 환율 인용이 아니다. 10%는 세금·결제 변동 여유분이지 적용 세율의 단정이 아니다. 도메인 25,000원/년도 실제 견적이 아니다. 결제 전 카드 환율·세금·등록 및 갱신 가격을 다시 확인한다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>월 예산 항목</th>
+<th align="right">4GB 시험안</th>
+<th align="right">8GB 여유안</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>서버 기본요금</td>
+<td align="right">US$24</td>
+<td align="right">US$44</td>
+</tr>
+<tr>
+<td>S3 저장·요청 예산</td>
+<td align="right">US$8</td>
+<td align="right">US$8</td>
+</tr>
+<tr>
+<td>달러 비용 × 1,500원 × 1.10</td>
+<td align="right">52,800원</td>
+<td align="right">85,800원</td>
+</tr>
+<tr>
+<td>도메인 연 25,000원의 월 환산</td>
+<td align="right">약 2,083원</td>
+<td align="right">약 2,083원</td>
+</tr>
+<tr>
+<td>계획 합계</td>
+<td align="right"><strong>약 54,883원/월</strong></td>
+<td align="right"><strong>약 87,883원/월</strong></td>
+</tr>
+<tr>
+<td>제안하는 월 관리 상한</td>
+<td align="right"><strong>60,000원</strong></td>
+<td align="right"><strong>100,000원</strong></td>
+</tr>
+</tbody></table></div>
+<p>도메인은 보통 연 단위로 먼저 결제하므로 첫 달 현금 지출은 이 가정에서 각각 <strong>77,800원 / 110,800원</strong>이다. 3개월간 운영하고 도메인을 새로 1년 등록하면 각각 <strong>183,400원 / 282,400원</strong>이다. 기존 도메인을 쓰면 이 계산에서 25,000원을 뺀다. 월 환산 비용과 실제 결제일의 지출을 따로 관리한다.</p>
+<p>S3 서울 Standard의 첫 저장 구간은 US$0.025/GB·월, GET 등 조회는 US$0.00035/1,000건, PUT 등은 US$0.0045/1,000건이다. 총 저장 10GB + 조회 2천만 건 + 쓰기 1만 건을 예시로 잡으면 <strong>US$7.295</strong>여서 US$8을 배정했다. 버전 이력도 저장량에 포함한다. 이 사용량은 실측값이 아니다. <a href="https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/ap-northeast-2/index.json">AWS 공식 서울 리전 요금 데이터</a></p>
+<p><strong>원장 파일이 작다고 비용이 거의 없는 것은 아니다.</strong> 현재 코드의 SSE 확인 주기는 약 1초다. 외부 어댑터가 탭마다 한 번씩 직접 조회한다고 가정하면, 탭 5개를 30일 내내 열어 두는 것만으로 약 1,296만 건·US$4.54가 된다. readiness·사건 처리 등의 조회는 별도다. 어댑터 구현 후 실제 요청 수와 지연을 측정해 예산을 고친다. 비용 절약을 위해 최신성 검사를 생략하거나 검증 없이 캐시로 바꾸지 않는다.</p>
+<p>초과 트래픽·대량 복원 다운로드·추가 디스크/스냅샷·유료 관측 도구·유료 비밀금고는 위 표에 별도 배정하지 않았다. 필요해지면 견적을 다시 낸다. 무료 알림·관측 범위도 실제 서비스 선택 때 확인한다. 원장 요청량이나 저장량이 가정을 넘으면 월 상한을 넘을 수 있다.</p>
+<p>비용 담당자와 보조 담당자에게 50%·80%·100% 사용 및 예상 초과 알림을 제안한다. 두 AWS 계정의 비용을 합산해야 한다. <strong>예산 알림은 결제를 자동 차단하는 상한이 아니고 집계 지연도 있다.</strong> 80% 도달 시 사용량·종료 일정을 검토하고, 초과 시 추가 증설·유료 기능을 보류한다. 자동으로 DB나 원장을 삭제하지 않는다. <a href="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html">AWS Budgets</a></p>
+<p>프로젝트 종료일과 최종 백업 보관 종료일도 적는다. Lightsail은 인스턴스를 정지해도 요금이 발생하므로, 종료 때 복원 가능한 백업을 확인하고 필요한 자료를 인계한 다음 자원을 정리해야 한다. 이번 작업에서는 정지·삭제·구매를 실행하지 않았다. <a href="https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-faq-instances.html">Lightsail 정지와 삭제</a></p>
+<h2>3. 도메인: 주소, DNS, HTTPS는 각각 역할이 있다</h2>
+<p>도메인은 사람이 입력하는 이름, DNS는 그 이름을 서버 IP로 연결하는 설정, HTTPS 인증서는 그 이름의 서버와 암호화해 통신하기 위한 증명이다. 예를 들어 <code>parking.example.com</code>은 설명용 주소이며 등록하거나 연결하지 않았다.</p>
+<ol>
+<li>학교/팀의 기존 도메인에서 서브도메인을 받을 수 있는지 먼저 확인한다. 도메인을 쓰는 것과 DNS를 바꿀 권한은 다르다.</li>
+<li>새로 산다면 후보 두 개, 등록자·결제자·갱신 담당자, 첫해와 다음 해 가격을 기록한다. 학기 종료 후에도 접근 가능한 계정에 MFA를 설정한다.</li>
+<li>등록 업체 후보는 Cloudflare Registrar다. 원가 기반 등록·갱신을 제공하지만 Cloudflare 네임서버 사용이 조건이므로 DNS 사업자 선택 자유가 필요한 경우 다른 등록 업체를 택한다. <code>.kr</code> 등 원하는 TLD 지원 여부·가격·이름 사용 가능 여부는 별도 확인한다. <a href="https://developers.cloudflare.com/registrar/faq/">Registrar 안내</a>, <a href="https://developers.cloudflare.com/registrar/get-started/register-domain/">등록 조건</a></li>
+<li>실제 서버가 준비된 뒤 A 레코드를 고정 IPv4로 연결한다. IPv6를 검증하기 전에는 AAAA를 추가하지 않는다. 첫 인수는 DNS 전용으로 단순하게 연결하고 프록시/CDN 사용은 SSE·캐시 영향 시험 뒤 결정한다.</li>
+<li>Let&#39;s Encrypt 공인 인증서의 자동 갱신·Nginx reload·만료 경보를 구현한다. HTTP-01을 쓰면 80번이 필요하다. 로컬 시험 CA를 공인 인증서로 재사용하지 않는다. <a href="https://letsencrypt.org/getting-started/">Let&#39;s Encrypt 시작</a>, <a href="https://letsencrypt.org/docs/challenge-types/">인증 방식</a></li>
+</ol>
+<h2>4. 독립 저장소: 백업과 revision 기록을 다른 규칙으로 관리한다</h2>
+<p><strong>DB 백업은 그 시점의 데이터를 되살리는 자료이고, 독립 revision 기록은 이미 사용·예약한 번호로 되돌아가지 않게 하는 최신 기준이다.</strong> 예를 들어 백업이 revision 100일 때 찍혔고 이후 150까지 예약했다면, DB만 복원해 101부터 다시 쓰면 안 된다. 독립 기록과 최신 장치 보고를 대조하고 안전한 새 범위로 재개해야 한다. 이 기록만으로 백업 이후 사라진 사건 본문을 전부 복구할 수 있는 것은 아니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>보관 자료</th>
+<th>제안 장소·정책</th>
+<th>앱 서버에 줄 권한</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>암호화 DB/가상 장치 백업과 manifest</td>
+<td>백업 계정의 <code>backup</code> 전용 버킷. 고유 이름으로 올리고 Versioning 사용. 일별 7개·주별 4개 및 배포 전 사본을 초기 보관안으로 검토</td>
+<td>백업 작업 전용 자격으로 새 객체 업로드와 검증용 읽기. 삭제·버킷 설정 변경 금지</td>
+</tr>
+<tr>
+<td>최신 revision 예약/초기화 claim과 버전 이력</td>
+<td>같은 백업 계정의 별도 <code>revision</code> 버킷. Versioning + 조건부 갱신. DB 백업과 함께 과거로 되돌리지 않음</td>
+<td>runtime 전용 자격으로 필요한 현재 객체 읽기·조건부 쓰기. 삭제·버전 삭제·보존 설정 변경 금지</td>
+</tr>
+<tr>
+<td>복원 자격</td>
+<td>담당자의 비공개 금고에서 필요할 때 사용</td>
+<td>평상시 앱에 배포하지 않음. 승인된 백업·버전 읽기와 새 복원 DB에 필요한 별도 권한</td>
+</tr>
+<tr>
+<td>보존 만료 정리</td>
+<td>별도 저장소 관리자 책임. 정책 시험 후 예약 실행</td>
+<td>runtime/백업 업로더에는 수동 삭제 권한을 주지 않음</td>
+</tr>
+</tbody></table></div>
+<p>버킷 이름은 역할 설명이며 실제 이름은 아직 없다. 모든 버킷은 비공개이고 TLS·인증을 사용한다. 버킷별 자격증명을 나누고 앱 서버에는 백업 계정 관리자 자격을 두지 않는다. 단순히 다른 폴더·Docker 볼륨에 넣는 것은 호스트 장애에 대한 독립성이 없다. 별도 계정도 같은 클라우드·리전의 장애까지 해결하지는 않으므로 그 범위는 받아들일지 기록한다.</p>
+<p>S3를 첫 원장 후보로 고른 근거는 강한 읽기 일관성, Versioning, <code>If-Match</code>/<code>If-None-Match</code> 조건부 쓰기다. <strong>CAS는 “내가 읽은 버전이 여전히 최신일 때만 갱신”하는 규칙</strong>이다. 처음 만들 때와 기존 것을 갱신할 때 조건을 달리하고, 정책으로 무조건 덮어쓰기를 막는다. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html#ConsistencyModel">S3 일관성</a>, <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes.html">조건부 쓰기</a>, <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes-enforce.html">정책 강제</a></p>
+<p>Versioning은 과거 내용을 되찾기 위한 이력이며, 더 작은 revision을 새 버전으로 써 버리는 실수까지 막지는 않는다. CAS도 번호 증가 검증을 대신하지 않는다. 실제 어댑터에서 시스템 식별자·단조 증가·현재 head 최신성·동시 예약 충돌·응답 유실 후 재시도를 검사해야 한다. Object Lock도 기존 버전을 보호하지만 새 버전이나 삭제 마커 생성 자체를 막지 않는다. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html">Object Lock 동작</a></p>
+<p>보존 정책은 두 버킷에 똑같이 적용하지 않는다. 백업은 일별/주별 세대를 정리하되 오래된 버전의 실제 용량까지 계산한다. revision의 현재 head와 운영 기간의 기록에는 백업용 만료 규칙을 복사하지 않는다. 초기에는 운영 종료 후 90일 보존을 검토하고 실제 종료·인계 조건을 결정한다. Object Lock은 보존 시험 뒤 별도 결정한다. 켜면 끌 수 없으므로 이번 준비 문서만 보고 활성화하지 않는다. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock-managing.html">Object Lock 관리 제한</a></p>
+<p>Cloudflare R2는 암호화 백업의 대안 후보지만 첫 원장에는 권하지 않는다. S3 호환 API에서 <code>PutBucketVersioning</code>이 지원되지 않으므로 현재 요구사항에 그대로 대입할 수 없다. R2 자체 잠금 기능의 유무와 S3 Versioning 호환성은 별개다. 초기에는 공급자를 늘리기보다 S3 한 종류를 검증한다. <a href="https://developers.cloudflare.com/r2/api/s3/api/">R2 S3 호환 표</a></p>
+<h2>5. 키 보관: 백업 파일을 열 수 있는 열쇠도 복구 대상이다</h2>
+<p>O4 백업은 Fernet 대칭키로 암호화한다. <strong>같은 키가 암호화와 복호화에 모두 필요하다.</strong> S3의 저장 암호화가 추가되어도 이 키를 잃으면 O4 파일을 열 수 없다. 반대로 파일과 키가 함께 유출되면 이 암호화로 내용을 보호할 수 없다.</p>
+<p>추천 보관은 다음 세 역할로 나눈다. 실제 키 생성·외부 복사·공유 초대는 이번에 하지 않았다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>사본</th>
+<th>보관·접근 방법</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>운영 작업용</td>
+<td>서버의 백업 작업 전용 파일, 소유자만 읽기, 웹/backend에 마운트하지 않음</td>
+<td>현재 대칭키 방식은 백업할 때도 키가 필요하다. 서버에 키가 전혀 없다고 설명하면 안 된다</td>
+</tr>
+<tr>
+<td>복구용 주 사본</td>
+<td>서버 밖 Bitwarden 호스팅 공유 조직의 보안 메모, 주·부 담당자 각각 별도 계정과 MFA</td>
+<td>주 담당자가 없거나 서버를 잃어도 다른 사람이 꺼낼 수 있다</td>
+</tr>
+<tr>
+<td>복구용 추가 사본</td>
+<td>다른 물리 장소의 암호화 이동식 매체 등. 여는 비밀과 MFA 복구 수단도 독립적으로 회수 가능하게 보관</td>
+<td>금고 계정 접근 실패에 대비한다. 매체 비밀번호가 잠긴 금고에만 있으면 복구 고리가 끊어진다</td>
+</tr>
+</tbody></table></div>
+<p>Bitwarden 무료 조직은 두 사용자·최대 두 컬렉션 공유를 지원하므로 두 담당자의 키 메모를 보관하는 후보가 된다. 무료 첨부파일이나 유료 긴급 접근 기능을 전제하지 않는다. 로그인 계정 하나를 공유하지 않는다. <a href="https://bitwarden.com/help/about-organizations/">Bitwarden 조직</a></p>
+<p>키 이름은 <code>backup-key-2026-01</code>처럼 식별할 수 있게 하고 백업 manifest에는 그 참조만 남긴다. 입력 JSON·Git·채팅에는 <strong>실제 키, 비밀번호, 토큰, MFA 복구 코드</strong>를 적지 않는다. 키를 교체할 때는 새 이름을 사용하며, 옛 키로 만든 백업이 남아 있는 동안 옛 키도 보관한다. 서버 침해 시 작업용 키까지 노출될 수 있는 한계는 남는다. 비대칭 암호화·KMS로 바꾸는 작업은 구현·복원 시험이 필요한 별도 결정이다.</p>
+<p>복구 훈련의 완료 조건은 <strong>기존 서버와 그 <code>.local-state</code> 없이, 다른 PC에서 저장소 자료와 금고/추가 사본의 키를 회수해 새 DB를 복원하는 것</strong>이다. 부 담당자도 이 절차를 수행할 수 있어야 한다. 아직 외부 저장소·금고를 만들거나 이 시험을 실행하지 않았다.</p>
+<h2>6. 지금 준비할 결정표</h2>
+<p>이 표는 비밀값 없이 채운다. 코드용 상세 입력은 <a href="../infra/deploy/inputs.example.json">입력 예시</a>, 비용 산식은 <a href="../infra/deploy/budget.example.json">예산 예시</a>에 있다. 개인 입력은 Git에서 제외된 <code>.local-state/deploy/inputs.json</code>에 기록한다. 추천값은 확정값과 분리되어 있으며 <code>null</code>은 여전히 미정이다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>준비 항목</th>
+<th>기록할 내용</th>
+<th>지금 상태</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>서버 선택</td>
+<td>기존 서버 제공 가능 여부·권한, 또는 공급자/지역/크기 후보</td>
+<td>미정</td>
+</tr>
+<tr>
+<td>비용 책임</td>
+<td>월 관리 상한, 첫 달 지출 한도, 납부자, 운영 시작/종료일, 최종 보관 종료 조건</td>
+<td>미정</td>
+</tr>
+<tr>
+<td>도메인</td>
+<td>기존 이름 또는 후보 2개, DNS 변경자, 등록/갱신 가격, 갱신 담당자</td>
+<td>미정</td>
+</tr>
+<tr>
+<td>관리자 접속</td>
+<td>SSH 키 관리자, 허용 IP 대역, 주·부 운영 담당자</td>
+<td>미정</td>
+</tr>
+<tr>
+<td>독립 저장소</td>
+<td>앱과 다른 계정의 관리 주체, 지역, 두 버킷 이름, 보존 기간, 권한 검증 담당자</td>
+<td>미정</td>
+</tr>
+<tr>
+<td>암호화 키</td>
+<td>금고 항목 참조, 주·부 담당자, 추가 사본의 보관 위치 참조, 복구 훈련 담당자</td>
+<td>미정</td>
+</tr>
+<tr>
+<td>관측·알림</td>
+<td>비용/장애 알림 수신처, 서버 밖 HTTPS 검사 실행 위치, 대응 시간대</td>
+<td>미정</td>
+</tr>
+<tr>
+<td>인수 조건</td>
+<td>동시 팀원 수, 허용 중단 시간, 복구 시 감수할 사건 손실, 외부 확인 담당자</td>
+<td>미정</td>
+</tr>
+</tbody></table></div>
+<h2>7. 입력이 모인 뒤 남은 구현과 검증</h2>
+<p><strong>O5 준비 문서 완료와 O5 외부 인수 완료를 구분한다.</strong> 지금 어댑터의 <code>LOCAL_ONLY</code> 제한을 지우고 URL만 바꾸는 방식으로 배포하지 않는다.</p>
+<p>아래 작업은 <a href="https://github.com/yh4752/parking-system/issues/6">후속 이슈 #6</a>의 F1~F6으로 추적한다. 자원·비용·운영 책임은 먼저 팀이 결정하고, 각 구현·검증의 완료 증거를 남긴다. 이 문서의 비용 근거는 앞서 명시한 2026-11-16 확인값이며, 후속 이슈 등록일에 새 견적을 확인했다는 뜻은 아니다.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>순서</th>
+<th>남은 작업</th>
+<th>공개 전 증거</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>선택값·예산·책임자 확정 후 외부 자원 작업 범위 결정</td>
+<td>비용표·계정 소유권·종료/보존 조건</td>
+</tr>
+<tr>
+<td>2</td>
+<td>실제 S3 원장 어댑터와 최소 권한 구현</td>
+<td>인증/TLS·최신 head·CAS 경쟁·과거 버전/삭제/설정 변경 거부·예약 중단·저장소 장애 시 차단</td>
+</tr>
+<tr>
+<td>3</td>
+<td>외부 백업 업로드/다운로드 검증·주기·보존·키 회수 구현</td>
+<td>서버 밖 복사본을 내려받아 복호화·임시 DB 전 테이블 비교, 실패 시 성공 시각 미갱신</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>linux/amd64</code> release 이미지·registry digest, 실제 호스트와 HTTPS/갱신 준비</td>
+<td>같은 이미지 인수, 포트 차단, 공인 인증서 갱신·reload, 부하·실제 DB/백업 디스크 관측</td>
+</tr>
+<tr>
+<td>5</td>
+<td>원본 서버 없는 복원, 서버 밖 가용성 검사·알림 전달</td>
+<td>수신/API hold → 최신 독립 기록 확보·유지 → 새 DB 복원 → 장치 대조·손실 명시 인수 → 새 범위 재개, 실제 경보 수신</td>
+</tr>
+<tr>
+<td>6</td>
+<td>외부 공개 범위가 정해진 후 팀원 PC 인수</td>
+<td>로그인·SSE·가상 사건·계정 회수·재접속 확인</td>
+</tr>
+</tbody></table></div>
+<p>현재 백업 도구는 작은 로컬 훈련용으로 128MiB 제한과 메모리 내 처리를 사용하며, 로컬 이미지·새 격리 DB만 허용한다. 운영용 크기·자동 실행·보존·업로드·키 복구는 위 단계에서 구현해야 한다. 밤마다 1회 백업은 그 뒤의 사건을 잃을 수 있으므로, 허용 손실을 먼저 정하고 백업 주기를 결정한다. 독립 원장은 사건 본문의 연속 백업이 아니다.</p>
+<p>O4의 85.65초는 이미 수신을 멈춘 뒤 <strong>복원 시작부터 로컬 HTTPS/모니터링 준비까지</strong>의 소규모 측정이다. 서버 구매·자료 다운로드·키 회수·수신 중단 시간은 포함하지 않았다. 외부 RTO로 약속하지 않는다. <a href="../validation/local-backup-2026-11-16.json">O4 실행 증거</a>, <a href="local-backup.html">복원 순서 설명</a></p>
+<p>이번 변경은 문서·입력 예시·비용 근거·그림에 한정한다. 새 클라우드 자원·계정·DNS·키를 만들지 않았고 외부 배포나 외부 복원 시험도 수행하지 않았다. <a href="../validation/deployment-readiness-2026-11-16.json">준비 검증 기록</a> · <a href="design/deployment-operations-workplan.json">전체 작업표</a></p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

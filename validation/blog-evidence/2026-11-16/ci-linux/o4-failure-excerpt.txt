@@ -1,0 +1,25 @@
+2026-11-16T14:30:09.7320596Z Traceback (most recent call last):
+2026-11-16T14:30:09.7322086Z   File "<checkout>/tools/production/verify_o4.py", line 179, in <module>
+2026-11-16T14:30:09.7323927Z     main()
+2026-11-16T14:30:09.7329140Z   File "<checkout>/tools/production/verify_o4.py", line 166, in main
+2026-11-16T14:30:09.7330667Z     stack.prepare(free_port(), free_port(), project, 'acceptance-o4', grafana_port=free_port())
+2026-11-16T14:30:09.7332086Z   File "<checkout>/tools/production/local_backup.py", line 33, in prepare
+2026-11-16T14:30:09.7333434Z     super().prepare(https_port, http_port, project, purpose, grafana_port=grafana_port)
+2026-11-16T14:30:09.7334659Z   File "<checkout>/tools/production/local_monitoring.py", line 55, in prepare
+2026-11-16T14:30:09.7335776Z     super().prepare(https_port, http_port, project, purpose)
+2026-11-16T14:30:09.7337809Z   File "<checkout>/tools/production/local_https.py", line 208, in prepare
+2026-11-16T14:30:09.7338854Z     self.configure_release()
+2026-11-16T14:30:09.7339557Z   File "<checkout>/tools/production/local_backup.py", line 65, in configure_release
+2026-11-16T14:30:09.7340485Z     self.dc('run', '--rm', '--no-deps', 'revision-ledger', 'init', '--db', '/ledger/revisions.sqlite', '--store-id', identifier)
+2026-11-16T14:30:09.7341346Z   File "<checkout>/tools/production/local_https.py", line 95, in dc
+2026-11-16T14:30:09.7342061Z     return self.run('docker', 'compose', '-p', self.release['project'],
+2026-11-16T14:30:09.7342454Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-16T14:30:09.7342985Z   File "<checkout>/tools/production/local_https.py", line 80, in run
+2026-11-16T14:30:09.7343738Z     raise RuntimeError('Command failed: ' + args[0] + '\n' + self.redact((result.stdout + result.stderr)[-8000:]))
+2026-11-16T14:30:09.7344236Z RuntimeError: Command failed: docker
+2026-11-16T14:30:09.7344527Z  Network parking-o4-6338f660_ledger  Creating
+2026-11-16T14:30:09.7344846Z  Network parking-o4-6338f660_ledger  Created
+2026-11-16T14:30:09.7345137Z ledger_corrupt_or_unavailable
+2026-11-16T14:30:09.7345295Z
+2026-11-16T14:30:09.7345301Z
+2026-11-16T14:30:09.7573020Z ##[error]Process completed with exit code 1.

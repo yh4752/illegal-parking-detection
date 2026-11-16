@@ -22,6 +22,7 @@ class RevisionReservations(
     private val mapper: ObjectMapper,
     private val primary: Path,
     private val backup: Path,
+    private val ledger: RevisionLedger? = null,
 ) : AutoCloseable {
     private var channel: FileChannel? = null
     private var lock: FileLock? = null
@@ -49,6 +50,7 @@ class RevisionReservations(
                 check(used == 0L) { "manifest_missing_for_existing_state" }
                 mapper.createObjectNode().apply { put("format_version", 1); putObject("zones") }
             }
+            ledger?.requireDocument(manifest!!)
             for (zone in jdbc.queryForList("SELECT zone_id FROM zone_view ORDER BY zone_id", String::class.java)) {
                 ensureRange(zone)
             }
@@ -69,6 +71,7 @@ class RevisionReservations(
         check(!TransactionSynchronizationManager.isActualTransactionActive()) { "file_io_inside_transaction" }
         try {
             check(readPair() == manifest) { "manifest_changed" }
+            ledger?.requireDocument(manifest!!)
             ensureRange(zoneId)
         } catch (error: Exception) {
             if (error !is ReservationReadUnavailable) failed = true
@@ -90,6 +93,7 @@ class RevisionReservations(
         (next["zones"][zoneId] as ObjectNode).put("demo_initialization_claimed_at", Instant.now().toString())
         try {
             val bytes = mapper.writeValueAsBytes(next)
+            ledger?.let { it.compareAndSet(it.requireDocument(manifest!!), next) }
             durableReplace(primary, bytes)
             durableReplace(backup, bytes)
             manifest = mapper.readTree(bytes) as ObjectNode
@@ -107,6 +111,7 @@ class RevisionReservations(
         check(!TransactionSynchronizationManager.isActualTransactionActive()) { "file_io_inside_transaction" }
         try {
             check(readPair() == manifest) { "manifest_changed" }
+            ledger?.requireDocument(manifest!!)
         } catch (error: Exception) { failed = true; throw error }
         val zone = manifest!!["zones"][zoneId]
         check(zone != null && zone["reserved_through"].longValue() == reservedThrough) { "read_reservation_mismatch" }
@@ -127,7 +132,7 @@ class RevisionReservations(
             check(reserved["zone_id"]?.asText() == zoneId && reserved["manifest_generation"].canConvertToLong())
             check(reserved["reserved_through"].canConvertToLong())
             check(reserved["reserved_through"].longValue() == oldEnd) { "manifest_db_range_mismatch" }
-            if (current < oldEnd) return
+            if (current < oldEnd || row["recovery_hold"] == true) return
         } else {
             check(oldEnd == 0L && current == 0L && row["snapshot"] == null) { "unreserved_existing_state" }
         }
@@ -144,6 +149,7 @@ class RevisionReservations(
         }
         // Either both copies are durable or the gate fails closed on this run/restart.
         val bytes = mapper.writeValueAsBytes(next)
+        ledger?.let { it.compareAndSet(it.requireDocument(manifest!!), next) }
         durableReplace(primary, bytes)
         durableReplace(backup, bytes)
         transaction.executeWithoutResult {

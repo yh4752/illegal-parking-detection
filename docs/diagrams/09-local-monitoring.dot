@@ -1,0 +1,22 @@
+digraph Monitoring {
+  graph [rankdir=LR, bgcolor="#f8fafc", pad="0.3", nodesep="0.5", ranksep="0.7", fontname="sans-serif", label="O3 · localhost 제품 경로와 내부 관찰 경로", labelloc=t, fontsize=20];
+  node [shape=box, style="rounded,filled", fillcolor="#ffffff", color="#94a3b8", fontname="sans-serif", fontsize=13, margin="0.16,0.12"];
+  edge [color="#64748b", fontname="sans-serif", fontsize=11];
+  human [label="사용자 브라우저"];
+  web [label="Nginx\nlocalhost:19443 HTTPS", fillcolor="#dbeafe"];
+  backend [label="Spring Boot + Micrometer\n제품 8080 / 관리 9091\n커밋·ACK·MQTT·SSE·readiness", fillcolor="#dcfce7"];
+  db [label="PostgreSQL\n내부 전용"];
+  prom [label="Prometheus\n15초 수집·시계열 저장\n경보 규칙 평가", fillcolor="#fef3c7"];
+  grafana [label="Grafana\nlocalhost:13000\n로그인·그래프·경보 표", fillcolor="#ffedd5"];
+  exporter [label="node exporter\nDocker Linux 자원"];
+  blackbox [label="blackbox exporter\nCA·호스트명 검증"];
+  human -> web [label="제품 로그인"];
+  web -> backend [label="API / SSE"];
+  backend -> db [label="커밋 / 조회"];
+  human -> grafana [label="운영 로그인"];
+  grafana -> prom [label="PromQL 질의"];
+  prom -> backend [label="내부 9091\n전용 Basic 인증", style=dashed];
+  prom -> exporter [label="자원 수집", style=dashed];
+  prom -> blackbox [label="probe 요청", style=dashed];
+  blackbox -> web [label="내부 HTTPS 검사", style=dashed];
+}

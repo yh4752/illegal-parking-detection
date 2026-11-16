@@ -1,0 +1,103 @@
+{
+  "scope": "Local O4 timeout investigation and completed isolated acceptance; no external deployment",
+  "date": "2026-11-17",
+  "assets": [
+    {
+      "file": "acceptance.json",
+      "sha256": "abf4be30fa42607a54349b6a64969ae0f240d848f4353ec3d7f8652528cc6426",
+      "source": ".local-state/o4-investigation-20261117/acceptance.json",
+      "source_sha256": "abf4be30fa42607a54349b6a64969ae0f240d848f4353ec3d7f8652528cc6426",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "acceptance.log",
+      "sha256": "bfdaa401c242350760e24a98892fa71f1089abf824ef8da3c667f80be668926d",
+      "source": ".local-state/o4-investigation-20261117/acceptance.log",
+      "source_sha256": "bfdaa401c242350760e24a98892fa71f1089abf824ef8da3c667f80be668926d",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "command-timings.jsonl",
+      "sha256": "7ee2a1c007f0fefa339813266fe4b6da89a09a93c782d70bfc356f4dfba23846",
+      "source": ".local-state/o4-investigation-20261117/command-timings.jsonl",
+      "source_sha256": "7ee2a1c007f0fefa339813266fe4b6da89a09a93c782d70bfc356f4dfba23846",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "memory-samples.jsonl",
+      "sha256": "4f9faa61d10b3d324e33b5091a0dc3482b85ee0e413a99a6b47a9088cb80b017",
+      "source": ".local-state/o4-investigation-20261117/memory-samples.jsonl",
+      "source_sha256": "4f9faa61d10b3d324e33b5091a0dc3482b85ee0e413a99a6b47a9088cb80b017",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "image-comparison.json",
+      "sha256": "2e6382afa1d1b53dd3daf71972817cd6ec67e72c3dd63dc1955a436db6f96f71",
+      "source": ".local-state/o4-investigation-20261117/image-comparison.json",
+      "source_sha256": "2e6382afa1d1b53dd3daf71972817cd6ec67e72c3dd63dc1955a436db6f96f71",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "preservation.json",
+      "sha256": "230685316564701f7f67b6354f82b1cf71bdee41313133c4c39b8f72155c8628",
+      "source": ".local-state/o4-investigation-20261117/preservation.json",
+      "source_sha256": "230685316564701f7f67b6354f82b1cf71bdee41313133c4c39b8f72155c8628",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "learning-state-restored.json",
+      "sha256": "03a6398f8d9d238d855183f6a0a4fbe126b328c2e3e8176b1d6a0b32b7e88dce",
+      "source": ".local-state/o4-investigation-20261117/learning-state-restored.json",
+      "source_sha256": "03a6398f8d9d238d855183f6a0a4fbe126b328c2e3e8176b1d6a0b32b7e88dce",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "unit-tests.log",
+      "sha256": "215493a4afc8bbf03e4236b6b791e57555ea443abe9bd30576f22671b9ecd424",
+      "source": ".local-state/o4-investigation-20261117/unit-tests.log",
+      "source_sha256": "215493a4afc8bbf03e4236b6b791e57555ea443abe9bd30576f22671b9ecd424",
+      "transformation": "Host checkout/home paths redacted; trailing whitespace normalized; no runtime values changed"
+    },
+    {
+      "file": "historical-timeout.txt",
+      "sha256": "c74dd4dcdaeff15eb2fcb95ce913c57b6bee808870f988d5bc8e4ccb38c87488",
+      "source": "parking-pr5-o4-fixed-retry.log",
+      "source_sha256": "dcaff19234f2e846a40bba7afe6feda3b31dd144678659a43eb378f0301fb6da",
+      "transformation": "Checkout path redacted; original failure retained"
+    },
+    {
+      "file": "historical-oom.txt",
+      "sha256": "9b5e2c2d20b2e95b686afe2748a031e19b616d325aabf2eec0ef5e28ed92bc0e",
+      "source": ".local-state/o4-investigation-20261117/historical-pressure.txt",
+      "source_sha256": "3eb64d8f80431d08965f52f9cbf1ef61a293b31edab598eded97262a529c5867",
+      "transformation": "Selected one Docker Desktop OOM report request per timestamp; exact raw lines retained"
+    },
+    {
+      "file": "observer-source.txt",
+      "sha256": "54aac8245e72b04a0dc5d4d5b95a2a9250796a8e054db080ff78374f16f9ee73",
+      "source": ".local-state/o4-investigation-20261117/run_diagnostic.py",
+      "source_sha256": "54aac8245e72b04a0dc5d4d5b95a2a9250796a8e054db080ff78374f16f9ee73",
+      "transformation": "Exact executed observation wrapper; archival text, use documented verify_o4.py command for normal acceptance"
+    },
+    {
+      "file": "summary.json",
+      "sha256": "240e64666bbfc58cf733a6e60e47b0c24a0412ab2c58ea2f908b7150aab8bbe0",
+      "source": "Derived from retained logs, measurements and preservation checks",
+      "transformation": "See field definitions; original data not overwritten"
+    },
+    {
+      "file": "baseline-timeout-regression.txt",
+      "sha256": "ed265d45de816a473d1fb88a07562d0c1bcf2d43bc9043a9af967ecd47bc0bc3",
+      "source": ".local-state/o4-investigation-20261117/baseline-timeout-regression.txt",
+      "source_sha256": "bf8f2653302a49982cc324e524463797ad13b31faad9a6fc92e71347a9976e85",
+      "transformation": "Checkout path redacted; expected failures using baseline handler, not a current test failure; trailing whitespace removed"
+    }
+  ],
+  "private_artifacts_excluded": [
+    "database dumps",
+    "encrypted archives",
+    "actual credentials and keys",
+    "full private data fingerprint manifests",
+    "full Docker logs and container inspections"
+  ]
+}

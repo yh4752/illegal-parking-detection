@@ -1,0 +1,38 @@
+rule_files: [/etc/backup/alerts.yml]
+evaluation_interval: 15s
+tests:
+  - interval: 15s
+    input_series:
+      - series: 'parking_backup_status_valid{job="parking",instance="test"}'
+        values: '0+0x8'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: ParkingBackupUnverified
+        exp_alerts:
+          - exp_labels: {job: parking, instance: test, severity: warning}
+            exp_annotations: {summary: 'No readable verified restore report; do not treat dump creation as backup success'}
+  - interval: 15s
+    input_series:
+      - series: 'parking_backup_status_valid{job="parking",instance="test"}'
+        values: '1+0x8'
+      - series: 'parking_backup_last_verified_timestamp_seconds{job="parking",instance="test"}'
+        values: '-86400+0x8'
+    alert_rule_test:
+      - eval_time: 15s
+        alertname: ParkingBackupTooOld
+        exp_alerts:
+          - exp_labels: {job: parking, instance: test, severity: warning}
+            exp_annotations: {summary: 'Last verified backup exceeds the initial 24-hour target'}
+      - eval_time: 1m
+        alertname: ParkingBackupUnverified
+        exp_alerts: []
+  - interval: 15s
+    input_series:
+      - series: 'parking_backup_status_valid{job="parking",instance="test"}'
+        values: '1+0x8'
+      - series: 'parking_backup_last_verified_timestamp_seconds{job="parking",instance="test"}'
+        values: '1+0x8'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: ParkingBackupTooOld
+        exp_alerts: []

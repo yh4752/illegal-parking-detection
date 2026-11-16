@@ -433,5 +433,7 @@
   ],
   "updated_at": "2026-11-14",
   "handoff_decision": "ADR-008: committed full-state polling every 1 second replaces after-commit fanout for this single-instance handoff; public deployment not complete.",
-  "repository_visibility": "public: explicitly requested and verified 2026-11-14; website publication remains pending"
+  "repository_visibility": "public: explicitly requested and verified 2026-11-14; website publication remains pending",
+  "deployment_operations_detail": "docs/design/deployment-operations-workplan.json",
+  "deployment_design_updated_at": "2026-11-16"
 }

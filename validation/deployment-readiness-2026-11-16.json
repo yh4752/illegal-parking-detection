@@ -1,0 +1,110 @@
+{
+  "stage": "O5",
+  "date": "2026-11-16",
+  "status": "PREPARATION_DOCUMENTED_NOT_DEPLOYED",
+  "scope": [
+    "Recommendations, explanation, non-secret decision template and budget model",
+    "No application code or executable runtime configuration changed in this O5 step"
+  ],
+  "cloud_resources_created": false,
+  "domain_registered_or_dns_changed": false,
+  "keys_generated_or_shared": false,
+  "external_deployment_performed": false,
+  "external_restore_verified": false,
+  "runtime_tests_repeated_for_this_documentation_change": false,
+  "previous_local_acceptance_reference": "validation/local-backup-2026-11-16.json",
+  "guide": "docs/deployment-readiness.md",
+  "inputs": "infra/deploy/inputs.example.json",
+  "cost_model": "infra/deploy/budget.example.json",
+  "official_sources_checked": [
+    "https://aws.amazon.com/lightsail/pricing/",
+    "https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-faq-instances.html",
+    "https://docs.aws.amazon.com/lightsail/latest/userguide/understanding-static-ip-addresses-in-amazon-lightsail.html",
+    "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/ap-northeast-2/index.json",
+    "https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html#ConsistencyModel",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes-enforce.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock-managing.html",
+    "https://developers.cloudflare.com/r2/api/s3/api/",
+    "https://developers.cloudflare.com/registrar/faq/",
+    "https://developers.cloudflare.com/registrar/get-started/register-domain/",
+    "https://letsencrypt.org/getting-started/",
+    "https://letsencrypt.org/docs/challenge-types/",
+    "https://bitwarden.com/help/about-organizations/"
+  ],
+  "s3_price_snapshot": {
+    "publication_date": "2026-11-16T07:13:00Z",
+    "effective_date": "2026-11-01T00:00:00Z",
+    "sku_storage": "3JSN7K7UDDNCYCDM",
+    "sku_get": "84G6KSFBGCU9CEC9",
+    "sku_put": "D3S5DN86CFPGUM5G",
+    "rates_usd": {
+      "gb_month_first_tier": "0.025",
+      "get_other_per_request": "0.00000035",
+      "put_copy_post_list_per_request": "0.0000045"
+    }
+  },
+  "not_implemented_or_accepted": [
+    "external authenticated S3 revision adapter and CAS/latestness/failure acceptance",
+    "scheduled off-host upload/download verified backups and retention",
+    "key custody setup and fresh-host recovery",
+    "public domain ACME renewal and linux/amd64 registry release",
+    "host-specific load/disk monitoring",
+    "external whole-host probe and alert delivery",
+    "external team acceptance"
+  ],
+  "checks": {
+    "documentation_build": {
+      "command": "npm --prefix tools/docs run build",
+      "exit_code": 0,
+      "generated_svg": 12,
+      "generated_html": 39
+    },
+    "structure_and_preservation": {
+      "command": "python3 tools/check_structure.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "markdown": 61,
+      "html": 40,
+      "svg": 12,
+      "local_links": 872,
+      "baseline_files": 127,
+      "errors": []
+    },
+    "contract_generation": {
+      "command": "python3 tools/build_contracts.py --check",
+      "exit_code": 0,
+      "result": "REST contracts: verified; MQTT source unchanged"
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    "json_and_budget": {
+      "method": "One-shot inline Python stdlib JSON and Decimal assertions",
+      "exit_code": 0,
+      "result": "O5_JSON_AND_BUDGET_CHECK_PASSED",
+      "checks": [
+        "Four JSON files parse",
+        "S3 storage + request estimate equals USD 7.295",
+        "SSE illustration equals 12,960,000 GETs and USD 4.536",
+        "Monthly totals equal KRW 54,883 and 87,883 after rounding",
+        "First-month cash equals KRW 77,800 and 110,800",
+        "Three-month cash equals KRW 183,400 and 282,400",
+        "Actual supplier/domain/budget/key choices remain null",
+        "External provisioning/deployment/restore acceptance remain false/not_started"
+      ]
+    }
+  },
+  "checked_file_sha256": {
+    "docs/deployment-readiness.md": "79106b4e3e790dd40c15abb2080344707d9ed4ad8ec80c5862b4c4cf9818ed20",
+    "docs/diagrams/11-deployment-readiness.dot": "8bbad48dd5fa8db0e6e81e48543e8e90830dd47ba18816e8751f9804fc2e8556",
+    "infra/deploy/inputs.example.json": "b47cd8712cd1e38b269dd0e1c9dea70815570e493b27087c66b47af3b1d541bb",
+    "infra/deploy/budget.example.json": "6973de67bae0552cc481c179cf7acd14d68e4861d5f40e920edf78ad707dd680",
+    "docs/design/deployment-operations-workplan.json": "4eb569f6b237ca4451d98ae33bd017c47d23a94abe360c6f2e02c86913d1040f",
+    "docs/status.md": "6dd4fd1e73776802bd13344bb9d7ecbf4cf5706e9fab3a26f9aa71ee82886a32"
+  },
+  "recommendations_confirmed_by_user": false
+}

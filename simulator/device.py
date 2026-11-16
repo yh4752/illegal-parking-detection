@@ -48,8 +48,21 @@ def event(state,scenario):
         message['event_type']='EVENT_CLOSED_EXIT';record.update(state='CLOSED_EXIT',closed_at=utc(now),close_reason='OBSERVED_EXIT');snapshot['incident_state']='CLOSED_EXIT'
     VALIDATORS['EventMessage'].validate(message);return message
 
+def configure_transport(client, ca_file=None, username=None, password_file=None):
+    if any((ca_file, username, password_file)):
+        if not all((ca_file, username, password_file)):
+            raise ValueError('TLS CA, username and password file must be supplied together')
+        password=Path(password_file).read_text().rstrip('\r\n')
+        if not password or '\n' in password or '\r' in password:
+            raise ValueError('invalid MQTT password file')
+        client.tls_set(ca_certs=str(ca_file))
+        client.tls_insecure_set(False)
+        client.username_pw_set(username,password)
+
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--host',default='127.0.0.1');parser.add_argument('--port',type=int,default=1883);parser.add_argument('--state',default=str(ROOT/'.local-state/handoff/simulator.sqlite'));parser.add_argument('--scenario',choices=['guided','held','exit'],default='guided');parser.add_argument('--seconds',type=float,default=0);parser.add_argument('--event-id');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--host',default='127.0.0.1');parser.add_argument('--port',type=int,default=1883);parser.add_argument('--state',default=str(ROOT/'.local-state/handoff/simulator.sqlite'));parser.add_argument('--scenario',choices=['guided','held','exit'],default='guided');parser.add_argument('--seconds',type=float,default=0);parser.add_argument('--event-id');parser.add_argument('--tls-ca');parser.add_argument('--username');parser.add_argument('--password-file');args=parser.parse_args()
+    client=mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,client_id='sim-'+uuid.uuid4().hex[:12],protocol=mqtt.MQTTv5)
+    configure_transport(client,args.tls_ca,args.username,args.password_file)
     state=State(args.state);stopping=False;ready=False
     def stop(*_):nonlocal stopping;stopping=True
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
@@ -57,7 +70,6 @@ def main():
     if args.event_id:
         message['event_id']=args.event_id;message['event']['event_id']=args.event_id;message['snapshot']['current_event_id']=args.event_id
     state.queue(message)
-    client=mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,client_id='sim-'+uuid.uuid4().hex[:12],protocol=mqtt.MQTTv5)
     client.max_queued_messages_set(20);client.max_inflight_messages_set(8);client.reconnect_delay_set(1,30)
     def connected(client,_userdata,_flags,reason,_properties):
         if not reason.is_failure:client.subscribe('parking/v2/devices/edge-01/acks',qos=1)

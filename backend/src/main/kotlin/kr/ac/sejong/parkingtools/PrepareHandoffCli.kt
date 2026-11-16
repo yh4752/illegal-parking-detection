@@ -2,6 +2,7 @@ package kr.ac.sejong.parkingtools
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kr.ac.sejong.parking.device.adapter.jdbc.RevisionReservations
+import kr.ac.sejong.parking.device.adapter.jdbc.RevisionLedger
 import kr.ac.sejong.parking.operations.*
 import org.flywaydb.core.Flyway
 import org.springframework.boot.*
@@ -31,7 +32,7 @@ fun main(args:Array<String>) {
         val tx=TransactionTemplate(context.getBean(PlatformTransactionManager::class.java))
         val request=DemoInitializationRequest("zone-01","edge-01",3,"가상 장치 프론트 인계 환경 신규 생성")
         val initializer=FreshDemoInitializer(jdbc,tx,mapper);initializer.inspect(request)
-        RevisionReservations(jdbc,tx,mapper,Path.of(System.getenv("PARKING_REVISION_PRIMARY")),Path.of(System.getenv("PARKING_REVISION_BACKUP"))).use {
+        RevisionReservations(jdbc,tx,mapper,Path.of(System.getenv("PARKING_REVISION_PRIMARY")),Path.of(System.getenv("PARKING_REVISION_BACKUP")), RevisionLedger.configured(context.environment, mapper)).use {
             it.initialize();initializer.apply(request,it)
         }
         println("HANDOFF_DATABASE_INITIALIZED zone_id=zone-01 virtual_device=true")

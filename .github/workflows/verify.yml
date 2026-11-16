@@ -29,6 +29,8 @@ jobs:
       - run: python3 tools/check_structure.py
       - run: python3 tools/build_contracts.py --check
       - run: python3 -m unittest discover -s tools/tests -v
+      - run: pip install -r tools/production/requirements-backup.txt
+      - run: python3 -m unittest discover -s tools/production -p 'test_*.py' -v
       - run: npm --prefix tools/docs ci
       - run: npm --prefix tools/docs run build
       - name: Require updated generated documentation
@@ -61,11 +63,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Test migration, constraints and package application
+      - name: Unit tests and package application (file-secret fixtures)
+        working-directory: backend
+        run: bash ./gradlew test bootJar --no-daemon
+      - name: Database migration and constraints
         working-directory: backend
         env:
           POSTGRES_PASSWORD: ci-only-password
-        run: bash ./gradlew test databaseTest bootJar --no-daemon
+        run: bash ./gradlew databaseTest --no-daemon
 
   frontend:
     name: Frontend contract, unit tests and build
@@ -117,3 +122,74 @@ jobs:
       - name: Stop only this handoff stack
         if: always()
         run: python3 tools/handoff.py stop
+
+  production-boundaries:
+    name: Production TLS, ACL and DB role isolation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - run: pip install -r simulator/requirements.txt
+      - run: python3 tools/production/verify_o1.py
+
+  production-https:
+    name: Local HTTPS, Nginx recovery and real browser
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '24.13.0', package-manager-cache: false}
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: python3 tools/production/verify_o2.py
+      - name: HTTPS browser evidence (no credential traces)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: local-https-browser-evidence
+          path: output/playwright/
+          retention-days: 7
+
+  production-monitoring:
+    name: Local metrics, actual faults, alerts and Grafana browser
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '24.13.0', package-manager-cache: false}
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: python3 tools/production/verify_o3.py
+      - name: Grafana browser evidence (no credential traces)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: local-monitoring-browser-evidence
+          path: output/playwright/
+          retention-days: 7
+
+  production-backup:
+    name: Local encrypted backup, independent revision and restore acceptance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - run: pip install -r tools/production/requirements-backup.txt
+      - run: python3 tools/production/verify_o4.py
+      - name: Restore evidence without credentials or database archives
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: local-backup-evidence
+          path: .local-state/o4-last-result.json
+          retention-days: 7

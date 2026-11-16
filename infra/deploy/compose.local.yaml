@@ -1,0 +1,20 @@
+# Explicit NEW virtual demo fixture only; never a recovery or existing-DB adoption tool.
+services:
+  initialize-local:
+    profiles: [local-fixture]
+    image: ${PARKING_HTTPS_BACKEND_IMAGE}
+    pull_policy: never
+    user: '0:0'
+    entrypoint: [/bin/sh, /ops/initialize-local.sh]
+    environment:
+      PARKING_DB_URL: jdbc:postgresql://postgres:5432/parking_handoff
+      PARKING_DB_USERNAME: parking_migrator
+      SPRING_CONFIG_IMPORT: configtree:/run/secrets/
+      PARKING_REVISION_PRIMARY: /state/revisions.json
+      PARKING_REVISION_BACKUP: /state-copy/revisions.json
+    secrets: [{source: migrator-password, target: POSTGRES_PASSWORD}]
+    volumes:
+      - ./initialize-local.sh:/ops/initialize-local.sh:ro
+      - revision:/state
+      - revision-copy:/state-copy
+    networks: [data]
