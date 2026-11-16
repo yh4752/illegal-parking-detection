@@ -1,0 +1,134 @@
+{
+  "plan_id": "deployment-operations-1",
+  "updated_at": "2026-11-16",
+  "status": "DESIGNED_NOT_IMPLEMENTED",
+  "baseline_commit": "03b6dd51c0524750e02353be45ee14b62ed02ad5",
+  "product_design": "v1.43",
+  "read_first": [
+    "AGENTS.md",
+    "docs/status.md",
+    "docs/deployment-operations.md",
+    "docs/design/deployment-operations-plan.md",
+    "docs/adr/010-deployment-operations.md",
+    "infra/deploy/inputs.example.json"
+  ],
+  "stages": [
+    {
+      "id": "O1",
+      "name": "운영 프로필·권한·MQTT TLS/ACL",
+      "status": "planned",
+      "depends_on": [],
+      "deliverables": [
+        "app-prod와 공통 mqtt-ingest 프로필",
+        "파일 secret 매핑과 필수 설정 검증",
+        "DB 계정별 GRANT 및 일회성 migration",
+        "운영 서버·시뮬레이터 TLS/계정 지원"
+      ],
+      "acceptance": [
+        "로컬 프로필과 운영 혼합 시 기동 거부",
+        "잘못된 CA/호스트명/계정 및 익명 연결 거부",
+        "장치 A의 B 토픽 접근과 ACK 위조 거부",
+        "runtime DDL·과거 정책 수정 거부와 저장·보관 만료 회귀 통과"
+      ]
+    },
+    {
+      "id": "O2",
+      "name": "HTTPS 배포 구성",
+      "status": "planned",
+      "depends_on": [
+        "O1"
+      ],
+      "deliverables": [
+        "infra/deploy/compose.yaml 및 Nginx 설정",
+        "digest 기반 이미지 release manifest",
+        "운영자 계정 발급/회수 절차"
+      ],
+      "acceptance": [
+        "시험 CA HTTPS의 로그인·CSRF·Secure cookie·SSE·로그아웃 시험",
+        "DB/브로커/Actuator 외부 포트 미노출",
+        "인증서 갱신 reload·API 502/재접속·기존 데이터 보존 시험"
+      ]
+    },
+    {
+      "id": "O3",
+      "name": "운영 지표·관찰",
+      "status": "planned",
+      "depends_on": [
+        "O1"
+      ],
+      "deliverables": [
+        "Micrometer/Prometheus 내부 endpoint",
+        "Grafana 대시보드·경보 규칙",
+        "로그 회전과 외부 가용성 점검 설계"
+      ],
+      "acceptance": [
+        "DB/브로커/ACK 실패를 실제 발생시켜 지표 확인",
+        "broker down이어도 기존 조회 가능",
+        "ID/토큰/본문의 지표 label·로그 누출 없음",
+        "서버 down 탐지용 외부 검사 검증은 O5에서 수행"
+      ]
+    },
+    {
+      "id": "O4",
+      "name": "백업·revision 독립 기록·복원",
+      "status": "planned",
+      "depends_on": [
+        "O1"
+      ],
+      "deliverables": [
+        "암호화 백업 및 검증 절차",
+        "독립 버전/CAS 예약 기록 어댑터",
+        "기존 데이터 인수·복원 CLI 및 gate 보고서"
+      ],
+      "acceptance": [
+        "격리 DB에서 pg_dump/restore 검증",
+        "DB만 및 DB+로컬 manifest 동시 과거 복원",
+        "독립 기록 유실·불일치·접근 불가 시 중단",
+        "로컬/외부 예약과 DB 갱신 사이 각 crash 지점 재시작",
+        "이미 ACK된 백업 이후 사건 손실 가능성과 실제 RPO/RTO 측정",
+        "명시 인수 전 API/SSE와 일반 수신 차단, 인수 후 새 revision으로 복구"
+      ]
+    },
+    {
+      "id": "O5",
+      "name": "실제 외부 공개·인수",
+      "status": "planned",
+      "depends_on": [
+        "O2",
+        "O3",
+        "O4"
+      ],
+      "deliverables": [
+        "실제 도메인·공개 인증서·서버 배포",
+        "팀원 웹 계정 전달",
+        "외부 PC 인수 증거"
+      ],
+      "acceptance": [
+        "외부 HTTPS 로그인·가상 상태 갱신·SSE 재접속",
+        "외부에서 비허용 포트 차단 확인",
+        "계정 회수·세션 종료 확인",
+        "외부 가용성 경보와 백업 저장소 접근/복구 확인"
+      ]
+    }
+  ],
+  "external_inputs": [
+    "host/account and monthly budget limit",
+    "domain and DNS authority",
+    "independent storage with verified versioning/CAS and retention",
+    "backup encryption key custody",
+    "operations owner and alert destination"
+  ],
+  "limits": [
+    "single backend; no rolling overlap",
+    "no public MQTT in first deployment",
+    "no cloud resource purchase or publication performed",
+    "no production profile/Compose/metrics/restore CLI implemented by this design task",
+    "host sizing, retention, RPO and RTO are initial design targets, not measured results"
+  ],
+  "evidence_required": [
+    "commit and image digest",
+    "environment and command",
+    "expected and observed result",
+    "executed vs unexecuted scope; secrets excluded"
+  ]
+}

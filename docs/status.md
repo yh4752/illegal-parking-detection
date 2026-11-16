@@ -26,6 +26,12 @@
 
 사용자가 기존에 실행한 `parking-local`의 DB·컨테이너는 초기화하지 않았습니다. 인계 환경은 `parking-handoff`, 포트 18080/18081, 별도 DB/볼륨/쿠키를 사용합니다. CI 통과는 상대방 PC에서의 실제 인수나 외부 HTTPS 접속 성공을 대신하지 않습니다.
 
+## 배포·운영 설계 추가 (2026-11-16)
+
+[배포 요약](deployment-operations.md)·[운영 구현 명세](design/deployment-operations-plan.md)·[작업 JSON](design/deployment-operations-workplan.json)을 작성했다. 단일 Linux/Compose/Nginx, 운영 프로필·TLS/ACL·DB 권한 분리·지표·독립 revision 기록과 복원 인수 기준을 정했다. 구현 전 검토에서 로컬 MQTT 설정, health와 readiness의 혼동, 과거 DB/manifest 동시 복원, ACK 이후 데이터 손실 경계를 확인해 반영했다.
+
+**이번 변경은 설계와 입력 양식이며 운영 코드 구현·클라우드 자원 생성·외부 배포는 하지 않았다.** 다음 구현은 O1 운영 프로필과 권한 분리다. 서버·도메인·독립 저장소·알림 경로는 입력이 필요하다. 기존 v1.43 원본과 실행 계약은 유지한다.
+
 ## 다음에 필요한 것
 
 | 남은 작업 | 선행 조건 |

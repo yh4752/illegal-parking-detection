@@ -62,6 +62,9 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p>로컬 자동 검사: 백엔드 일반 <strong>144개</strong>, PostgreSQL <strong>75개</strong>, 프론트 <strong>24개</strong>, 가상 장치 <strong>3개</strong>, 계약 보호 <strong>6개</strong>. 빌드·타입 검사도 수행했습니다. 버전·커밋·CI별 성공 여부와 수정 이력은 <a href="../validation/frontend-handoff-2026-11-14.json">검증 JSON</a>을 기준으로 합니다.</p>
 <p>별도 Linux CI에서 처음 설치부터 Docker 기동·실제 브라우저 로그인·MQTT 저장·SSE·모바일·재접속을 검사합니다. 뒤늦은 낮은 순번 원문도 현재 구역 revision을 바꾸지 않고 상세 화면에 자동 반영되는지 확인합니다. DB 단절 중 성공 ACK 금지, 브로커 단절 시 outbox 보존과 복귀, 서버 재시작 후 이력 보존·이전 세션 무효화도 실제 서비스로 시험합니다.</p>
 <p>사용자가 기존에 실행한 <code>parking-local</code>의 DB·컨테이너는 초기화하지 않았습니다. 인계 환경은 <code>parking-handoff</code>, 포트 18080/18081, 별도 DB/볼륨/쿠키를 사용합니다. CI 통과는 상대방 PC에서의 실제 인수나 외부 HTTPS 접속 성공을 대신하지 않습니다.</p>
+<h2>배포·운영 설계 추가 (2026-11-16)</h2>
+<p><a href="deployment-operations.html">배포 요약</a>·<a href="design/deployment-operations-plan.html">운영 구현 명세</a>·<a href="design/deployment-operations-workplan.json">작업 JSON</a>을 작성했다. 단일 Linux/Compose/Nginx, 운영 프로필·TLS/ACL·DB 권한 분리·지표·독립 revision 기록과 복원 인수 기준을 정했다. 구현 전 검토에서 로컬 MQTT 설정, health와 readiness의 혼동, 과거 DB/manifest 동시 복원, ACK 이후 데이터 손실 경계를 확인해 반영했다.</p>
+<p><strong>이번 변경은 설계와 입력 양식이며 운영 코드 구현·클라우드 자원 생성·외부 배포는 하지 않았다.</strong> 다음 구현은 O1 운영 프로필과 권한 분리다. 서버·도메인·독립 저장소·알림 경로는 입력이 필요하다. 기존 v1.43 원본과 실행 계약은 유지한다.</p>
 <h2>다음에 필요한 것</h2>
 <div class="table-scroll"><table>
 <thead>

@@ -1,0 +1,19 @@
+{
+  "format_version": 1,
+  "status": "INPUTS_PENDING_NOT_DEPLOYABLE",
+  "host_provider": null,
+  "existing_host_available": null,
+  "monthly_budget_limit_krw": null,
+  "host_architecture_target": "linux/amd64",
+  "initial_sizing_assumption": {"vcpu": 2, "memory_gib": 4, "disk_gib": 40, "load_tested": false},
+  "web_domain": null,
+  "dns_control_available": null,
+  "admin_allowed_cidr": null,
+  "independent_storage_provider": null,
+  "independent_storage_versioning_and_cas_verified": false,
+  "backup_encryption_key_reference": null,
+  "operations_alert_channel": null,
+  "operations_owner": null,
+  "public_mqtt_enabled": false,
+  "secret_values_allowed": false
+}

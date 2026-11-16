@@ -38,6 +38,7 @@ python3 tools/handoff.py prepare
 | 전체 구조·역할 분담 | [C4 아키텍처](docs/architecture.md) |
 | 프론트 수정·AI 코딩 도구에 인계 | [프론트 README](frontend/README.md) · [인계 컨텍스트](docs/frontend-handoff-context.json) |
 | 서버·장치 통신 계약 | [백엔드 구조](docs/backend.md) · [메시지·API 정의](docs/contracts.md) |
+| 운영 배포를 준비할 때 | [배포·운영 설계](docs/deployment-operations.md) |
 | 실행한 시험·남은 작업 | [현재 상태](docs/status.md) · [검증 기록](validation/frontend-handoff-2026-11-14.json) |
 | 협업·코딩 도구 규칙 | [개발 참여 안내](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md) |
 | 완성 코드로 학습 | [학습 순서](docs/learning-map.md) · [백엔드만 실행](backend/README.md) |
