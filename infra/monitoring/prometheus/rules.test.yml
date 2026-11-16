@@ -1,0 +1,673 @@
+{
+  "rule_files": [
+    "/etc/prometheus/alerts.yml"
+  ],
+  "evaluation_interval": "15s",
+  "tests": [
+    {
+      "name": "backend requires one continuous minute",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "up{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "0+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "45s",
+          "alertname": "ParkingBackendDown",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "1m",
+          "alertname": "ParkingBackendDown",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "critical"
+              },
+              "exp_annotations": {
+                "summary": "Backend metrics unavailable; check process and scrape authentication"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "MQTT connection is distinct from read readiness",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_mqtt_connected{job=\"parking\",instance=\"backend:9091\",channel=\"events\"}",
+          "values": "0+0x40"
+        },
+        {
+          "series": "parking_readiness_ready{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "1+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "15s",
+          "alertname": "ParkingMqttDisconnected",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "30s",
+          "alertname": "ParkingMqttDisconnected",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "channel": "events",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "MQTT channel disconnected; stored reads can remain available"
+              }
+            }
+          ]
+        },
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingReadNotReady",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "read gate is immediate",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_readiness_ready{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "0+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "0s",
+          "alertname": "ParkingReadNotReady",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "critical"
+              },
+              "exp_annotations": {
+                "summary": "Database or revision gate is not ready for reads"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ParkingCommitFailures increase and eventual recovery",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_commit_failures_total{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "0+0x4 1+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "30s",
+          "alertname": "ParkingCommitFailures",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "90s",
+          "alertname": "ParkingCommitFailures",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "Event database processing failed; no successful application ACK for that attempt"
+              }
+            }
+          ]
+        },
+        {
+          "eval_time": "8m",
+          "alertname": "ParkingCommitFailures",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "ParkingCommitFailures counter reset alone is not failure",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_commit_failures_total{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "100+0x10 0+0x30"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "5m",
+          "alertname": "ParkingCommitFailures",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "ParkingAckFailures increase and eventual recovery",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_ack_publish_total{job=\"parking\",instance=\"backend:9091\",result=\"failure\"}",
+          "values": "0+0x4 1+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "30s",
+          "alertname": "ParkingAckFailures",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "90s",
+          "alertname": "ParkingAckFailures",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "result": "failure",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "ACK publication failed after commit; inspect device retry and duplicate outcomes"
+              }
+            }
+          ]
+        },
+        {
+          "eval_time": "8m",
+          "alertname": "ParkingAckFailures",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "ParkingAckFailures counter reset alone is not failure",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_ack_publish_total{job=\"parking\",instance=\"backend:9091\",result=\"failure\"}",
+          "values": "100+0x10 0+0x30"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "5m",
+          "alertname": "ParkingAckFailures",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "slow commit sparse samples suppressed",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_ingest_commit_seconds_bucket{job=\"parking\",instance=\"backend:9091\",le=\"1.0\"}",
+          "values": "0+0.01x40"
+        },
+        {
+          "series": "parking_ingest_commit_seconds_bucket{job=\"parking\",instance=\"backend:9091\",le=\"2.5\"}",
+          "values": "0+0.1x40"
+        },
+        {
+          "series": "parking_ingest_commit_seconds_bucket{job=\"parking\",instance=\"backend:9091\",le=\"+Inf\"}",
+          "values": "0+0.1x40"
+        },
+        {
+          "series": "parking_ingest_commit_seconds_count{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "0+0.1x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "5m",
+          "alertname": "ParkingSlowCommit",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "reject ratio sparse samples suppressed",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_ingest_total{job=\"parking\",instance=\"backend:9091\",outcome=\"rejected\"}",
+          "values": "0+0.1x40"
+        },
+        {
+          "series": "parking_ingest_total{job=\"parking\",instance=\"backend:9091\",outcome=\"stored\"}",
+          "values": "0+0.1x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "5m",
+          "alertname": "ParkingIngestRejectRatio",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "slow commit enough samples",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_ingest_commit_seconds_bucket{job=\"parking\",instance=\"backend:9091\",le=\"1.0\"}",
+          "values": "0+1.0x40"
+        },
+        {
+          "series": "parking_ingest_commit_seconds_bucket{job=\"parking\",instance=\"backend:9091\",le=\"2.5\"}",
+          "values": "0+10x40"
+        },
+        {
+          "series": "parking_ingest_commit_seconds_bucket{job=\"parking\",instance=\"backend:9091\",le=\"+Inf\"}",
+          "values": "0+10x40"
+        },
+        {
+          "series": "parking_ingest_commit_seconds_count{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "0+10x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "5m",
+          "alertname": "ParkingSlowCommit",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "Commit path p95 above one second with at least 20 completed transactions"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reject ratio enough samples",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_ingest_total{job=\"parking\",instance=\"backend:9091\",outcome=\"rejected\"}",
+          "values": "0+10x40"
+        },
+        {
+          "series": "parking_ingest_total{job=\"parking\",instance=\"backend:9091\",outcome=\"stored\"}",
+          "values": "0+10x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "5m",
+          "alertname": "ParkingIngestRejectRatio",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "More than 20 percent rejected with at least 20 event attempts in five minutes"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SSE parking_sse_active",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_sse_active{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "41+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "1m",
+          "alertname": "ParkingSsePressure",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "SSE capacity or slow client closure; compare active connections and rejection counters"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SSE parking_sse_rejected_total",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_sse_rejected_total{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "0+1x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "1m",
+          "alertname": "ParkingSsePressure",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "SSE capacity or slow client closure; compare active connections and rejection counters"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SSE parking_sse_slow_closed_total",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "parking_sse_slow_closed_total{job=\"parking\",instance=\"backend:9091\"}",
+          "values": "0+1x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "1m",
+          "alertname": "ParkingSsePressure",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "parking",
+                "instance": "backend:9091",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "SSE capacity or slow client closure; compare active connections and rejection counters"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "filesystem available 30",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "node_filesystem_avail_bytes{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "30+0x40"
+        },
+        {
+          "series": "node_filesystem_size_bytes{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "100+0x40"
+        },
+        {
+          "series": "node_filesystem_files_free{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "30+0x40"
+        },
+        {
+          "series": "node_filesystem_files{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "100+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingDiskSpaceWarning",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingDiskSpaceCritical",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingInodesLow",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "filesystem available 15",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "node_filesystem_avail_bytes{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "15+0x40"
+        },
+        {
+          "series": "node_filesystem_size_bytes{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "100+0x40"
+        },
+        {
+          "series": "node_filesystem_files_free{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "15+0x40"
+        },
+        {
+          "series": "node_filesystem_files{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "100+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingDiskSpaceWarning",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "linux-runtime",
+                "instance": "node-exporter:9100",
+                "scope": "docker-runtime",
+                "mountpoint": "/",
+                "device": "overlay",
+                "fstype": "overlay",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "Observed Docker runtime filesystem at least 80 percent used"
+              }
+            }
+          ]
+        },
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingDiskSpaceCritical",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingInodesLow",
+          "exp_alerts": []
+        }
+      ]
+    },
+    {
+      "name": "filesystem available 5",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "node_filesystem_avail_bytes{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "5+0x40"
+        },
+        {
+          "series": "node_filesystem_size_bytes{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "100+0x40"
+        },
+        {
+          "series": "node_filesystem_files_free{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "5+0x40"
+        },
+        {
+          "series": "node_filesystem_files{job=\"linux-runtime\",instance=\"node-exporter:9100\",scope=\"docker-runtime\",mountpoint=\"/\",device=\"overlay\",fstype=\"overlay\"}",
+          "values": "100+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingDiskSpaceWarning",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "linux-runtime",
+                "instance": "node-exporter:9100",
+                "scope": "docker-runtime",
+                "mountpoint": "/",
+                "device": "overlay",
+                "fstype": "overlay",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "Observed Docker runtime filesystem at least 80 percent used"
+              }
+            }
+          ]
+        },
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingDiskSpaceCritical",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "linux-runtime",
+                "instance": "node-exporter:9100",
+                "scope": "docker-runtime",
+                "mountpoint": "/",
+                "device": "overlay",
+                "fstype": "overlay",
+                "severity": "critical"
+              },
+              "exp_annotations": {
+                "summary": "Observed Docker runtime filesystem at least 90 percent used"
+              }
+            }
+          ]
+        },
+        {
+          "eval_time": "2m",
+          "alertname": "ParkingInodesLow",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "linux-runtime",
+                "instance": "node-exporter:9100",
+                "scope": "docker-runtime",
+                "mountpoint": "/",
+                "device": "overlay",
+                "fstype": "overlay",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "Observed Docker runtime filesystem has less than 10 percent free inodes"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HTTPS internal loss is not external acceptance",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"https-internal\",instance=\"parking-https\",scope=\"internal-only\"}",
+          "values": "0+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "15s",
+          "alertname": "ParkingHttpsInternalDown",
+          "exp_alerts": []
+        },
+        {
+          "eval_time": "30s",
+          "alertname": "ParkingHttpsInternalDown",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "https-internal",
+                "instance": "parking-https",
+                "scope": "internal-only",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "Internal HTTPS probe failed; this does not test external reachability"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "short test certificate warns",
+      "interval": "15s",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"https-internal\",instance=\"parking-https\",scope=\"internal-only\"}",
+          "values": "1+0x40"
+        },
+        {
+          "series": "probe_ssl_earliest_cert_expiry{job=\"https-internal\",instance=\"parking-https\",scope=\"internal-only\"}",
+          "values": "864000+0x40"
+        }
+      ],
+      "alert_rule_test": [
+        {
+          "eval_time": "1m",
+          "alertname": "ParkingCertificateExpiring",
+          "exp_alerts": [
+            {
+              "exp_labels": {
+                "job": "https-internal",
+                "instance": "parking-https",
+                "scope": "internal-only",
+                "severity": "warning"
+              },
+              "exp_annotations": {
+                "summary": "HTTPS certificate expires within 14 days; short local certificates intentionally trigger this warning"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

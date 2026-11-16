@@ -1,0 +1,53 @@
+# Query strings, cookies, Authorization and request bodies are never in the access log.
+log_format parking '$remote_addr [$time_local] "$request_method $uri $server_protocol" $status $body_bytes_sent $request_time';
+# Nginx error messages can include the original request URI. Use sanitized status
+# logs + nginx -t + backend logs for diagnosis, without logging raw request lines.
+error_log /dev/null;
+resolver 127.0.0.11 valid=5s ipv6=off;
+upstream parking_backend {
+    zone parking_backend 64k;
+    server backend:8080 resolve;
+}
+server {
+    # Override the base image's http-level combined log instead of adding a second log.
+    access_log /dev/stdout parking;
+    error_log /dev/null;
+    listen 80 default_server;
+    server_name localhost;
+    server_tokens off;
+    return 308 ${PUBLIC_HTTPS_ORIGIN}$request_uri;
+}
+server {
+    access_log /dev/stdout parking;
+    error_log /dev/null;
+    listen 443 ssl default_server;
+    server_name localhost;
+    ssl_certificate /etc/nginx/tls/server.crt;
+    ssl_certificate_key /etc/nginx/tls/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_tickets off;
+    server_tokens off;
+    root /usr/share/nginx/html;
+    index index.html;
+    client_max_body_size 64k;
+    add_header Cache-Control no-store always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy same-origin always;
+    add_header X-Frame-Options DENY always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'" always;
+    location ~ ^/(actuator|metrics|prometheus|grafana)(/|$) { return 404; }
+    location /api/ {
+        proxy_pass http://parking_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection "";
+        proxy_set_header X-Forwarded-For "";
+        proxy_set_header X-Forwarded-Proto "";
+        proxy_set_header Forwarded "";
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 3s;
+    }
+    location / { try_files $uri $uri/ /index.html; }
+}

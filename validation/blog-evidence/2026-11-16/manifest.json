@@ -1,0 +1,114 @@
+{
+  "format_version": 1,
+  "preserved_on": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "scope": "Curated public evidence for O1-O5 learning; historical local runs, no external deployment",
+  "captures_edited": false,
+  "secrets_and_database_archives_included": false,
+  "source_baseline_commit": "4ea34bcb56fae9ba4998408338b87b310a87c439",
+  "source_was_uncommitted_during_original_runs": true,
+  "assets": [
+    {
+      "file": "parking-o4-general.txt",
+      "kind": "reviewed_test_log",
+      "source_basename": "parking-o4-general.log",
+      "original_sha256": "6fc7bc434be6d8918e1f35a4697497cae4e58bbaad4c8705218569adbbb34344",
+      "sha256": "9bfe6f02a96ffdcf203c21b33ab3b54dfa8385c42fe1bdf9b38af48cec4f7f08",
+      "redaction": "Host paths and credential assignments replaced when present; trailing line whitespace removed",
+      "content_changed": true,
+      "execution_stage": "O4 historical local acceptance, not rerun for preservation"
+    },
+    {
+      "file": "parking-o4-database.txt",
+      "kind": "reviewed_test_log",
+      "source_basename": "parking-o4-database.log",
+      "original_sha256": "ee6c565a3d3ba35545d37e0fc34197073f3075b087ca707d6412433cb252da3d",
+      "sha256": "b0e1456643d3b2093ba7705d9432a85e21c7906ddfcac5a95334eb3511064ddc",
+      "redaction": "Host paths and credential assignments replaced when present; trailing line whitespace removed",
+      "content_changed": true,
+      "execution_stage": "O4 historical local acceptance, not rerun for preservation"
+    },
+    {
+      "file": "parking-o4-acceptance.txt",
+      "kind": "reviewed_test_log",
+      "source_basename": "parking-o4-acceptance.log",
+      "original_sha256": "4ff331d630a6ab5da54083e6d69c8c0d3237922cb4e9d2d31c8fea832dad0a67",
+      "sha256": "4ff331d630a6ab5da54083e6d69c8c0d3237922cb4e9d2d31c8fea832dad0a67",
+      "redaction": "Host paths and credential assignments replaced when present; trailing line whitespace removed",
+      "content_changed": false,
+      "execution_stage": "O4 historical local acceptance, not rerun for preservation"
+    },
+    {
+      "file": "o2-https-zone.png",
+      "kind": "unaltered_screenshot",
+      "source": "output/playwright/o2-https-zone.png",
+      "original_sha256": "f07ab5578b99f56a963bb51f5514127cba9fb72c017c3a95708e4df146dfaa00",
+      "sha256": "f07ab5578b99f56a963bb51f5514127cba9fb72c017c3a95708e4df146dfaa00",
+      "visual_review": "Synthetic local data only; no visible passwords, tokens, cookie values or private keys",
+      "scope": "Local browser screenshot; not production performance evidence"
+    },
+    {
+      "file": "o3-grafana-overview.png",
+      "kind": "unaltered_screenshot",
+      "source": "output/playwright/o3-grafana-overview.png",
+      "original_sha256": "592990ad1672582236133411eebf42a6498496fc3e88f43d5ae1e87802e11340",
+      "sha256": "592990ad1672582236133411eebf42a6498496fc3e88f43d5ae1e87802e11340",
+      "visual_review": "Synthetic local data only; no visible passwords, tokens, cookie values or private keys",
+      "scope": "Local browser screenshot; not production performance evidence"
+    },
+    {
+      "file": "o3-grafana-alerts.png",
+      "kind": "unaltered_screenshot",
+      "source": "output/playwright/o3-grafana-alerts.png",
+      "original_sha256": "ff33a286d4247f03d99f888b424573677eaa2fbf89094715c672a2961508d4c7",
+      "sha256": "ff33a286d4247f03d99f888b424573677eaa2fbf89094715c672a2961508d4c7",
+      "visual_review": "Synthetic local data only; no visible passwords, tokens, cookie values or private keys",
+      "scope": "Local browser screenshot; not production performance evidence"
+    },
+    {
+      "file": "o4-backup-dashboard.png",
+      "kind": "unaltered_screenshot",
+      "source": "output/playwright/o4-backup-dashboard.png",
+      "original_sha256": "fd7dd6d7bfa961e45817b23d0ec7a0890b7ba533557fb74dd7cbed11461c6229",
+      "sha256": "fd7dd6d7bfa961e45817b23d0ec7a0890b7ba533557fb74dd7cbed11461c6229",
+      "visual_review": "Synthetic local data only; no visible passwords, tokens, cookie values or private keys",
+      "scope": "Local browser screenshot; not production performance evidence"
+    },
+    {
+      "file": "test-summary.json",
+      "kind": "derived_test_summary",
+      "sha256": "b2cba04c7ef6d1c472d52a30eb24418bf64f6be2bb8fd1489ea1f9e5c6ebf2ff"
+    },
+    {
+      "file": "measurements.json",
+      "kind": "derived_measurements",
+      "sha256": "705c6610293131f60867741ea21943ad29a0e1a6524400b555d581a5c2626d77"
+    }
+  ],
+  "source_records": [
+    {
+      "file": "validation/production-boundaries-2026-11-16.json",
+      "sha256": "e27df9702704b99cdf1949e5bafd4af97e0e3733588b28f0092b363cc7c69df2"
+    },
+    {
+      "file": "validation/local-https-2026-11-16.json",
+      "sha256": "b76027bdc49a27ededc7d03bb7c0730b570bd0c8f81f3be20d06d60237464e9f"
+    },
+    {
+      "file": "validation/local-monitoring-2026-11-16.json",
+      "sha256": "8a290e93230c23365e5bc2e3812d456853b49bbb2a56e4aa4472ecf2436b2002"
+    },
+    {
+      "file": "validation/local-backup-2026-11-16.json",
+      "sha256": "72ec3531a6a890c2cdb571fd4e0fc1c9ea6138369e1653551392ac500ece3ad1"
+    },
+    {
+      "file": "validation/deployment-readiness-2026-11-16.json",
+      "sha256": "5ac0f021458f8b8df0366aff17468c2aaf091eb08eb78e1652aa217794c5841a"
+    },
+    {
+      "file": "infra/deploy/budget.example.json",
+      "sha256": "6973de67bae0552cc481c179cf7acd14d68e4861d5f40e920edf78ad707dd680"
+    }
+  ]
+}

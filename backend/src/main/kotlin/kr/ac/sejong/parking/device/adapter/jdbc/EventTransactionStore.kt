@@ -25,6 +25,7 @@ class EventTransactionStore(
     private val revisions: RevisionReservations,
     private val mapper: ObjectMapper,
     private val clock: Clock = Clock.systemUTC(),
+    private val recoveryOnly: Boolean = false,
 ) {
     private val terminal = setOf("CLOSED_EXIT", "CLOSED_MANUAL")
 
@@ -44,6 +45,13 @@ class EventTransactionStore(
         val zones = jdbc.queryForList("SELECT * FROM zone_view WHERE zone_id=? FOR UPDATE", input.zoneId)
         if (zones.isEmpty() || zones.single()["device_id"] != input.deviceId) return noAck("device_registration")
         val zone = zones.single()
+        if (zone["recovery_hold"] == true && !recoveryOnly) return noAck("recovery_hold")
+        if (recoveryOnly) {
+            check(zone["recovery_hold"] == true) { "reconciliation_requires_hold" }
+            check(!heartbeat && input.message.path("device_seq").asLong(-1) > (zone["last_device_seq"] as Number).toLong()) {
+                "reconciliation_requires_newer_device_report"
+            }
+        }
         val devices = jdbc.queryForList("SELECT * FROM device WHERE device_id=? FOR UPDATE", input.deviceId)
         if (devices.isEmpty() || devices.single()["zone_id"] != input.zoneId || devices.single()["enabled"] != true) {
             return noAck("device_registration")
@@ -265,6 +273,7 @@ class EventTransactionStore(
             revisions.withZone(id) {
                 transaction.executeWithoutResult {
                     val zone = jdbc.queryForMap("SELECT * FROM zone_view WHERE zone_id=? FOR UPDATE", id)
+                    if (zone["recovery_hold"] == true) return@executeWithoutResult
                     jdbc.queryForMap("SELECT device_id FROM device WHERE device_id=? FOR UPDATE", zone["device_id"])
                     val last = (zone["last_heartbeat_at"] as? Timestamp)?.toInstant()
                     val age = last?.let { java.time.Duration.between(it, clock.instant()).toMillis() }
@@ -285,6 +294,7 @@ class EventTransactionStore(
                 retryTransaction {
                     transaction.executeWithoutResult {
                         val zone = jdbc.queryForMap("SELECT * FROM zone_view WHERE zone_id=? FOR UPDATE", zoneId)
+                        if (zone["recovery_hold"] == true) return@executeWithoutResult
                         val deviceId = zone["device_id"] as String
                         jdbc.queryForMap("SELECT device_id FROM device WHERE device_id=? FOR UPDATE", deviceId)
                         val now = Timestamp.from(clock.instant())

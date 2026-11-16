@@ -1,0 +1,7 @@
+O4_PHASE normal HTTPS, stored ACK and baseline
+O4_PHASE encrypted backup and real isolated pg_restore comparison
+O4_PHASE already ACKed post-backup loss and rollback detection
+O4_PHASE isolated restore remains closed for API, SSE and MQTT
+O4_PHASE explicit device reconciliation, report-bound acceptance and retry
+O4_PHASE independent store outage fails closed and requires backend restart
+O4_ACCEPTANCE_PASSED

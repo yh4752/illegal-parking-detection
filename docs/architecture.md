@@ -56,3 +56,7 @@ C4의 컨테이너는 앱 또는 저장소를 뜻하며 Docker 컨테이너와�
 ## 운영 배포 구조
 
 한 서버의 네트워크·저장·모니터링 배치는 [배포 요약](deployment-operations.md)의 C4 배포 뷰를 따른다. 목표 구조이며 현재 공개 배포 완료를 뜻하지 않는다.
+
+O4의 백업/복원 저장 경계와 별도 로컬 revision 서비스는 [백업·복원 설명](local-backup.md)과 [C4 배포 상세](diagrams/10-local-backup.svg)를 따릅니다. 이 서비스는 외부 저장소 계약을 검증하기 위한 로컬 참조 어댑터입니다.
+
+O5의 외부 자원 후보와 비용·키 보관 책임은 [배포 준비](deployment-readiness.md), 서버/독립 버킷/복구 키의 제안 경계는 [O5 그림](diagrams/11-deployment-readiness.svg)에 있습니다. 추천 문서이며 실제 자원 생성·외부 어댑터 구현·배포 인수는 아직 하지 않았습니다.

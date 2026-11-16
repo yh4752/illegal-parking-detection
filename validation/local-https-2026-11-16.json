@@ -1,0 +1,149 @@
+{
+  "stage": "O2",
+  "status": "ACCEPTED_LOCAL",
+  "date": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "baseline_commit": "4ea34bcb56fae9ba4998408338b87b310a87c439",
+  "branch": "feat/production-boundaries",
+  "source_state": "uncommitted working tree; O1 changes preserved; hashes identify O2 validated files",
+  "environment": {
+    "host_os": "Darwin",
+    "host_architecture": "arm64",
+    "container_platform": "linux/arm64",
+    "runtime": "Docker Desktop / Compose; real PostgreSQL, Mosquitto TLS, app-prod and Nginx",
+    "node": "24.13.0",
+    "browser": "Playwright 1.65.1 Chromium 159.0.8154.6",
+    "certificate_scope": "test CA; strict Python CA/SAN checks; isolated Chromium allows only test leaf SPKI; no system trust-store change",
+    "image_scope": "local image IDs, not published registry release digests"
+  },
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/production -p 'test_*.py' -v",
+      "status": "PASS",
+      "tests": 5
+    },
+    {
+      "command": "npm run generate && npm run format:check && npm test && npm run build",
+      "cwd": "frontend",
+      "status": "PASS",
+      "tests": 24,
+      "note": "Existing Vite large chunk advisory remains; no product UI implementation change"
+    },
+    {
+      "command": "node frontend/node_modules/@playwright/test/cli.js test --config frontend/playwright.https.config.ts",
+      "status": "PASS",
+      "tests": 1,
+      "scope": "persistent learning stack; completed in 16.9 seconds"
+    },
+    {
+      "command": "python3 tools/production/verify_o2.py",
+      "status": "PASS",
+      "expected_and_observed": "O2_ACCEPTANCE_PASSED",
+      "scope": "fresh isolated Compose, full TLS/API/fault sequence plus real Chromium"
+    },
+    {
+      "command": "python3 -m py_compile tools/production/local_https.py tools/production/verify_o2.py; node --check tools/production/open_https.mjs",
+      "status": "PASS"
+    },
+    {
+      "command": "npm --prefix tools/docs run build && python3 tools/check_structure.py && python3 tools/build_contracts.py --check && git diff --check",
+      "cwd": ".",
+      "status": "PASS",
+      "scope": "Generated HTML/SVG, links and all 127 preserved v1.43 baseline files"
+    },
+    {
+      "command": "LocalHttps.check_release(); LocalHttps.wait_ready(); test-owned container cleanup inspection",
+      "status": "PASS",
+      "scope": "Learning stack image IDs remain available after a fresh separate acceptance build; HTTPS ready; no isolated O2 containers remain"
+    }
+  ],
+  "acceptance_observed": [
+    "Untrusted CA and wrong SAN rejected by strict HTTPS client; fixed HTTP308 origin even with hostile Host header",
+    "Only loopback web bindings; PostgreSQL/MQTT/backend have no published host ports; management paths404",
+    "Actual login, missing-CSRF403, Secure/HttpOnly/SameSite cookies, session rotation, logout and SSE closure",
+    "TLS virtual device events committed in PostgreSQL and application STORED ACK; update delivered through Nginx SSE",
+    "Operator-issued account; zone revocation closes SSE and denies403; disabled user session401",
+    "Web certificate replaced with new serial and Nginx reload; authenticated session preserved",
+    "Stopped backend returns504 while stale IP times out, then502; recreated backend forced onto a different IP; Nginx DNS recovery",
+    "Backend restart invalidates session; re-login and event history survive; repeat up preserves data",
+    "Query sentinel and password absent from Nginx logs after default log inheritance fix",
+    "Real Chromium login, live simulated event UI, offline/reconnect, logout; no page errors",
+    "Learning browser helper opens separate Chromium window; generated documentation diagram rendered and visually checked"
+  ],
+  "review_fixes": [
+    "Bind every Compose service image and running container to manifest image IDs",
+    "Check actually mounted Mosquitto configuration and ACL hashes",
+    "Force backend IP change to prevent false-positive DNS recovery acceptance",
+    "Override inherited default Nginx request logs at server scope to exclude query strings",
+    "Keep per-project build tags so an isolated test cannot discard learning image references",
+    "Initialize PostgreSQL through .sql rather than execute a bind-mounted script rejected by Docker Desktop"
+  ],
+  "not_executed": [
+    "GitHub Actions remote run",
+    "Linux x86_64 server acceptance",
+    "Public domain/certificate/ACME and external client acceptance",
+    "O3 monitoring/alerts",
+    "O4 independent revision backup/restore",
+    "Real AI/board/physical outputs",
+    "O1 full suite rerun in O2; previous results remain in the separate O1 record"
+  ],
+  "cleanup": "Isolated acceptance containers/volumes removed; persistent parking-https learning stack retained on loopback; pre-existing services preserved",
+  "evidence": {
+    "event_id": "demo-a058d8cf553c",
+    "images": {
+      "postgres": {
+        "source": "postgres:17.11@sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f",
+        "image_id": "sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f"
+      },
+      "mqtt": {
+        "source": "eclipse-mosquitto:2.0.22@sha256:81a6193ae693942a3231cd3ac52875b02b7e3a19da671b2fb4b55cc874c5b279",
+        "image_id": "sha256:81a6193ae693942a3231cd3ac52875b02b7e3a19da671b2fb4b55cc874c5b279"
+      },
+      "backend": {
+        "source": "backend/Dockerfile",
+        "image_id": "sha256:08396f4f5c53cbb14355728d57608bb6cd729505788303b703a5cf713253f5a5"
+      },
+      "web": {
+        "source": "frontend/Dockerfile",
+        "image_id": "sha256:dfe3b242f28465b40eaa732416b1120b7e7870fc2c514e0dca1f6c5264fd7d82"
+      },
+      "simulator": {
+        "source": "simulator/Dockerfile",
+        "image_id": "sha256:7e0baf58168154afe31b292906c03dd5a156bdcf0c9eab7fe1513efb3029201b"
+      }
+    },
+    "configuration_sha256": {
+      "infra/deploy/compose.yaml": "a65fd5606df19df41ca023a4b0c613d17deeadeb2b33c2fe921a755b22949b17",
+      "infra/deploy/compose.local.yaml": "884f842969d577932df13f07e0b2006b59d87b1b31c7ea225d612e156c0172e3",
+      "infra/deploy/init-db.sql": "800cf1b5821cf7be4c4c1b09289241eecbe8736d70069767abf32206e8f87337",
+      "infra/deploy/initialize-local.sh": "40e5d030963a75f86bf4b9aaf2d3867dfc66a665c3f21b61b6021e6a7913320a",
+      "infra/deploy/operator.sh": "9aba6e5936c8678b3d39e53a7031eba44f34edafba02c70a4ec0c3e73c88ab88",
+      "infra/deploy/nginx/default.conf.template": "08025ff9a81addea0cf7ce50b9ed5e424c915096a95bf5e1f889d28b2c35b78c",
+      "infra/deploy/sql/create-roles.sql": "e3769d9959858a867adc46158f3606a2d7f6a130a1b9bc66fd8792f1d8a53f5e",
+      "infra/deploy/sql/grants.sql": "b568eb97c19b46f693951c4ecac3b4d668b077771d7d3067f41b9542209d54de",
+      "infra/deploy/mosquitto/mosquitto.conf": "5409396e4d55fd5fb560aba977aee18037a899923370c71c462c1c41e1718f3f",
+      "infra/deploy/mosquitto/acl": "419440dedc74bc51ef16163b8d257fb97a00906889a3577e9611ade84bdcf247"
+    }
+  },
+  "source_sha256": {
+    ".github/workflows/verify.yml": "39c8317895426baa75faea55752ed503f0268f68f6fcfb674e1b603d88669067",
+    ".gitignore": "4d64630f2ea07ce407b41dc876668b162c34bd967d5f4bf32340a147375426fa",
+    "frontend/playwright.https.config.ts": "af0ad5d0a8454c500bd6af54941f4ebbad86a96d7ccb15bbef30f6c0cd7aad2c",
+    "frontend/tests/https/https.spec.ts": "63e44e67fac7932acd30f3591e5d9be208d8a7e2694f8e8943fdb797a0940462",
+    "infra/deploy/compose.local.yaml": "884f842969d577932df13f07e0b2006b59d87b1b31c7ea225d612e156c0172e3",
+    "infra/deploy/compose.yaml": "a65fd5606df19df41ca023a4b0c613d17deeadeb2b33c2fe921a755b22949b17",
+    "infra/deploy/init-db.sql": "800cf1b5821cf7be4c4c1b09289241eecbe8736d70069767abf32206e8f87337",
+    "infra/deploy/initialize-local.sh": "40e5d030963a75f86bf4b9aaf2d3867dfc66a665c3f21b61b6021e6a7913320a",
+    "infra/deploy/mosquitto/acl": "419440dedc74bc51ef16163b8d257fb97a00906889a3577e9611ade84bdcf247",
+    "infra/deploy/mosquitto/mosquitto.conf": "5409396e4d55fd5fb560aba977aee18037a899923370c71c462c1c41e1718f3f",
+    "infra/deploy/nginx/default.conf.template": "08025ff9a81addea0cf7ce50b9ed5e424c915096a95bf5e1f889d28b2c35b78c",
+    "infra/deploy/operator.sh": "9aba6e5936c8678b3d39e53a7031eba44f34edafba02c70a4ec0c3e73c88ab88",
+    "infra/deploy/sql/create-roles.sql": "e3769d9959858a867adc46158f3606a2d7f6a130a1b9bc66fd8792f1d8a53f5e",
+    "infra/deploy/sql/grants.sql": "b568eb97c19b46f693951c4ecac3b4d668b077771d7d3067f41b9542209d54de",
+    "tools/docs/build.mjs": "28a7dccf601e0cef8b22d0496a98a0ea667e9b832ce696da70d0609b6071618b",
+    "tools/production/local_https.py": "d680f69c757d0449f371aab99f27a0465a27ddaabc2c03c82a6f82cdbdf91f0a",
+    "tools/production/open_https.mjs": "95d8b4274bbcdcec61064322935380b7e963b7ba4e1a58cde08320deded5aae7",
+    "tools/production/test_local_https.py": "e75ab79adbb493581dce5e158c2b24eca622af807fddddee4dc6f2d77b27eecb",
+    "tools/production/verify_o2.py": "1f756747bfe13d158444c57b56b3afccb6c3453b1195df1345b27ef01ab55c1a"
+  }
+}

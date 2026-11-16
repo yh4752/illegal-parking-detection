@@ -1,0 +1,12 @@
+groups:
+  - name: parking-backup
+    rules:
+      - alert: ParkingBackupUnverified
+        expr: parking_backup_status_valid{job="parking"} == 0
+        for: 1m
+        labels: {severity: warning}
+        annotations: {summary: 'No readable verified restore report; do not treat dump creation as backup success'}
+      - alert: ParkingBackupTooOld
+        expr: (time() - parking_backup_last_verified_timestamp_seconds{job="parking"} > 86400) and parking_backup_status_valid{job="parking"} == 1
+        labels: {severity: warning}
+        annotations: {summary: 'Last verified backup exceeds the initial 24-hour target'}

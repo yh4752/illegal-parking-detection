@@ -68,11 +68,24 @@ class EventIngestionDatabaseTest(
         policy(3)
         clock = MutableClock(Instant.parse("2026-11-13T07:00:00Z"))
         revisions = reservation().apply { initialize() }
+        // This fixture represents an explicitly opened zone. Recovery holds are tested separately.
+        jdbc.update("UPDATE zone_view SET recovery_hold=false")
         store = EventTransactionStore(jdbc, TransactionTemplate(manager), revisions, mapper, clock)
         service = EventIngestionService(EventMessageValidator(mapper) { _, _ -> true }, EventCanonicalizer(mapper), store)
     }
 
     @AfterEach fun closeGate() { revisions.close() }
+
+    @Test fun `recovery hold blocks new events duplicate ACKs and heartbeat without changing data`() {
+        committed(event())
+        jdbc.update("UPDATE zone_view SET recovery_hold=true")
+        val before = view()
+        assertThat(receive(event())).isEqualTo(EventIngestResult.NotAcknowledged("recovery_hold"))
+        assertThat(receive(event("new", 12))).isEqualTo(EventIngestResult.NotAcknowledged("recovery_hold"))
+        pulse(heartbeat(13))
+        assertThat(view()).isEqualTo(before)
+        assertThat(count("inbound_receipt")).isEqualTo(1)
+    }
     @AfterAll fun cleanup() { jdbc.execute("DROP SCHEMA $schema CASCADE") }
 
     private fun reservation() = RevisionReservations(jdbc, TransactionTemplate(manager), mapper, primary, backup)
@@ -391,7 +404,7 @@ class EventIngestionDatabaseTest(
         committed(event())
         jdbc.update("INSERT INTO zone(zone_id,display_name) VALUES ('zone-02','다른 시험')")
         jdbc.update("INSERT INTO device(device_id,zone_id,https_token_sha256) VALUES ('edge-02','zone-02',?)", "0".repeat(64))
-        jdbc.update("INSERT INTO zone_view(zone_id,device_id) VALUES ('zone-02','edge-02')")
+        jdbc.update("INSERT INTO zone_view(zone_id,device_id,recovery_hold) VALUES ('zone-02','edge-02',false)")
         jdbc.update("""INSERT INTO zone_policy(zone_id,version,base_version,change_class,content,content_sha256,created_by,reason)
             SELECT 'zone-02',version,base_version,change_class,content,content_sha256,created_by,reason FROM zone_policy WHERE zone_id='zone-01'""")
         val other = event("other", 11).apply { put("device_id", "edge-02"); put("zone_id", "zone-02") }

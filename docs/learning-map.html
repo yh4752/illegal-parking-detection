@@ -72,5 +72,11 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tbody></table></div>
 <p>2~7의 경로는 <code>backend/src/main/kotlin/kr/ac/sejong/parking/</code> 아래입니다. 비-MQTT 부분은 익숙한 Spring HTTP/JDBC와 React이며, 우선 저장 ACK와 순번·revision 차이를 이해하면 전체 흐름을 따라가기 쉽습니다.</p>
 <p>블로그에는 ‘MQTT 연결 성공’과 ‘DB 저장 성공’을 구분해 기록합니다. 테스트 로그·코드·설계 이유를 근거로 쓰되 계정/비밀번호·세션·실제 영상은 제외합니다. 실제 보드·공개 배포·실차 성능을 아직 확인하지 않은 결과로 표현하지 않습니다.</p>
+<p>운영 학습은 <a href="production-basics.html">O1 개념·이해 확인 질문</a>에서 시작합니다. TLS·계정·ACL·DB 역할을 구분한 뒤 설정 파일을 읽습니다.</p>
+<p>HTTPS 운영 경로는 <a href="local-https.html">로컬 HTTPS 실습</a>으로 이어갑니다. 브라우저 → Nginx → Spring → DB를 먼저 따라가고, 가상 장치 → TLS MQTT → DB 커밋 → SSE 경로와 연결해 봅니다. 인증서 검증과 사용자 로그인, 화면 연결과 장치 생존을 구별하는 것이 이번 단계의 목표입니다.</p>
+<p><a href="local-monitoring.html">모니터링 학습</a>에서 수집·저장·그래프의 역할과 커밋/ACK 차이를 익힌다.</p>
+<p>O3 다음에는 <a href="local-backup.html">O4 백업·복원</a>을 읽습니다. DB 백업과 독립 기록의 역할을 구분하고, 복구 보류 → 최신 장치 대조 → 명시 인수 순서로 실습합니다.</p>
+<p>O4 다음에는 <a href="deployment-readiness.html">O5 배포 준비</a>를 읽습니다. 서버 크기·월 비용의 계산, 도메인과 DNS의 차이, 백업/최신 기록/키의 보관 책임을 이해한 뒤 비밀값 없는 결정표를 채웁니다. 아직 외부에 배포하지 않습니다.</p>
+<p>단계별 자기 설명 질문과 블로그에 인용할 수 있는 로그·캡처·수치는 <a href="operations-learning-evidence.html">운영 학습·증거 모음</a>에 있습니다. 수치의 측정 범위와 미검증 사항을 함께 읽습니다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

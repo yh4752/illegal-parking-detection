@@ -27,7 +27,7 @@ python3 tools/handoff.py prepare
 | 로그인·구역 권한·구역 현황·사건 목록/상세 | 공개 HTTPS 배포와 외부 PC 인수 |
 | MQTT 검증·저장·중복/순서 처리·저장 ACK | 실물 보드·AI·LED/스피커·실차 시험 |
 | heartbeat·통신 지연 표시·SSE·재접속 | 관리 명령·정책 변경·사진 파일 |
-| 독립 Docker 데모·가상 장치·자동 시험 | 운영 백업/복원·대규모 부하 검증 |
+| 독립 Docker 데모·가상 장치·로컬 백업/복원 시험 | 실제 서버 재해 복구·대규모 부하 검증 |
 
 [인계 판정표](docs/frontend-handoff-checklist.md)에서 통과한 검사와 남은 조건을 구분합니다. 현재 주소는 **로컬 실행용**이며 공개 URL은 없습니다.
 
@@ -39,6 +39,7 @@ python3 tools/handoff.py prepare
 | 프론트 수정·AI 코딩 도구에 인계 | [프론트 README](frontend/README.md) · [인계 컨텍스트](docs/frontend-handoff-context.json) |
 | 서버·장치 통신 계약 | [백엔드 구조](docs/backend.md) · [메시지·API 정의](docs/contracts.md) |
 | 운영 배포를 준비할 때 | [배포·운영 설계](docs/deployment-operations.md) |
-| 실행한 시험·남은 작업 | [현재 상태](docs/status.md) · [검증 기록](validation/frontend-handoff-2026-11-14.json) |
+| 실행한 시험·남은 작업 | [현재 상태](docs/status.md) · [운영 검증 기록](validation/local-backup-2026-11-16.json) |
 | 협업·코딩 도구 규칙 | [개발 참여 안내](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md) |
-| 완성 코드로 학습 | [학습 순서](docs/learning-map.md) · [백엔드만 실행](backend/README.md) |
+| 완성 코드로 학습 | [학습 순서](docs/learning-map.md) · [O1 개념·질문](docs/production-basics.md) |
+| 블로그용 결정·수치·캡처 | [운영 학습·증거 모음](docs/operations-learning-evidence.md) |

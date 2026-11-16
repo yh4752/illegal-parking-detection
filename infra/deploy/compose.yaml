@@ -1,0 +1,147 @@
+# O2 local acceptance configuration. Host bindings are deliberately loopback-only.
+x-logging: &logging
+  driver: json-file
+  options: {max-size: 10m, max-file: '3'}
+x-db: &db
+  PARKING_DB_URL: jdbc:postgresql://postgres:5432/parking_handoff
+  SPRING_CONFIG_IMPORT: configtree:/run/secrets/
+x-revision: &revision
+  PARKING_REVISION_PRIMARY: /state/revisions.json
+  PARKING_REVISION_BACKUP: /state-copy/revisions.json
+services:
+  postgres:
+    image: ${PARKING_HTTPS_POSTGRES_IMAGE:?Prepare local HTTPS images first}
+    pull_policy: never
+    environment:
+      POSTGRES_DB: parking_handoff
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin-password
+    secrets: [admin-password, migrator-password, runtime-password, operator-password, backup-password]
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/10-parking.sql:ro
+      - ./sql/create-roles.sql:/opt/parking/create-roles.sql:ro
+    networks: [data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d parking_handoff"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    logging: *logging
+  mosquitto:
+    image: ${PARKING_HTTPS_MQTT_IMAGE:?Prepare local HTTPS images first}
+    pull_policy: never
+    volumes:
+      - ${PARKING_HTTPS_STATE:?}/broker:/mosquitto/config:ro
+      - mqtt:/mosquitto/data
+    networks: [mqtt]
+    logging: *logging
+  backend:
+    image: ${PARKING_HTTPS_BACKEND_IMAGE:?Prepare local HTTPS images first}
+    pull_policy: never
+    environment:
+      <<: [*db, *revision]
+      SPRING_PROFILES_ACTIVE: app-prod
+      SERVER_SERVLET_SESSION_COOKIE_NAME: PARKING_HTTPS_SESSION
+      PARKING_MQTT_URL: ssl://mosquitto:8883
+      PARKING_MQTT_CA_FILE: /tls/ca.crt
+    secrets:
+      - {source: runtime-password, target: POSTGRES_PASSWORD}
+      - {source: mqtt-server-password, target: parking.mqtt.password}
+      - {source: cursor-key, target: PARKING_CURSOR_HMAC_KEY}
+    volumes:
+      - revision:/state
+      - revision-copy:/state-copy
+      - ${PARKING_HTTPS_STATE}/pki/ca.crt:/tls/ca.crt:ro
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    networks: [app, data, mqtt]
+    depends_on: {postgres: {condition: service_healthy}, mosquitto: {condition: service_started}}
+    logging: *logging
+  web:
+    image: ${PARKING_HTTPS_WEB_IMAGE:?Prepare local HTTPS images first}
+    pull_policy: never
+    environment:
+      PUBLIC_HTTPS_ORIGIN: https://localhost:${PARKING_HTTPS_PORT:?}
+      NGINX_ENVSUBST_FILTER: ^PUBLIC_HTTPS_ORIGIN$
+    ports:
+      - 127.0.0.1:${PARKING_HTTPS_PORT}:443
+      - 127.0.0.1:${PARKING_HTTPS_HTTP_PORT:?}:80
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ${PARKING_HTTPS_STATE}/web-tls:/etc/nginx/tls:ro
+    read_only: true
+    tmpfs: [/etc/nginx/conf.d, /var/cache/nginx, /var/run]
+    security_opt: [no-new-privileges:true]
+    networks: [web, app]
+    depends_on: [backend]
+    logging: *logging
+  migrate:
+    profiles: [tools]
+    image: ${PARKING_HTTPS_BACKEND_IMAGE}
+    pull_policy: never
+    entrypoint: [java, -Dloader.main=kr.ac.sejong.parkingtools.MigrateDatabaseCliKt, -cp, /app/app.jar, org.springframework.boot.loader.launch.PropertiesLauncher]
+    command: [--migrate]
+    environment:
+      <<: *db
+      PARKING_DB_USERNAME: parking_migrator
+    secrets: [{source: migrator-password, target: POSTGRES_PASSWORD}]
+    networks: [data]
+    logging: *logging
+  grants:
+    profiles: [tools]
+    image: ${PARKING_HTTPS_POSTGRES_IMAGE}
+    pull_policy: never
+    entrypoint: [/bin/sh, -c, 'export PGPASSWORD="$$(cat /run/secrets/migrator-password)"; exec psql -X -v ON_ERROR_STOP=1 -h postgres -U parking_migrator -d parking_handoff -f /opt/parking/grants.sql']
+    secrets: [migrator-password]
+    volumes: ["./sql/grants.sql:/opt/parking/grants.sql:ro"]
+    networks: [data]
+    logging: *logging
+  operator:
+    profiles: [tools]
+    image: ${PARKING_HTTPS_BACKEND_IMAGE}
+    pull_policy: never
+    entrypoint: [/bin/sh, /ops/operator.sh]
+    environment:
+      <<: *db
+      PARKING_DB_USERNAME: parking_operator
+    secrets:
+      - {source: operator-password, target: POSTGRES_PASSWORD}
+      - web-password
+    volumes: ["./operator.sh:/ops/operator.sh:ro"]
+    read_only: true
+    tmpfs: [/tmp]
+    networks: [data]
+    logging: *logging
+  simulator:
+    profiles: [simulation]
+    image: ${PARKING_HTTPS_SIMULATOR_IMAGE:?Prepare local HTTPS images first}
+    pull_policy: never
+    command: [--host, mosquitto, --port, '8883', --state, /state/device.sqlite, --tls-ca, /tls/ca.crt, --username, edge-01, --password-file, /run/secrets/edge-password, --seconds, '8']
+    secrets: [edge-password]
+    volumes:
+      - simulator:/state
+      - ${PARKING_HTTPS_STATE}/pki/ca.crt:/tls/ca.crt:ro
+    networks: [mqtt]
+    logging: *logging
+secrets:
+  admin-password: {file: '${PARKING_HTTPS_STATE}/secrets/admin-password'}
+  migrator-password: {file: '${PARKING_HTTPS_STATE}/secrets/migrator-password'}
+  runtime-password: {file: '${PARKING_HTTPS_STATE}/secrets/runtime-password'}
+  operator-password: {file: '${PARKING_HTTPS_STATE}/secrets/operator-password'}
+  backup-password: {file: '${PARKING_HTTPS_STATE}/secrets/backup-password'}
+  mqtt-server-password: {file: '${PARKING_HTTPS_STATE}/secrets/mqtt-server-password'}
+  edge-password: {file: '${PARKING_HTTPS_STATE}/secrets/edge-password'}
+  cursor-key: {file: '${PARKING_HTTPS_STATE}/secrets/cursor-key'}
+  web-password: {file: '${PARKING_HTTPS_ACCOUNT_PASSWORD_FILE:?}'}
+networks:
+  web:
+  app: {internal: true}
+  data: {internal: true}
+  mqtt: {internal: true}
+volumes:
+  db:
+  mqtt:
+  revision:
+  revision-copy:
+  simulator:

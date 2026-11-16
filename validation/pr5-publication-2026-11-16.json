@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "scope": "O1-O5 commit/PR preparation; educational additions and public evidence preservation",
+  "status": "LOCAL_CHECKS_PASSED",
+  "pr_url": "https://github.com/yh4752/parking-system/pull/5",
+  "pr_head_branch": "docs/deployment-operations-plan",
+  "external_deployment_performed": false,
+  "historical_acceptance": [
+    "validation/production-boundaries-2026-11-16.json",
+    "validation/local-https-2026-11-16.json",
+    "validation/local-monitoring-2026-11-16.json",
+    "validation/local-backup-2026-11-16.json"
+  ],
+  "preserved_evidence": "validation/blog-evidence/2026-11-16/manifest.json",
+  "local_checks": [
+    {
+      "command": "backend: ./gradlew test bootJar --no-daemon --max-workers=2",
+      "result": "BUILD SUCCESSFUL",
+      "scope": "All 8 tasks UP-TO-DATE; retained 169-test report, no fresh test execution claimed"
+    },
+    {
+      "command": "frontend: npm run generate && npm run format:check && npm test && npm run build",
+      "result": "PASS",
+      "tests": 24,
+      "note": "Existing Vite 500kB chunk advisory remains"
+    },
+    {
+      "command": "python -m unittest discover -s tools/production -p test_*.py -v",
+      "result": "PASS",
+      "tests": 30,
+      "environment": "Isolated local venv, requirements-backup.txt"
+    },
+    {
+      "command": "python -m unittest discover -s simulator -v",
+      "result": "PASS",
+      "tests": 6,
+      "environment": "Same isolated venv, simulator/requirements.txt"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "result": "PASS",
+      "tests": 6
+    },
+    {
+      "command": "npm --prefix tools/docs run build; python3 tools/check_structure.py; python3 tools/build_contracts.py --check; git diff --check",
+      "result": "PASS",
+      "preserved_baseline_files": 127
+    },
+    {
+      "method": "SHA-256 comparison of evidence manifest and latest O4 source/config records",
+      "result": "PASS",
+      "preserved_assets": 9,
+      "source_records": 6,
+      "accepted_source_files": 105,
+      "accepted_configuration_files": 25
+    }
+  ],
+  "remote_ci": {
+    "status_source": "LIVE_GITHUB_CHECKS_FOR_PR_HEAD",
+    "url": "https://github.com/yh4752/parking-system/pull/5/checks",
+    "note": "This file records pre-publication local checks. The current remote result and exact tested commit are published in GitHub Checks and the PR description; not inferred from local evidence."
+  },
+  "independent_review": {
+    "scope": "Existing implementation/CI/public candidate files; new teaching docs and evidence",
+    "confirmed_blocking_findings": 0,
+    "corrected_minor_findings": [
+      "Link actual session_user/current_user checks to RevisionConfiguration.kt"
+    ],
+    "note": "A suspected hidden-parent artifact issue was withdrawn after inspecting pinned action implementation; no change applied."
+  },
+  "public_file_review": {
+    "staged_file_count": 153,
+    "local_secret_values_compared": 42,
+    "exact_secret_matches": 0,
+    "private_key_or_token_pattern_findings": 0,
+    "scope": "All staged added/modified text and binary files; manually reviewed four preserved screenshots"
+  }
+}

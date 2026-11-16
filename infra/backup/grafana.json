@@ -1,0 +1,188 @@
+{
+  "uid": "parking-backup",
+  "title": "Parking 백업·복원 (로컬)",
+  "schemaVersion": 41,
+  "version": 2,
+  "timezone": "browser",
+  "refresh": "15s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "마지막 검증 백업 이후 경과",
+      "description": "복호화 → 격리 DB 복원 → 전체 테이블 비교 → revision 범위 예약까지 통과한 시점. 일일 24시간 목표는 자동 보장이 아닙니다.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "parking-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "time() - parking_backup_last_verified_timestamp_seconds{job=\"parking\"}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "검증 기록 없음",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 86400
+              },
+              {
+                "color": "red",
+                "value": 172800
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "백업 검증 기록 유효",
+      "description": "1은 검증 기록을 읽을 수 있음, 0은 미실행·누락·손상. 백업 저장소/키까지 복구 가능하다는 뜻은 아닙니다.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "parking-prometheus"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "parking_backup_status_valid{job=\"parking\"}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "검증 기록 없음",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "미검증",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "유효",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "복원 후 조회 준비",
+      "description": "복구 보류와 독립 revision 기록의 일치가 모두 확인돼야 1입니다.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "parking-prometheus"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "parking_revision_ready{job=\"parking\"}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "검증 기록 없음",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "차단",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "조회 가능",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    }
+  ]
+}

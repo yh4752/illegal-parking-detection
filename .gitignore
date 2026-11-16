@@ -29,6 +29,10 @@ docs/site/
 /data/videos/
 /models/weights/
 /.local-state/
+/infra/deploy/secrets/
+/infra/deploy/mosquitto/passwords
 /frontend/dist/
 /frontend/test-results/
 /frontend/playwright-report/
+/output/playwright/
+/.playwright-cli/

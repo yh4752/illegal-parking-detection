@@ -1,0 +1,45 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.12.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :processResources UP-TO-DATE
+> Task :processTestResources UP-TO-DATE
+> Task :compileKotlin
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar
+> Task :compileTestKotlin
+> Task :compileTestJava NO-SOURCE
+> Task :testClasses UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :databaseTest
+
+2026-11-16T17:35:52.075+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2026-11-16T17:35:52.075+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.channel.PublishSubscribeChannel    : Channel 'parking-backend.errorChannel' has 0 subscriber(s).
+2026-11-16T17:35:52.075+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : stopped bean '_org.springframework.integration.errorLogger'
+2026-11-16T17:35:52.078+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-11-16T17:35:52.080+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-11-16T17:35:52.084+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2026-11-16T17:35:52.084+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.channel.PublishSubscribeChannel    : Channel 'parking-backend.errorChannel' has 0 subscriber(s).
+2026-11-16T17:35:52.084+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : stopped bean '_org.springframework.integration.errorLogger'
+2026-11-16T17:35:52.087+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-11-16T17:35:52.090+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-11-16T17:35:52.095+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2026-11-16T17:35:52.096+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.channel.PublishSubscribeChannel    : Channel 'parking-backend.errorChannel' has 0 subscriber(s).
+2026-11-16T17:35:52.096+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : stopped bean '_org.springframework.integration.errorLogger'
+2026-11-16T17:35:52.098+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-11-16T17:35:52.098+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-11-16T17:35:52.100+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2026-11-16T17:35:52.100+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.channel.PublishSubscribeChannel    : Channel 'parking-backend.errorChannel' has 0 subscriber(s).
+2026-11-16T17:35:52.100+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : stopped bean '_org.springframework.integration.errorLogger'
+2026-11-16T17:35:52.101+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-11-16T17:35:52.104+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+2026-11-16T17:35:52.107+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-11-16T17:35:52.111+09:00  INFO 58097 --- [parking-backend] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-11-16T17:35:52.113+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2026-11-16T17:35:52.113+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.channel.PublishSubscribeChannel    : Channel 'parking-backend.errorChannel' has 0 subscriber(s).
+2026-11-16T17:35:52.113+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] o.s.i.endpoint.EventDrivenConsumer       : stopped bean '_org.springframework.integration.errorLogger'
+2026-11-16T17:35:52.115+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown initiated...
+2026-11-16T17:35:52.115+09:00  INFO 58097 --- [parking-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown completed.
+
+BUILD SUCCESSFUL in 1m
+6 actionable tasks: 4 executed, 2 up-to-date

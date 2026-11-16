@@ -1,0 +1,11 @@
+user parking-server
+topic read parking/v2/devices/+/events
+topic read parking/v2/devices/+/heartbeat
+topic read parking/v2/devices/+/availability
+topic write parking/v2/devices/+/acks
+
+user edge-01
+topic write parking/v2/devices/edge-01/events
+topic write parking/v2/devices/edge-01/heartbeat
+topic write parking/v2/devices/edge-01/availability
+topic read parking/v2/devices/edge-01/acks

@@ -12,3 +12,14 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: true
     clean-disabled: true
+
+---
+# Keep the override next to the shared DB settings: profile groups load database after app-prod.
+spring:
+  config:
+    activate:
+      on-profile: app-prod
+  datasource:
+    username: parking_runtime
+  flyway:
+    enabled: false

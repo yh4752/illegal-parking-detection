@@ -1,0 +1,27 @@
+digraph Backup {
+  graph [rankdir=LR, bgcolor="#f8fafc", pad="0.3", nodesep="0.5", ranksep="0.75", fontname="sans-serif", label="O4 · 복원할 자료와 되돌리지 않을 기준", labelloc=t, fontsize=20];
+  node [shape=box, style="rounded,filled", fillcolor="#ffffff", color="#94a3b8", fontname="sans-serif", fontsize=13, margin="0.16,0.12"];
+  edge [color="#64748b", fontname="sans-serif", fontsize=11];
+  subgraph cluster_app {
+    label="로컬 애플리케이션 경계"; color="#cbd5e1";
+    app [label="Spring Boot\nAPI / SSE / MQTT gate", fillcolor="#dcfce7"];
+    db [label="원본 PostgreSQL DB\n사건·영수증·정책·상태"];
+    files [label="로컬 revision 두 파일"];
+    app -> db [label="DB 커밋 후 ACK"];
+    app -> files [label="일치 확인"];
+  }
+  ledger [label="별도 revision 서비스\n버전 이력 + CAS + fsync\nDB 백업과 함께 복원하지 않음", fillcolor="#fef3c7"];
+  archive [label="암호화 백업\nDB + 설정 + SQLite 일관 사본", fillcolor="#dbeafe"];
+  key [label="백업 묶음 밖의 키\n0600 파일", fillcolor="#fee2e2"];
+  restore [label="격리된 새 PostgreSQL DB\n내용 비교 → 새 범위 예약\nrecovery_hold=true", fillcolor="#e0e7ff"];
+  operator [label="복구 CLI\n최신 장치 보고 대조\n보고서 해시·손실 인수"];
+  app -> ledger [label="최신 기록 확인 / 예약 CAS"];
+  db -> archive [label="정지 후 pg_dump -Fc"];
+  files -> archive [label="복구 검토용 사본"];
+  key -> archive [label="인증 암호화", style=dashed];
+  archive -> restore [label="검증 후 pg_restore"];
+  ledger -> restore [label="최대 예약 상한 초과\n새 revision 사용"];
+  operator -> restore [label="명시 인수 시 hold 해제"];
+  restore -> app [label="조회·수신 재개", color="#15803d"];
+  note [shape=note, label="모든 구성은 같은 PC의 로컬 시험\n외부 저장소·키 보관·재해 독립성은 O5", fillcolor="#fff7ed"];
+}

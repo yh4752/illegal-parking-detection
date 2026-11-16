@@ -2,6 +2,7 @@ package kr.ac.sejong.parkingtools
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kr.ac.sejong.parking.device.adapter.jdbc.RevisionReservations
+import kr.ac.sejong.parking.device.adapter.jdbc.RevisionLedger
 import kr.ac.sejong.parking.operations.DemoInitializationRequest
 import kr.ac.sejong.parking.operations.FreshDemoInitializer
 import org.springframework.boot.Banner
@@ -69,7 +70,7 @@ fun main(args: Array<String>) {
         if (options.apply) {
             val primary = Path.of(context.environment.getRequiredProperty("PARKING_REVISION_PRIMARY")).toAbsolutePath().normalize()
             val backup = Path.of(context.environment.getRequiredProperty("PARKING_REVISION_BACKUP")).toAbsolutePath().normalize()
-            RevisionReservations(jdbc, transaction, mapper, primary, backup).use { revisions ->
+            RevisionReservations(jdbc, transaction, mapper, primary, backup, RevisionLedger.configured(context.environment, mapper)).use { revisions ->
                 revisions.initialize()
                 initializer.apply(options.request, revisions)
             }
