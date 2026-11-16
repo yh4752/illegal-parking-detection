@@ -20,6 +20,8 @@
 
 PR 반영 전 재검사와 원격 CI는 [PR 공유 검증 기록](../validation/pr5-publication-2026-11-16.json)을 기준으로 한다. 원격 실행은 로컬 수치와 구분하며, GitHub Checks 통과도 실제 외부 배포·팀원 PC 인수를 대신하지 않는다.
 
+첫 Linux CI(`3654f91`)는 8개 작업 중 6개가 통과했고 O2·O4에서 환경 차이를 발견했다. O2는 중단된 backend의 504를 502로 바뀔 때까지 기다리던 검사 가정을 수정했고, O4는 비공개 원장 폴더의 소유자 UID:GID로 실행하도록 수정했다. [실패 발췌·권한 재현 근거](operations-learning-evidence.md#6-linux-ci에서-확인한-환경-차이)를 보존했다. 과거 O4 해시 기록은 변경하지 않으며, 수정 후 정확한 커밋과 최종 원격 결과는 [PR #5 Checks](https://github.com/yh4752/parking-system/pull/5/checks)와 PR 본문에서 확인한다.
+
 ## 현재 사용할 수 있는 것
 
 | 영역 | 구현 내용 | 확인 방법 |

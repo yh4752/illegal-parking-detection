@@ -145,9 +145,9 @@ python3 -m unittest discover -s tools/production -p 'test_*.py' -v
 python3 tools/production/verify_o2.py
 ```
 
-두 번째 명령은 임의 이름 `parking-o2-*`와 비어 있는 localhost 포트로 별도 환경을 만든다. 캐시가 있으면 약 2~4분, 최초 빌드·다운로드는 더 걸린다. 실제 TLS/로그인/CSRF/쿠키/SSE/권한 회수, 인증서 reload, backend 502와 **다른 IP로 재생성 후 DNS 복구**, 세션 무효화와 이력 보존을 검사한다. 마지막에는 실제 Chromium에서 로그인·MQTT 갱신·오프라인/재접속·로그아웃을 확인한다. 성공 표시는 `O2_ACCEPTANCE_PASSED`다. 시험 프로젝트의 컨테이너·볼륨만 정리하며 학습용 환경은 유지한다.
+두 번째 명령은 임의 이름 `parking-o2-*`와 비어 있는 localhost 포트로 별도 환경을 만든다. 캐시가 있으면 약 2~4분, 최초 빌드·다운로드는 더 걸린다. 실제 TLS/로그인/CSRF/쿠키/SSE/권한 회수, 인증서 reload, backend 중단의 502/504와 **다른 IP로 재생성 후 DNS 복구**, 세션 무효화와 이력 보존을 검사한다. 중단 후 502로 바뀌는 시간을 강제하지 않으며 실제 응답 코드를 결과에 기록한다. 마지막에는 실제 Chromium에서 로그인·MQTT 갱신·오프라인/재접속·로그아웃을 확인한다. 성공 표시는 `O2_ACCEPTANCE_PASSED`다. 시험 프로젝트의 컨테이너·볼륨만 정리하며 학습용 환경은 유지한다.
 
-로컬 `release.json`에는 커밋·미커밋 소스 해시·설정 해시·실제로 실행한 이미지 ID가 있다. 로컬 이미지 ID는 레지스트리에 게시한 배포 digest가 아니다. 이번 단계는 로컬 HTTPS 경로의 검증이며 실제 서버·도메인·공인 인증서·외부 접속·Prometheus/Grafana·독립 백업 복원을 완료한 상태가 아니다. 다음 구현은 O3 관찰 지표와 O4 복원 검증이다.
+로컬 `release.json`에는 커밋·미커밋 소스 해시·설정 해시·실제로 실행한 이미지 ID가 있다. 로컬 이미지 ID는 레지스트리에 게시한 배포 digest가 아니다. O2 인수는 HTTPS 경로를 검증하며 모니터링·백업 복원은 각각 [O3](local-monitoring.md)·[O4](local-backup.md)의 별도 로컬 인수로 완료했다. 실제 서버·도메인·공인 인증서·외부 접속은 [O5 준비](deployment-readiness.md) 이후 남은 작업이다.
 
 설정 근거: [Nginx proxy buffering](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering), [Nginx TLS](https://nginx.org/en/docs/http/ngx_http_ssl_module.html), [Docker 내부 네트워크](https://docs.docker.com/reference/compose-file/networks/#internal). HTTP/MQTT 제품 계약은 [계약 안내](contracts.md)를 따른다.
 

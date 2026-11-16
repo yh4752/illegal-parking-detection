@@ -4,6 +4,7 @@
 
 - `ledger.py`: 내부 전용 HTTP API, 명시 초기화, SQLite 버전/CAS 기록. GET head와 POST versions만 허용하며 삭제 API는 없다. 실제 공급자 어댑터가 아니다.
 - `compose.yaml`: 독립 기록 서비스·오프라인 복구 CLI·O4 모니터링 추가. 호스트 공개는 localhost 제품·Grafana만 허용한다.
+- 원장 실행 계정은 `PARKING_LEDGER_USER`의 호스트 UID:GID와 폴더 소유자가 일치해야 한다. `local_backup.py prepare`가 기록하며 `0700` 폴더·제거된 capability를 유지한다. 기존 환경의 설정 해시는 임의로 갱신하지 않는다.
 - `prometheus.yml`, `alerts.yml`, `rules.test.yml`: O3 수집과 O4 백업 검증 기록의 경보.
 - `grafana.json`: 백업/복원 전용 3개 패널. O3 대시보드와 함께 별도 읽기 전용 폴더로 준비한다.
 

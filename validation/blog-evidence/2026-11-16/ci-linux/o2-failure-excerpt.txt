@@ -1,0 +1,17 @@
+2026-11-16T14:31:30.0423634Z web-1        | 172.20.0.1 [16/Nov/2026:14:31:17 +0000] "GET /api/auth/me HTTP/1.1" 504 160 3.002
+2026-11-16T14:31:30.0424254Z web-1        | 172.20.0.1 [16/Nov/2026:14:31:20 +0000] "GET /api/auth/me HTTP/1.1" 504 160 3.003
+2026-11-16T14:31:30.0424852Z web-1        | 172.20.0.1 [16/Nov/2026:14:31:23 +0000] "GET /api/auth/me HTTP/1.1" 504 160 3.004
+2026-11-16T14:31:30.0425856Z web-1        | 172.20.0.1 [16/Nov/2026:14:31:26 +0000] "GET /api/auth/me HTTP/1.1" 504 160 3.003
+2026-11-16T14:31:30.0426468Z web-1        | 172.20.0.1 [16/Nov/2026:14:31:29 +0000] "GET /api/auth/me HTTP/1.1" 504 160 3.002
+2026-11-16T14:31:30.7238933Z Traceback (most recent call last):
+2026-11-16T14:31:30.7240239Z   File "<checkout>/tools/production/verify_o2.py", line 225, in <module>
+2026-11-16T14:31:30.7241271Z     main()
+2026-11-16T14:31:30.7242037Z   File "<checkout>/tools/production/verify_o2.py", line 208, in main
+2026-11-16T14:31:30.7242881Z     evidence = verify(stack)
+2026-11-16T14:31:30.7243243Z                ^^^^^^^^^^^^^
+2026-11-16T14:31:30.7244076Z   File "<checkout>/tools/production/verify_o2.py", line 178, in verify
+2026-11-16T14:31:30.7245493Z     assert time.monotonic() < deadline, 'No 502 after backend became unavailable'
+2026-11-16T14:31:30.7246160Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-16T14:31:30.7246744Z AssertionError: No 502 after backend became unavailable
+2026-11-16T14:31:30.7419261Z ##[error]Process completed with exit code 1.
+2026-11-16T14:31:30.7507560Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

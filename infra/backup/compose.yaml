@@ -8,6 +8,8 @@ x-ledger: &ledger
 services:
   revision-ledger:
     image: ${PARKING_LEDGER_IMAGE:?}
+    # Match the owner of the private (0700) host directory on Linux as well as Docker Desktop.
+    user: ${PARKING_LEDGER_USER:?}
     pull_policy: never
     command: [serve, --db, /ledger/revisions.sqlite, --store-id, '${PARKING_LEDGER_ID}', --token-file, /run/secrets/revision-ledger-token, --port, '8088', --bind, 0.0.0.0]
     secrets: [revision-ledger-token]

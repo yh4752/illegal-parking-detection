@@ -59,6 +59,7 @@ class LocalBackup(LocalMonitoring):
         self.release['images']['ledger'] = {'source': 'infra/backup/ledger.Dockerfile', 'image_id': image}
         self.release['configuration_sha256'].update({p: digest(ROOT / p) for p in CONFIGS})
         self.release['compose_environment'].update({'PARKING_LEDGER_ID': identifier, 'PARKING_LEDGER_DIRECTORY': str(ledger_dir),
+            'PARKING_LEDGER_USER': f'{os.getuid()}:{os.getgid()}',
             'PARKING_LEDGER_IMAGE': image, 'PARKING_RECOVERY_DATABASE': 'parking_handoff'})
         self.release['backup'] = {'key_file': str(key_file), 'key_ref': identifier, 'ledger_directory': str(ledger_dir)}
         self.save_release()
@@ -77,6 +78,9 @@ class LocalBackup(LocalMonitoring):
                 raise ValueError('mandatory_independent_ledger_required')
         if config['services']['revision-ledger']['image'] != self.release['images']['ledger']['image_id']:
             raise ValueError('ledger_image_binding_mismatch')
+        owner = Path(self.release['backup']['ledger_directory']).stat()
+        if config['services']['revision-ledger'].get('user') != f'{owner.st_uid}:{owner.st_gid}':
+            raise ValueError('ledger_directory_owner_mismatch')
         for source, target in [('infra/monitoring/grafana/dashboards/parking.json', 'parking.json'), ('infra/backup/grafana.json', 'backup.json')]:
             if digest(ROOT / source) != digest(self.state / 'backup-dashboards' / target):
                 raise ValueError('backup_dashboard_configuration_mismatch')

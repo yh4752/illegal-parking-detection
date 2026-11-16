@@ -75,5 +75,27 @@
     "exact_secret_matches": 0,
     "private_key_or_token_pattern_findings": 0,
     "scope": "All staged added/modified text and binary files; manually reviewed four preserved screenshots"
+  },
+  "ci_followup": {
+    "first_run": "https://github.com/yh4752/parking-system/actions/runs/43885948091",
+    "tested_commit": "3654f9158c76e9c00229f9eecacc7e12d9f63600",
+    "passed_jobs": 6,
+    "failed_jobs": [
+      "O2 stopped-backend response convergence assumption",
+      "O4 private ledger directory UID/GID mismatch"
+    ],
+    "corrections": [
+      "Accept 502/504 while retaining forced IP change and full recovery checks; record observed status",
+      "Run ledger as host directory owner without adding capabilities or broadening permissions"
+    ],
+    "evidence": "validation/blog-evidence/2026-11-16/ci-linux/manifest.json",
+    "followup_local_checks": {
+      "permission_hypothesis": "Root denied; matching UID/GID initializes on Linux named volume",
+      "production_python_tests": 30,
+      "documentation_local_links": 1016,
+      "contracts": "PASS",
+      "diff_whitespace": "PASS"
+    },
+    "historical_hash_note": "The 105 source/25 configuration match above was checked before the CI fixes. Historical O4 records remain frozen; infra/backup/compose.yaml changed afterward. Current exact commit and acceptance result must be read from GitHub Checks and PR description."
   }
 }

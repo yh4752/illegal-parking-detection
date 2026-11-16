@@ -127,6 +127,7 @@ cat .local-state/backup-demo/recovery/report.json
 <p><code>capture</code>는 <strong>가상 장치의 새 보고</strong>를 만들고 outbox에 넣는 학습 명령이다. 실제 장치의 현장 대조를 대신하지 않는다. 복원 때 살아 있는 장치의 SQLite를 과거 사본으로 덮어쓰지 않는다. 저장된 SQLite 사본은 별도 복구 검토 자료다. 실제 장치의 순번까지 유실되었다면 임의로 번호를 추측하지 않고 장치 identity·순번 복구 절차를 정해야 한다.</p>
 <p><code>prepare</code> 재실행은 기존 데이터를 보존한다. 중지는 <code>local_backup.py stop</code>, 재개는 <code>local_backup.py up</code>이다. O4 환경은 O4 도구로 조작한다. O2/O3 도구로 overlay를 생략해 기동하지 않는다. 설정 변경·누락된 secret·독립 저장소 유실은 자동 재생성하지 않는다. 복구 실패 때는 원인과 보고서를 확인하고 <code>prepare</code> 복구 단계를 새로 수행해 미완료 예약 범위를 건너뛴다. 정상 기동이나 초기화 명령으로 우회하지 않는다.</p>
 <p>기존 자료 인수는 오프라인 <code>RecoveryCli adopt</code>가 담당한다. 최초 도입 시에만 빈 독립 저장소와 일치하는 두 로컬 파일·DB를 요구하고 새 범위와 hold를 만든다. 과거의 유실된 독립 기록을 새로 만들기 위한 명령이 아니다. O1/O2/O3의 현재 학습 DB는 이번 작업에서 인수하거나 변환하지 않았다.</p>
+<p>원장 컨테이너는 호스트 원장 폴더의 소유자 UID:GID로 실행한다. 폴더 권한 <code>0700</code>과 <code>cap_drop: ALL</code>은 유지한다. Linux에서는 권한을 제거한 root도 다른 사용자의 비공개 폴더를 열지 못하므로 실행 계정을 맞춰야 한다. 이전 구성으로 만든 학습 환경은 설정 해시 변경으로 재개가 차단될 수 있다. 기존 원장·키·DB를 삭제하거나 manifest 해시만 고치지 않고, 아래 격리 인수 명령으로 새 환경을 검증한다. 기존 자료를 새 구성으로 옮기는 마이그레이션은 이번 수정에 포함하지 않았다.</p>
 <h2>대시보드에서 볼 것</h2>
 <p>O3의 <a href="local-monitoring.html">운영 지표</a>에 O4 전용 대시보드 3개 패널을 추가한다.</p>
 <div class="table-scroll"><table>

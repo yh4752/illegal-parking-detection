@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-16",
+  "scope": "Additional CI failure evidence; original O1-O5 evidence is frozen",
+  "first_ci": {
+    "run_id": 43885948091,
+    "commit": "3654f9158c76e9c00229f9eecacc7e12d9f63600",
+    "passed_jobs": 6,
+    "failed_jobs": [
+      "production-https",
+      "production-backup"
+    ]
+  },
+  "assets": [
+    {
+      "file": "ledger-permissions-probe.py",
+      "sha256": "645481df41b31a2c95eca3c7955dbffa92524e755f26516456a9c76b1804c488",
+      "source": "Reproducible local Linux named-volume permission experiment after first CI failure"
+    },
+    {
+      "file": "ledger-permissions-result.json",
+      "sha256": "8f7f5542274f4be28c095ff67122fbfcec8a835a1574dec241b74b4d8969ad37",
+      "source": "Reproducible local Linux named-volume permission experiment after first CI failure"
+    },
+    {
+      "file": "o2-failure-excerpt.txt",
+      "sha256": "5810646e47c98e226d64e6eac00dc18a908338a7ddf20d3afe4e0c605f038529",
+      "source_url": "https://github.com/yh4752/parking-system/actions/runs/43885948091/job/133363996607",
+      "source_commit": "3654f9158c76e9c00229f9eecacc7e12d9f63600",
+      "transformation": "Selected gateway/traceback lines; checkout path replaced with <checkout>; trailing whitespace removed"
+    },
+    {
+      "file": "o4-failure-excerpt.txt",
+      "sha256": "2adbd8b51a5297cc78f21d203de4e81c4f4968aab9add27b5a6d7d7c33829409",
+      "source_url": "https://github.com/yh4752/parking-system/actions/runs/43885948091/job/133363996278",
+      "source_commit": "3654f9158c76e9c00229f9eecacc7e12d9f63600",
+      "transformation": "Selected gateway/traceback lines; checkout path replaced with <checkout>; trailing whitespace removed"
+    }
+  ],
+  "limits": [
+    "Permission probe is not complete O4 acceptance",
+    "Final fixed-commit status is in PR #5 Checks and PR description",
+    "No external deployment"
+  ]
+}
