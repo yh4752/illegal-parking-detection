@@ -1,0 +1,42 @@
+EXPECTED RED: baseline 00171e9 timeout handler with current new regression cases
+test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text (test_local_https.CommandTimeoutTest.test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text) ...
+  test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text (test_local_https.CommandTimeoutTest.test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text) (as_bytes=True) ... FAIL
+  test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text (test_local_https.CommandTimeoutTest.test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text) (as_bytes=False) ... FAIL
+test_timeout_without_output_still_reports_the_deadline (test_local_https.CommandTimeoutTest.test_timeout_without_output_still_reports_the_deadline) ... FAIL
+
+======================================================================
+FAIL: test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text (test_local_https.CommandTimeoutTest.test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text) (as_bytes=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tools/production/test_local_https.py", line 28, in test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text
+    self.assertIn('timed out after 34s', message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'timed out after 34s' not found in 'Command timed out: docker'
+
+======================================================================
+FAIL: test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text (test_local_https.CommandTimeoutTest.test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text) (as_bytes=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tools/production/test_local_https.py", line 28, in test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text
+    self.assertIn('timed out after 34s', message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'timed out after 34s' not found in 'Command timed out: docker'
+
+======================================================================
+FAIL: test_timeout_without_output_still_reports_the_deadline (test_local_https.CommandTimeoutTest.test_timeout_without_output_still_reports_the_deadline)
+----------------------------------------------------------------------
+RuntimeError: Command timed out: docker
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<checkout>/tools/production/test_local_https.py", line 38, in test_timeout_without_output_still_reports_the_deadline
+    with self.assertRaisesRegex(RuntimeError, 'Command timed out after 34s: docker'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "Command timed out after 34s: docker" does not match "Command timed out: docker"
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.005s
+
+FAILED (failures=3)
+EXPECTED_BASELINE_FAILURE_CONFIRMED

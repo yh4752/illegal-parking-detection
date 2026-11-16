@@ -1,0 +1,9 @@
+{
+  "result": "ORIGINAL_CONTAINER_STATE_RESTORED",
+  "paused_and_resumed": 12,
+  "existing_container_ids_checked": 45,
+  "all_original_volume_mounts_preserved": true,
+  "all_unselected_container_start_times_unchanged": true,
+  "https_and_monitoring_learning_https_ready": true,
+  "temporary_fixture_containers_left": []
+}

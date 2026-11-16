@@ -104,6 +104,7 @@
         "명시 인수 전 API/SSE와 일반 수신 차단, 인수 후 새 revision으로 복구"
       ],
       "evidence": "validation/local-backup-2026-11-16.json",
+      "local_recheck_evidence": "validation/o4-local-recheck-2026-11-17/summary.json",
       "next": "O5 external provider, backup/key custody and deployment acceptance"
     },
     {

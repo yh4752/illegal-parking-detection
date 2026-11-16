@@ -74,8 +74,14 @@ class LocalHttps:
         try:
             result = subprocess.run(args, input=input, capture_output=True, text=True,
                                     cwd=ROOT, timeout=timeout, env=env)
-        except subprocess.TimeoutExpired:
-            raise RuntimeError('Command timed out: ' + args[0]) from None
+        except subprocess.TimeoutExpired as error:
+            # communicate() can return partial bytes even when text=True. Preserve
+            # progress for diagnosis, but redact before truncating a secret value.
+            partial = ''.join(value.decode(errors='replace') if isinstance(value, bytes) else (value or '')
+                              for value in (error.stdout, error.stderr))
+            detail = self.redact(partial)[-8000:]
+            raise RuntimeError(f'Command timed out after {timeout}s: {args[0]}' +
+                               ('\n' + detail if detail else '')) from None
         if result.returncode:
             raise RuntimeError('Command failed: ' + args[0] + '\n' + self.redact((result.stdout + result.stderr)[-8000:]))
         return result.stdout

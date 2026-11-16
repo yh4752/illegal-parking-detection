@@ -1,0 +1,91 @@
+{
+  "result": "O4_LOCAL_RECHECK_PASSED",
+  "date": "2026-11-17",
+  "timezone": "Asia/Seoul",
+  "source_commit": "00171e9c1b82f9d16b2ba76e5aa9578d0aaa4628",
+  "working_tree_tool_sha256": {
+    "tools/production/local_https.py": "42fbf6d062b29ab791c9947aef1749831167649b0adb2b91d275afe3a8977ecd",
+    "tools/production/local_backup.py": "505e281c2483ed8e6e55bb39c5912218c6259d278e05255451e8c0a96985ec61",
+    "tools/production/verify_o4.py": "585c2a3a399007625dc6436bfd543948fe58c194493b18ce10ec0bdceb9f98e0",
+    "tools/production/test_local_https.py": "844f2cd46dae0c7e40ce0880274871475d89dab90532748d9ac0e6969d62bc00"
+  },
+  "external_deployment": false,
+  "project": "parking-o4-3e5f171a",
+  "existing_data_preserved": true,
+  "learning_environment_restored": true,
+  "original_failure": {
+    "stage": "First simulator process, before backup or restore",
+    "deadline_seconds": 34,
+    "log_final_mtime_utc": "2026-11-16T14:47:44.324406+00:00",
+    "docker_oom_reports_utc": [
+      "2026-11-16T14:46:31.931682383Z",
+      "2026-11-16T14:47:30.321347590Z",
+      "2026-11-16T14:47:45.966979417Z"
+    ],
+    "limits": "Original wrapper discarded partial process output; retained Docker events no longer contain the failed containers. Exact stalled syscall or killed process cannot be proven."
+  },
+  "intervention": {
+    "serial_acceptance": true,
+    "paused_own_learning_containers": 12,
+    "paused_projects": [
+      "parking-https",
+      "parking-monitoring"
+    ],
+    "other_projects_stopped": false,
+    "global_docker_settings_changed": false,
+    "timeout_extended": false,
+    "runtime_rootfs_and_configuration_equal_to_failed_attempt": true
+  },
+  "resource_observations": {
+    "source": "Read-only /proc samples in Docker Linux runtime; exact timestamps of the two interactive snapshots were not recorded",
+    "before_pause": {
+      "MemTotal_kib": 8124516,
+      "MemAvailable_kib": 1059148,
+      "SwapFree_kib": 52,
+      "memory_full_avg10_percent": 12.92
+    },
+    "after_pause": {
+      "MemTotal_kib": 8124516,
+      "MemAvailable_kib": 1911900,
+      "SwapFree_kib": 3244,
+      "memory_full_avg10_percent": 0.01
+    },
+    "during_acceptance": {
+      "sample_count": 155,
+      "sampling_seconds": 2,
+      "minimum_MemAvailable_kib": 1065692,
+      "oom_kill_start": 22,
+      "oom_kill_end": 22,
+      "oom_kill_delta": 0
+    }
+  },
+  "timings": {
+    "simulator_process_deadline_seconds": 34,
+    "simulator_process_samples_seconds": [
+      5.077500124985818,
+      4.728570791980019,
+      5.430507084005512,
+      4.995165709027788,
+      5.169982249994064
+    ],
+    "restore_to_ready_seconds": 100.29833102226257,
+    "restore_definition": "After quiesce, isolated DB restore start through hold, device reconciliation, explicit acceptance and HTTPS/monitoring readiness; not whole incident RTO",
+    "backup_age_at_restore_seconds": 68.34326219558716,
+    "acked_post_backup_rows_absent": 1,
+    "performance_improvement_claim": false
+  },
+  "command_observation": {
+    "count": 641,
+    "expected_nonzero_commands": 1,
+    "expected_nonzero_reason": "Acceptance without explicit backup data loss acknowledgement must be rejected"
+  },
+  "unit_tests": 34,
+  "diagnostic_fix": "Retain redacted partial stdout/stderr and actual deadline on TimeoutExpired, capped at 8000 characters after redaction",
+  "assessment": "Resource contention is strongly supported by contemporaneous OOM reports and pressure measurements; serial run with own learning stacks paused passed under unchanged deadlines and equivalent runtime filesystem/configuration. Exact original blocked substep remains unavailable.",
+  "execution_method": "Observer wrapper calls LocalBackup.prepare and unchanged verify_o4.run; records command elapsed times and /proc samples, then cleans only the owned fixture.",
+  "regression_evidence": {
+    "baseline": "00171e9c1b82f9d16b2ba76e5aa9578d0aaa4628",
+    "old_handler_result": "Expected 3 assertion failures across 2 new methods (bytes/text subtests), no test errors",
+    "fixed_handler_result": "34 production tool tests passed"
+  }
+}

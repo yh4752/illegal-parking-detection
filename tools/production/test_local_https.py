@@ -1,5 +1,42 @@
 import unittest
-from local_https import validate_network_boundary, validate_image_bindings
+import subprocess
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+
+from local_https import LocalHttps, validate_network_boundary, validate_image_bindings
+
+
+class CommandTimeoutTest(unittest.TestCase):
+    def test_timeout_retains_progress_and_redacts_secrets_for_bytes_and_text(self):
+        with tempfile.TemporaryDirectory() as temporary, patch('local_https.ROOT', Path(temporary)):
+            state = Path(temporary) / '.local-state/timeout-test'
+            (state / 'secrets').mkdir(parents=True)
+            (state / 'secrets/token').write_text('fixture-private-token')
+            stack = LocalHttps(state)
+            for as_bytes in (True, False):
+                with self.subTest(as_bytes=as_bytes):
+                    output = 'SIMULATOR_STARTED\nfixture-private-token\n'
+                    error_output = 'Waiting for child process\n'
+                    if as_bytes:
+                        output, error_output = output.encode(), error_output.encode()
+                    error = subprocess.TimeoutExpired(['docker'], 34, output=output, stderr=error_output)
+                    with patch('local_https.subprocess.run', side_effect=error):
+                        with self.assertRaises(RuntimeError) as caught:
+                            stack.run('docker', 'compose', timeout=34)
+                    message = str(caught.exception)
+                    self.assertIn('timed out after 34s', message)
+                    self.assertIn('SIMULATOR_STARTED', message)
+                    self.assertIn('Waiting for child process', message)
+                    self.assertIn('[redacted]', message)
+                    self.assertNotIn('fixture-private-token', message)
+
+    def test_timeout_without_output_still_reports_the_deadline(self):
+        with tempfile.TemporaryDirectory() as temporary, patch('local_https.ROOT', Path(temporary)):
+            stack = LocalHttps(Path(temporary) / '.local-state/timeout-test')
+            with patch('local_https.subprocess.run', side_effect=subprocess.TimeoutExpired(['docker'], 34)):
+                with self.assertRaisesRegex(RuntimeError, 'Command timed out after 34s: docker'):
+                    stack.run('docker', timeout=34)
 
 
 class NetworkBoundaryTest(unittest.TestCase):

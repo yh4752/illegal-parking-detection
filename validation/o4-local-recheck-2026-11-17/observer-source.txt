@@ -1,0 +1,74 @@
+import datetime as dt, json, shutil, subprocess, sys, time, uuid
+from pathlib import Path
+
+ROOT=Path.cwd()
+sys.path.insert(0,str(ROOT/'tools/production'))
+from local_https import LocalHttps
+from local_backup import LocalBackup
+from verify_o2 import free_port
+from verify_o4 import run
+
+OUT=ROOT/'.local-state/o4-investigation-20261117'
+suffix=uuid.uuid4().hex[:8]
+project='parking-o4-'+suffix
+stack=LocalBackup(ROOT/'.local-state'/('o4-'+suffix))
+original_run=LocalHttps.run
+known={'backend','web','postgres','mosquitto','simulator','revision-ledger','prometheus','grafana','node-exporter','blackbox','recovery','initialize-local','migrate','operator','grants','probe'}
+actions={'run','exec','up','down','stop','start','restart','build','inspect','config','ps','logs','rm','kill'}
+
+def traced(self,*args,**kwargs):
+    started=time.monotonic()
+    row={'started_at_utc':dt.datetime.now(dt.timezone.utc).isoformat(),'tool':args[0],
+         'operation':next((arg for arg in args[1:] if arg in actions),args[1] if len(args)>1 else ''),
+         'services':[arg for arg in args if arg in known],'timeout_seconds':kwargs.get('timeout',180)}
+    try:
+        value=original_run(self,*args,**kwargs)
+        row['result']='success'
+        return value
+    except BaseException as error:
+        row['result']='failure';row['error']=self.redact(str(error)).replace(str(ROOT),'<checkout>')
+        raise
+    finally:
+        row['elapsed_seconds']=time.monotonic()-started
+        with (OUT/'command-timings.jsonl').open('a') as f: f.write(json.dumps(row)+'\n')
+
+LocalHttps.run=traced
+probe=project+'-memory-probe'
+image=json.loads((ROOT/'.local-state/backup-demo/release.json').read_text())['images']['ledger']['image_id']
+code='''import json,time
+from pathlib import Path
+while True:
+ m={p[0]:int(p[1].split()[0]) for line in Path('/proc/meminfo').read_text().splitlines() if len(p:=line.split(':',1))==2}
+ v=dict(line.split() for line in Path('/proc/vmstat').read_text().splitlines())
+ print(json.dumps({'unix_time':time.time(),'MemAvailable_kib':m['MemAvailable'],'SwapFree_kib':m['SwapFree'],'oom_kill':int(v['oom_kill']),'memory_pressure':Path('/proc/pressure/memory').read_text().strip()}),flush=True)
+ time.sleep(2)
+'''
+out=(OUT/'memory-samples.jsonl').open('w')
+monitor=subprocess.Popen(['docker','run','--rm','-i','--name',probe,'--network','none','--read-only','--cap-drop','ALL',
+ '--security-opt','no-new-privileges:true','--entrypoint','python',image,'-'],stdin=subprocess.PIPE,stdout=out,stderr=subprocess.STDOUT,text=True)
+monitor.stdin.write(code);monitor.stdin.close()
+previous=ROOT/'.local-state/o4-last-result.json'
+if previous.exists() and not (OUT/'previous-last-result.json').exists():shutil.copy(previous,OUT/'previous-last-result.json')
+(OUT/'run-identity.json').write_text(json.dumps({'project':project,'state':str(stack.state.relative_to(ROOT)),'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'timeout_extended':False})+'\n')
+try:
+    stack.prepare(free_port(),free_port(),project,'acceptance-o4',grafana_port=free_port())
+    run(stack)
+    shutil.copy(previous,OUT/'acceptance.json')
+except BaseException:
+    if stack.release:
+        try:
+            print(stack.redact(stack.dc('logs','--tail','40','backend','mosquitto','revision-ledger')).replace(str(ROOT),'<checkout>'),flush=True)
+            ids=stack.dc('ps','-a','-q').split()
+            status=json.loads(subprocess.check_output(['docker','inspect',*ids],text=True)) if ids else []
+            (OUT/'failed-container-status.json').write_text(json.dumps([{'name':r['Name'],'state':r['State']} for r in status],indent=2)+'\n')
+        except Exception as error: print('O4_DIAGNOSTICS_UNAVAILABLE '+type(error).__name__,flush=True)
+    raise
+finally:
+    subprocess.run(['docker','stop','--time','2',probe],capture_output=True,timeout=15)
+    monitor.wait(timeout=15);out.close()
+    if stack.release and stack.release.get('purpose')=='acceptance-o4' and stack.release['project']==project:
+        stack.dc('--profile','*','down','--volumes','--remove-orphans',timeout=120)
+        if stack.release.get('backup'):
+            shutil.rmtree(stack.release['backup']['ledger_directory'])
+            Path(stack.release['backup']['key_file']).unlink()
+        shutil.rmtree(stack.state)

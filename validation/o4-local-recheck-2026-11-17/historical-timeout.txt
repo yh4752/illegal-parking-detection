@@ -1,0 +1,28 @@
+Building local HTTPS backend/web/simulator images...
+O4_PHASE normal HTTPS, stored ACK and baseline
+Traceback (most recent call last):
+  File "<checkout>/tools/production/verify_o4.py", line 179, in <module>
+    main()
+    ~~~~^^
+  File "<checkout>/tools/production/verify_o4.py", line 167, in main
+    run(stack)
+    ~~~^^^^^^^
+  File "<checkout>/tools/production/verify_o4.py", line 51, in run
+    output = stack.simulate(4)
+  File "<checkout>/tools/production/local_https.py", line 246, in simulate
+    return self.dc('run', '--rm', 'simulator', '--host', 'mosquitto', '--port', '8883',
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   '--state', '/state/device.sqlite', '--tls-ca', '/tls/ca.crt', '--username', 'edge-01',
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   '--password-file', '/run/secrets/edge-password', '--seconds', str(seconds), timeout=seconds + 30)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<checkout>/tools/production/local_https.py", line 95, in dc
+    return self.run('docker', 'compose', '-p', self.release['project'],
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    *(part for file in self.compose_files for part in ('-f', file)),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    *args, input=input, timeout=timeout, env=self.environment(extra))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<checkout>/tools/production/local_https.py", line 78, in run
+    raise RuntimeError('Command timed out: ' + args[0]) from None
+RuntimeError: Command timed out: docker

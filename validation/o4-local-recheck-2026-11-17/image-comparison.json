@@ -1,0 +1,29 @@
+[
+  {
+    "service": "backend",
+    "failed_attempt_retained_image_id": "sha256:15e9e630cf468b855302132aa4942e49c42fedc054a5b51f7d738f407fcdd738",
+    "current_image_id": "sha256:1a8a8de006897fe4d036277c40cc6e7fa2ae409a286cec50b9d4bb09706364b6",
+    "same": false,
+    "same_rootfs_layers": true,
+    "same_runtime_configuration": true,
+    "same_os_architecture": true
+  },
+  {
+    "service": "web",
+    "failed_attempt_retained_image_id": "sha256:aab97dbc86fc68ad20a8c1b422c47a8dfeea34882fdab24b308b6ecad98614d4",
+    "current_image_id": "sha256:dbfd147c6dce8e1ca957e2b9d14da799b08e946ba654c596a37020df56ada306",
+    "same": false,
+    "same_rootfs_layers": true,
+    "same_runtime_configuration": true,
+    "same_os_architecture": true
+  },
+  {
+    "service": "simulator",
+    "failed_attempt_retained_image_id": "sha256:a24e032bc5c5a6edfabd58e6eaa6774753cd68eed11380b027ffa10e6958f5ea",
+    "current_image_id": "sha256:a21a68c81978a07618520c4647fe810bfc7f1926b7d115b2cea0f1b1c8ddcdf4",
+    "same": false,
+    "same_rootfs_layers": true,
+    "same_runtime_configuration": true,
+    "same_os_architecture": true
+  }
+]
