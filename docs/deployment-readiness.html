@@ -10,7 +10,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>O5 배포 준비 — 서버·비용·도메인·백업·키를 정하는 방법</h1>
-<p>2026-11-16 · <strong>추천안 작성 완료, 구매·외부 배포·외부 인수 미수행</strong></p>
+<p>2026-11-17 · <strong>추천안·후속 작업 정리 완료, 구매·외부 배포·외부 인수 미수행</strong></p>
 <p>O1~O4는 로컬에서 검증했다. 이번 O5 작업은 사용할 자원과 운영 책임을 결정할 수 있게 준비하는 단계다. 아래 추천을 채택해도 곧바로 배포할 수 있는 것은 아니다. 실제 외부 저장소 어댑터와 운영 백업 자동화 등 남은 구현은 마지막 표에 따로 적었다.</p>
 <h2>먼저 추천 조합을 보면</h2>
 <p><strong>학교에서 관리하는 서버가 있고 아래 조건을 충족하면 먼저 활용한다. 없다면 서울 리전의 AWS Lightsail 4GB를 시험 후보로, 전체 월 예산 6만 원을 제안한다.</strong> 메모리가 부족하거나 운영 여유를 우선하면 8GB·월 10만 원 후보로 올린다. 확정 구매안이나 성능 보장이 아니다.</p>
@@ -238,6 +238,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tbody></table></div>
 <h2>7. 입력이 모인 뒤 남은 구현과 검증</h2>
 <p><strong>O5 준비 문서 완료와 O5 외부 인수 완료를 구분한다.</strong> 지금 어댑터의 <code>LOCAL_ONLY</code> 제한을 지우고 URL만 바꾸는 방식으로 배포하지 않는다.</p>
+<p>아래 작업은 <a href="https://github.com/yh4752/parking-system/issues/6">후속 이슈 #6</a>의 F1~F6으로 추적한다. 자원·비용·운영 책임은 먼저 팀이 결정하고, 각 구현·검증의 완료 증거를 남긴다. 이 문서의 비용 근거는 앞서 명시한 2026-11-16 확인값이며, 후속 이슈 등록일에 새 견적을 확인했다는 뜻은 아니다.</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>

@@ -1,6 +1,6 @@
 {
   "plan_id": "deployment-operations-1",
-  "updated_at": "2026-11-16",
+  "updated_at": "2026-11-17",
   "status": "O5_PREPARATION_DOCUMENTED_NOT_DEPLOYED",
   "baseline_commit": "03b6dd51c0524750e02353be45ee14b62ed02ad5",
   "product_design": "v1.43",
@@ -53,7 +53,7 @@
       "acceptance": [
         "시험 CA HTTPS의 로그인·CSRF·Secure cookie·SSE·로그아웃 시험",
         "DB/브로커/Actuator 외부 포트 미노출",
-        "인증서 갱신 reload·API 502/재접속·기존 데이터 보존 시험"
+        "인증서 갱신 reload·API 502/504 이후 재접속·기존 데이터 보존 시험"
       ],
       "evidence": "validation/local-https-2026-11-16.json",
       "next": "O4 accepted locally; next O5 external storage/key custody and deployment acceptance"
@@ -142,9 +142,22 @@
         "resources_created": false,
         "deployment_performed": false
       },
-      "next": "Confirm non-secret resource, budget, ownership and recovery requirements; implement remaining adapters before any external acceptance."
+      "next": "Follow issue #6 F1-F6: confirm non-secret decisions, implement external adapters and recovery, then separately authorize external acceptance."
     }
   ],
+  "followup": {
+    "issue": "https://github.com/yh4752/parking-system/issues/6",
+    "status": "open_not_started",
+    "steps": [
+      "F1 resource, cost, ownership and recovery decisions",
+      "F2 external revision adapter and permission acceptance",
+      "F3 scheduled off-host backup, retention and independent key recovery",
+      "F4 actual host, public HTTPS and release/load acceptance",
+      "F5 host-loss recovery and off-host monitoring/alert delivery",
+      "F6 external teammate PC acceptance"
+    ],
+    "external_deployment_authorized": false
+  },
   "external_inputs": [
     "host/account and monthly budget limit",
     "domain and DNS authority",
