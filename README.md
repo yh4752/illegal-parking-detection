@@ -18,6 +18,14 @@
 
 현재 공개 웹 주소는 없습니다. 로컬 검증은 실제 AI 감지 정확도나 운영 서버의 복구 성능을 입증하지 않습니다. 자세한 완료 조건은 [현재 상태](docs/status.md), 남은 운영 작업은 [후속 이슈 #6](https://github.com/yh4752/illegal-parking-detection/issues/6)에서 확인합니다.
 
+## 시스템 아키텍처
+
+![불법주정차 감지·안내 시스템의 현재 로컬 연결과 후속 실물·배포 계획](docs/diagrams/presentation-overview.png)
+
+실선은 로컬에서 연결·검증한 경로, 점선은 실물 장치 연동·외부 배포 계획입니다. DB 저장 후 ACK는 MQTT를 거쳐 장치로 돌아가며, 관리자 화면은 Nginx를 통해 API·SSE에 연결됩니다.
+
+[확대·편집용 SVG](docs/diagrams/presentation-overview.svg) · [발표용 PDF](docs/diagrams/presentation-overview.pdf) · [구조 설명](docs/architecture.md) · [원본·수정 방법](docs/architecture-figure.md)
+
 ## 실행 화면
 
 ![가상 장치가 보고한 구역 상태와 사건 이력을 실제 API로 조회하는 관리자 화면](docs/screenshots/zone-desktop.png)

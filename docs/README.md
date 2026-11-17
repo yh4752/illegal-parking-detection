@@ -13,6 +13,8 @@
 
 HTML·SVG는 이미 생성되어 있어 보는 사람은 설치할 것이 없습니다. 파일을 수정하고 다시 만들 때만 아래 도구가 필요합니다.
 
+[발표·블로그용 아키텍처 그림](architecture-figure.md): SVG·PNG·PDF와 원본, 아이콘 출처, 수정·내보내기 방법.
+
 ## 원본과 생성물
 
 | 원본 | 생성물 | 변경할 때 |
@@ -22,13 +24,14 @@ HTML·SVG는 이미 생성되어 있어 보는 사람은 설치할 것이 없습
 | public-demo.md, design/public-demo-plan.md, design/public-demo-review.md | 같은 이름의 HTML | 첫 공개 조회 데모의 범위·상세 설계·검토 |
 | deployment-operations.md, local-https.md, design/local-https-plan.md | 같은 이름의 HTML | 배포 단계와 로컬 HTTPS 실습·검증 |
 | deployment-readiness.md | deployment-readiness.html | O5 서버·예산·도메인·독립 저장소·키 보관 추천과 결정표 |
+| ../tools/docs/build-overview.py + 보존한 아이콘 | diagrams/presentation-overview.svg | 발표용 개요 그림의 문구·좌표·색·화살표 변경. PNG/PDF도 별도 재출력 |
 | diagrams/*.dot | diagrams/*.svg | C4 요소·통신·책임 변경 |
 
 DOT는 Graphviz의 텍스트 그림 형식입니다. C4의 System/Container/Component 구분을 라벨과 경계로 표현했습니다. 그림은 소스에서 자동 배치되며, 손으로 위치를 다시 맞출 필요가 없습니다. C4는 특정 그리기 도구에 종속되지 않습니다.
 
 ## 다시 생성하기
 
-Node.js 24 LTS를 사용합니다. 프로젝트 루트에서 실행합니다.
+Node.js 24 LTS와 Python 3를 사용합니다. 프로젝트 루트에서 실행합니다.
 
 ```sh
 npm --prefix tools/docs ci

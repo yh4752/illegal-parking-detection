@@ -6,6 +6,8 @@
 
 저장소 이름은 **`illegal-parking-detection`**, 프로젝트 제목은 **엣지 AI 기반 불법주정차 감지·안내 시스템**으로 맞췄습니다. 이름 변경의 이유와 기존 자료 보존 범위는 [ADR-011](adr/011-project-identity.md), 기존 클론의 연결 방법은 [협업 안내](../CONTRIBUTING.md#저장소-이름-변경-후-기존-클론-연결하기)를 따릅니다. 이름 변경으로 구현·실차 검증·외부 배포 범위가 추가되지는 않습니다.
 
+발표·블로그용 [아키텍처 개요 그림과 수정 원본](architecture-figure.md)을 추가했습니다. 현재 로컬 연결과 후속 계획을 구분한 문서 개선이며, 제품 기능·배포·실물 검증 범위는 늘어나지 않았습니다.
+
 ## 최신 운영 작업 요약
 
 **O1~O4는 로컬 구현·인수 완료, O5는 일부 결정·복구 목표 승인 후 외부 구현·인수를 준비하는 상태다.** 운영 코드·문서·실행 증거의 변경 이력은 [PR #5](https://github.com/yh4752/illegal-parking-detection/pull/5)에서 확인한다. 실제 반영 상태는 PR의 병합 기록과 [main의 CI](https://github.com/yh4752/illegal-parking-detection/actions/workflows/verify.yml?query=branch%3Amain)를 따른다. 코드 병합은 외부 배포·실서버 인수 완료를 뜻하지 않는다. 아래 과거 단계별 수치는 당시 기록이며 최신 값과 합산하지 않는다.
