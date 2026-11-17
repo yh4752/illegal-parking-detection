@@ -52,6 +52,8 @@ O1의 자세한 질문은 해당 문서 끝에 있다. 나머지는 다음 상�
 
 시간의 원래 소수값·계산식·제외 구간은 [measurements.json](../validation/blog-evidence/2026-11-16/measurements.json)에 있다. [test-summary.json](../validation/blog-evidence/2026-11-16/test-summary.json)은 환경변수·system-out을 제외한 시험 목록이다. 일반 시험과 DB 시험의 로그는 [일반 로그](../validation/blog-evidence/2026-11-16/parking-o4-general.txt), [DB 로그](../validation/blog-evidence/2026-11-16/parking-o4-database.txt)로 보존했다. Gradle의 실행 시간은 캐시가 포함된 빌드 시간이며 서비스 성능 수치가 아니다.
 
+발표·블로그의 구조 설명에는 [아키텍처 개요 그림](architecture-figure.md)을 사용할 수 있다. 이 그림은 설명용 도식이며 실행 화면·성능 측정의 증거를 대신하지 않는다.
+
 ## 4. 캡처와 읽는 방법
 
 아래 이미지는 기존 로컬 실행 때의 원본 캡처다. 새 결과를 만들거나 값을 수정하지 않았다. 캡처의 숫자 하나만 떼어 운영 성능으로 쓰지 않는다.

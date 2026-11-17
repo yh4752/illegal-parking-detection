@@ -8,6 +8,14 @@
 
 **가상 장치가 보낸 상태를 저장하고 로그인한 웹 화면에서 조회하는 인계판을 구현했습니다.** 사건 저장·중복/역순 처리·커밋 후 ACK, 로그인·구역 권한·상태/이력 조회, heartbeat·SSE와 React 화면이 연결됩니다. [인계 설명서](frontend-handoff.md)에서 실행 구조와 실제 API 연결 방법을 봅니다. 공개 배포와 실물 보드 시험은 남아 있으며, 검증된 범위는 [현재 상태](status.md)를 따릅니다.
 
+## 발표·블로그용 아키텍처 개요
+
+![제품 흐름 중심의 아키텍처 개요](diagrams/presentation-overview.svg)
+
+이 개요 그림은 **실선이 로컬에서 검증한 연결, 점선이 후속 연동·배포 계획**을 뜻합니다. 아래 기존 C4 그림의 관계 표기와 구분합니다. Nginx·MQTT·API·DB의 핵심 흐름을 중심으로 그렸으며, revision·복구·네트워크 상세는 하단의 운영 문서를 따릅니다. 실물 AI 판단·LED/음성 출력과 공개 배포는 미완료입니다.
+
+[PNG](diagrams/presentation-overview.png) · [PDF](diagrams/presentation-overview.pdf) · [수정 가능한 원본과 재생성 방법](architecture-figure.md)
+
 ## 2. 각 부분은 어떻게 연결되나요?
 
 ![C4 L2 — 첫 개발에 필요한 핵심 구조](diagrams/02-containers.svg)

@@ -1,0 +1,67 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>불법주정차 감지·안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ILLEGAL PARKING DETECTION</div><h1>엣지 AI 기반<br>불법주정차 감지·안내 시스템</h1><p>보드는 판단·안내하고, 서버는 기록하고 연결합니다.</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>목적·역할은 팀 요약, 완료 범위는 현재 상태에서 확인하세요.</strong></p><p>가상 장치의 사건 수신·저장·ACK와 로그인·실시간 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 AI 보드·LED/스피커·실차 시험과 공개 배포는 남아 있습니다. 그림은 목표 구조이며 과거 검증 기록은 당시 조건을 따릅니다.</p></aside><article class="page"><h1>발표·블로그용 아키텍처 그림</h1>
+<p>2026-11-17 · 현재 로컬 연결과 후속 계획을 구분한 설명용 그림</p>
+<figure class="figure"><img src="diagrams/presentation-overview.svg" alt="불법주정차 감지·안내 시스템 아키텍처"><a href="diagrams/presentation-overview.svg" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
+<h2>사용할 파일</h2>
+<ul>
+<li><a href="diagrams/presentation-overview.png">PNG</a>: README·블로그·슬라이드에 바로 삽입하는 1920 × 1320 이미지.</li>
+<li><a href="diagrams/presentation-overview.svg">SVG</a>: 확대해도 선명한 벡터 파일. 텍스트·도형을 편집할 수 있으며 저장소의 수정 기준은 아래 생성 원본이다.</li>
+<li><a href="diagrams/presentation-overview.pdf">PDF</a>: 한 페이지 공유·인쇄본.</li>
+</ul>
+<p>실선은 로컬에서 연결·검증한 경로, 점선은 실물 장치 연동·외부 배포 계획이다. 가상 장치의 사건은 MQTT → Spring Boot → PostgreSQL로 저장되며, DB 커밋 후 ACK는 MQTT를 거쳐 장치로 돌아간다. React는 관리자 브라우저에서 실행되고 Nginx가 정적 파일과 API·SSE 연결을 제공한다.</p>
+<p>화면·배포의 모든 세부를 담은 그림은 아니다. revision·격리 복원·네트워크 상세는 <a href="index.html">아키텍처 설명</a>, <a href="deployment-operations.html">운영 배포</a>, <a href="local-backup.html">로컬 백업</a>을 따른다. 실물 AI·LED/음성 출력·공개 배포 완료나 성능 측정의 증거로 사용하지 않는다. 캡처·실행 수치의 근거는 <a href="operations-learning-evidence.html">증거 모음</a>에서 확인한다.</p>
+<h2>수정 가능한 원본</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>파일</th>
+<th>수정·보존 내용</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="../tools/docs/build-overview.py">build-overview.py</a></td>
+<td>문구·카드 좌표·색·아이콘·화살표. Python 표준 라이브러리로 SVG 생성</td>
+</tr>
+<tr>
+<td><a href="../tools/docs/assets/simple-icons/README.md">아이콘 출처와 목록</a></td>
+<td>실제 사용한 로컬 SVG 아이콘과 CC0 라이선스. 재생성 중 다운로드하지 않음</td>
+</tr>
+<tr>
+<td><a href="../tools/docs/build.mjs">build.mjs</a></td>
+<td>기존 C4·문서 생성과 함께 개요 SVG 생성</td>
+</tr>
+<tr>
+<td><a href="../tools/docs/export-overview.mjs">export-overview.mjs</a></td>
+<td>같은 SVG를 Chromium에서 PNG·PDF로 출력</td>
+</tr>
+</tbody></table></div>
+<p>그림의 선·라벨을 바꿀 때는 SVG 생성물을 직접 수정하지 않고 <code>build-overview.py</code>를 수정한다. 기존 C4 DOT 그림도 그대로 유지한다. 이 그림 추가로 통신 계약이나 시스템 책임을 변경하지 않았다.</p>
+<h2>재생성과 내보내기</h2>
+<p>저장소 루트에서 실행한다. 일반 문서 생성에는 Node.js 24와 Python 3만 필요하며, 문서 의존성을 설치한 후에는 네트워크 없이 실행할 수 있다.</p>
+<pre><code class="language-sh">npm --prefix tools/docs ci
+npm --prefix tools/docs run build
+</code></pre>
+<p>그림을 변경했다면 PNG·PDF도 다시 출력한다. 아래 설치는 처음 한 번 필요하며, 이미 프론트 브라우저 검증 환경이 있으면 재설치하지 않아도 된다.</p>
+<pre><code class="language-sh">npm --prefix frontend ci
+cd frontend
+npx playwright install chromium
+cd ..
+node tools/docs/export-overview.mjs
+python3 tools/check_structure.py
+</code></pre>
+<p>SVG·PNG·PDF와 변경한 원본을 함께 커밋한다. 기본 문서 생성은 SVG·HTML만 갱신하므로 PNG·PDF를 빠뜨리지 않는다. PNG·PDF는 실행 환경의 글꼴에 따라 모양이 달라질 수 있다. 승인 시안은 macOS의 Apple SD Gothic Neo를 사용했으며 다른 환경에서는 Noto Sans KR 등 한국어 글꼴을 준비한 뒤 글자 잘림·겹침과 한 페이지 출력을 확인한다. 글꼴 파일 자체는 저장소에 포함하지 않는다.</p>
+<h2>출처와 확인 범위</h2>
+<p>구조의 근거는 <a href="status.html">현재 구현 상태</a>, <a href="index.html">팀 아키텍처</a>, <a href="../infra/deploy/compose.yaml">로컬 HTTPS Compose</a>다. 첨부받은 참고 이미지의 밝은 배경·카드·기술 아이콘 표현을 참고해 프로젝트 구성에 맞게 작성했다. 참고 이미지 파일 자체는 저장소에 넣지 않는다.</p>
+<p>브랜드 아이콘은 <a href="https://github.com/simple-icons/simple-icons">Simple Icons</a>의 CC0 배포본이다. 아이콘 저작권 라이선스와 각 브랜드의 상표 사용 조건은 구분한다. 상세 파일 목록·해시는 <a href="../tools/docs/assets/simple-icons/README.md">아이콘 안내</a>에 보존한다. 문서 그림을 추가한 작업이며 계정 생성·구매·외부 배포는 수행하지 않았다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

@@ -3,9 +3,11 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { instance } from '@viz-js/viz';
 import { marked } from 'marked';
+import { execFileSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const docs = path.join(root, 'docs');
+execFileSync('python3', [path.join(root, 'tools/docs/build-overview.py')], { stdio: 'inherit' });
 const viz = await instance();
 const diagramDir = path.join(docs, 'diagrams');
 const diagrams = (await readdir(diagramDir)).filter(f => f.endsWith('.dot')).sort();
@@ -18,6 +20,7 @@ for (const file of diagrams) {
 // Markdown is trusted project documentation, not untrusted user input.
 const pages = new Map([
   ['architecture.md', 'index.html'],
+  ['architecture-figure.md', 'architecture-figure.html'],
   ['backend.md', 'backend.html'],
   ['review.md', 'review.html'],
   ['first-slice.md', 'first-slice.html'],
@@ -94,4 +97,4 @@ for (const [source, target] of pages) {
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>`;
   await writeFile(path.join(docs, target), doc);
 }
-console.log(`구조 그림 SVG ${diagrams.length}개와 HTML ${pages.size}개 생성 완료. 제품 계약은 수정하지 않았습니다.`);
+console.log(`구조 그림 SVG ${diagrams.length + 1}개와 HTML ${pages.size}개 생성 완료. 제품 계약은 수정하지 않았습니다.`);
