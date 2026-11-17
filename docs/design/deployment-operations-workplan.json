@@ -110,7 +110,7 @@
     {
       "id": "O5",
       "name": "실제 외부 공개·인수",
-      "status": "preparation_documented",
+      "status": "preparation_partially_decided",
       "depends_on": [
         "O2",
         "O3",
@@ -140,14 +140,19 @@
         "evidence": "validation/deployment-readiness-2026-11-16.json",
         "user_decisions_confirmed": false,
         "resources_created": false,
-        "deployment_performed": false
+        "deployment_performed": false,
+        "recovery_policy_approved": true,
+        "recovery_policy_guide": "docs/backup-recovery-policy.md",
+        "custody_mode_selected": "sole_owner_no_secondary",
+        "budget_status": "historical_monthly_example; current total budget target KRW 30000",
+        "evidence_scope": "historical 2026-11-16 preparation checks, not recovery-target acceptance"
       },
-      "next": "Follow issue #6 F1-F6: confirm non-secret decisions, implement external adapters and recovery, then separately authorize external acceptance."
+      "next": "Issue #6 F1: confirm actual backup account, vault, independent copies, billing and recovery access; approved recovery targets are not external acceptance."
     }
   ],
   "followup": {
     "issue": "https://github.com/yh4752/illegal-parking-detection/issues/6",
-    "status": "open_not_started",
+    "status": "open_f1_partially_decided",
     "steps": [
       "F1 resource, cost, ownership and recovery decisions",
       "F2 external revision adapter and permission acceptance",
@@ -156,10 +161,11 @@
       "F5 host-loss recovery and off-host monitoring/alert delivery",
       "F6 external teammate PC acceptance"
     ],
-    "external_deployment_authorized": false
+    "external_deployment_authorized": false,
+    "recovery_policy_approved": true
   },
   "external_inputs": [
-    "host/account and monthly budget limit",
+    "host/account, conditional 4GB load test, total KRW 30000 budget and actual retention cost",
     "domain and DNS authority",
     "independent storage with verified versioning/CAS and retention",
     "backup encryption key custody",
@@ -177,5 +183,58 @@
     "environment and command",
     "expected and observed result",
     "executed vs unexecuted scope; secrets excluded"
-  ]
+  ],
+  "recovery_policy": {
+    "approved_at": "2026-11-17",
+    "status": "approved_targets_not_implemented_or_accepted_externally",
+    "guide": "docs/backup-recovery-policy.md",
+    "data_priority": {
+      "virtual_events": "regenerable",
+      "presentation_blog_evidence": "must_preserve_original"
+    },
+    "database": {
+      "schedule": "03:00 Asia/Seoul daily; before deployment/schema changes; before final shutdown",
+      "rpo_minutes": 1440,
+      "rto_minutes": 120,
+      "rto_start": "service_unavailable",
+      "rto_end": "HTTPS_login_and_new_virtual_event_updates",
+      "daily_successful_generations": 7,
+      "protected_pre_change_and_final": true,
+      "final_retention_review_after": "2027-01-10"
+    },
+    "evidence": {
+      "finalize": "on_each_success_or_failure_run_before_cleanup",
+      "in_progress_log_copy_minutes": 5,
+      "in_progress_log_rpo_minutes": 5,
+      "sealed_rpo_minutes": 0,
+      "sealed_requires": "two_independent_copies_beyond_working_copy_read_back_with_matching_SHA256_and_readable_files",
+      "retrieval_minutes": 15,
+      "retain_at_least_through": "2027-12-11",
+      "retain_while_in_use": true,
+      "automatic_deletion": false
+    },
+    "revision": {
+      "persist_before_reservation_success": true,
+      "successful_reservation_rpo": 0,
+      "fail_closed_if_latest_unverified": true,
+      "retain_at_least_through": "2027-12-11",
+      "retain_for_remaining_recoverable_backups": true
+    },
+    "presentation": {
+      "fallback_minutes": 5,
+      "rehearse_by": "2026-12-10"
+    },
+    "custody": {
+      "mode": "sole_owner",
+      "primary": "project_owner_self",
+      "secondary": null,
+      "backup_account_separation": "recommended_not_selected",
+      "vault_and_offline_media": "pending",
+      "key_retention": "while_any_retained_archive_requires_key",
+      "acceptance": "owner_recovers_without_original_host_or_primary_login_device",
+      "limitation": "no_substitute_when_owner_unavailable; response_time_counts_in_service_RTO"
+    },
+    "external_provisioning_authorized": false,
+    "external_deployment_authorized": false
+  }
 }

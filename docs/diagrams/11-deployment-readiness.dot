@@ -1,27 +1,35 @@
 digraph Readiness {
-  graph [rankdir=TB, bgcolor="transparent", pad="0.25", nodesep="0.35", ranksep="0.55", fontname="Arial", label="O5 proposal · Resources NOT created · External acceptance pending", labelloc=t];
+  graph [rankdir=TB, bgcolor="transparent", pad="0.25", nodesep="0.35", ranksep="0.55", fontname="Arial", label="O5 recovery targets approved · Sole owner · Resources NOT created", labelloc=t];
   node [shape=box, style="rounded,filled", fillcolor="#EDF4F5", color="#9FB9C2", fontname="Arial", fontsize=11, margin="0.13,0.1"];
   edge [fontname="Arial", fontsize=9, color="#557783", arrowsize=0.7, style=dashed];
-  team [label="Team browser\nOwned domain / public HTTPS", fillcolor="#DCEFE5"];
+  team [label="Team browser\nDuckDNS candidate / future HTTPS", fillcolor="#DCEFE5"];
   subgraph cluster_app {
-    label="App account / Single Linux host (school host or Lightsail)"; color="#9FB9C2";
+    label="App account / Lightsail 4GB conditional on load test"; color="#9FB9C2";
     app [label="Nginx + Spring + internal MQTT\nPostgreSQL + local revision pair\nPrometheus + Grafana + simulator"];
-    job [label="Backup job\nEncrypt + restore-verify\nRestricted working key copy"];
+    job [label="Backup job / future schedule\nDaily 03:00 KST + before change/shutdown\nEncrypt + verify / restricted working key"];
+    capture [label="Evidence collection / future automation\nLogs every 5 min + final run artifacts\nOriginal measurements + SHA-256 manifest"];
     app -> job [label="Consistent database/device backup"];
+    app -> capture [label="Logs / captures / measurements"];
   }
   subgraph cluster_store {
     label="Separate backup account / S3 Seoul candidate / Private buckets"; color="#C3AB81";
     ledger [shape=cylinder, fillcolor="#FFF0DC", label="Revision bucket\nCurrent head + version history\nCAS / no runtime deletion\nExternal adapter NOT implemented"];
-    archive [shape=cylinder, fillcolor="#FFF0DC", label="Backup bucket\nEncrypted archives + manifests\nVersioning / retention\nNo plaintext recovery key"];
+    archive [shape=cylinder, fillcolor="#FFF0DC", label="Backup bucket / DB prefix\n7 successful daily generations + protected copies\nFinal DB: review after 2027-01-10"];
+    evidence [shape=cylinder, fillcolor="#FFF0DC", label="Backup bucket / separate evidence prefix\nNo automatic evidence expiry\nKeep at least through 2027-12-11"];
   }
-  vault [label="Off-host key custody\nHosted vault / two custodians\nSeparate offline recovery copy", fillcolor="#DCEFE5"];
-  restore [label="Replacement host / new database\nRestore + latest ledger + device reconciliation\nExplicit acceptance before serving", fillcolor="#EAE4F7"];
+  vault [label="Off-host key custody / sole owner\nPersonal vault + independent recovery copy\nRecover without primary login device", fillcolor="#DCEFE5"];
+  offline [label="Second independent evidence copy\nSeparate physical location / access pending\nRead-back + hash verification before sealed", fillcolor="#DCEFE5"];
+  restore [label="Replacement host / new database\nLatest ledger + reconciliation + explicit acceptance\nService RTO target 2 h / evidence retrieval 15 min", fillcolor="#EAE4F7"];
   monitor [label="External HTTPS check + alert destination\nStill observable when app host fails", fillcolor="#EAE4F7"];
   team -> app [label="HTTPS 443 / future"];
   app -> ledger [label="Authenticated latest reads + CAS\nCritical live dependency / future"];
   job -> archive [label="Upload / download / verify\nFuture automation"];
+  capture -> evidence [label="Encrypted private originals\nFuture copy + read-back"];
+  capture -> offline [label="Separate verified copy\nFuture custody"];
   vault -> job [label="Provision restricted working key"];
   archive -> restore [label="Recover snapshot"];
+  evidence -> restore [label="Recover original evidence"];
+  offline -> restore [label="Independent evidence retrieval"];
   ledger -> restore [label="Keep current head; never roll back with DB"];
   vault -> restore [label="Recover matching key by reference"];
   monitor -> app [label="Probe / future"];

@@ -47,6 +47,8 @@ npm --prefix tools/docs run build
 
 백업과 독립 revision 기록의 차이, 복원 순서와 직접 실습은 [O4 로컬 백업·복원](local-backup.md)을 읽습니다.
 
-실제 자원을 고르기 전에는 [O5 배포 준비](deployment-readiness.md)를 읽습니다. 월 예산의 계산 가정과 준비 항목을 정리했으며 외부 배포는 하지 않았습니다.
+실제 자원을 고르기 전에는 [O5 배포 준비](deployment-readiness.md)를 읽습니다. 과거 월 단위 비교와 현재 단기 계획·준비 항목을 구분했으며 외부 배포는 하지 않았습니다.
+
+2026-11-17 승인한 단기 운영의 [백업·증거 보존·복구 목표와 단독 관리](backup-recovery-policy.md)를 함께 읽습니다. 목표 승인과 실제 외부 자동화·회수 시험 완료를 구분합니다.
 
 운영 학습은 [O1 개념 안내](production-basics.md)부터 시작합니다. [학습·블로그 근거 모음](operations-learning-evidence.md)에 자기 설명 질문과 Git으로 보존한 로그·캡처·측정 조건이 있습니다. 두 문서의 같은 이름 HTML도 자동 생성합니다.
