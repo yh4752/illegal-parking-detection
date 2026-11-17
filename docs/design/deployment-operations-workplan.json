@@ -228,11 +228,20 @@
       "mode": "sole_owner",
       "primary": "project_owner_self",
       "secondary": null,
-      "backup_account_separation": "recommended_not_selected",
-      "vault_and_offline_media": "pending",
+      "backup_account_separation": "selected_separate_aws_account_not_created",
+      "vault_and_offline_media": "selected_not_provisioned",
       "key_retention": "while_any_retained_archive_requires_key",
       "acceptance": "owner_recovers_without_original_host_or_primary_login_device",
-      "limitation": "no_substitute_when_owner_unavailable; response_time_counts_in_service_RTO"
+      "limitation": "no_substitute_when_owner_unavailable; response_time_counts_in_service_RTO",
+      "vault": "bitwarden_free_personal",
+      "offline_key_copy": "encrypted_usb",
+      "recovery_instructions": "paper_stored_separately_from_usb",
+      "usb_location": null,
+      "paper_location": null,
+      "usb_device": null,
+      "usb_encryption_tool": null,
+      "mfa_method": null,
+      "recovery_test_completed": false
     },
     "external_provisioning_authorized": false,
     "external_deployment_authorized": false
