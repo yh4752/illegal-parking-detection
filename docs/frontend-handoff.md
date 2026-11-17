@@ -16,19 +16,19 @@
 
 **전달 기준:** [작업표](frontend-handoff-checklist.md)와 [검증 기록](../validation/frontend-handoff-2026-11-14.json)을 확인합니다. 로컬 실행판과 공개 HTTPS 완료는 별개입니다. 현재 공개 URL·배포 서버·DNS가 지정되지 않았습니다.
 
-사람은 이 문서부터 읽습니다. 코딩 AI에는 [인계 컨텍스트 JSON](frontend-handoff-context.json)과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 실행 코드와 문서는 `main`을 기준으로 합니다. 기존 인계 구현의 변경 이력은 [PR #3](https://github.com/yh4752/parking-system/pull/3), 새 시안의 적용 범위는 [시안 적용 기준](frontend-design-alignment.md)에서 확인합니다.
+사람은 이 문서부터 읽습니다. 코딩 AI에는 [인계 컨텍스트 JSON](frontend-handoff-context.json)과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 실행 코드와 문서는 `main`을 기준으로 합니다. 기존 인계 구현의 변경 이력은 [PR #3](https://github.com/yh4752/illegal-parking-detection/pull/3), 새 시안의 적용 범위는 [시안 적용 기준](frontend-design-alignment.md)에서 확인합니다.
 
 ![실제 가상 장치 데이터로 실행한 구역 현황](screenshots/zone-desktop.png)
 
 ## 1. 처음 실행하기
 
-팀 개발은 **ZIP 다운로드 대신 클론**으로 시작합니다. ZIP으로 받은 `parking-system-feat-frontend-handoff`는 Git 이력·원격 연결이 없는 사본입니다. 아래 명령으로 만든 `parking-system` 폴더를 개발 도구에서 엽니다. 기존 ZIP 폴더에서 수정한 내용이 있다면 먼저 보존하고 변경 파일만 작업 브랜치로 옮깁니다.
+팀 개발은 **ZIP 다운로드 대신 클론**으로 시작합니다. ZIP으로 받은 `parking-system-feat-frontend-handoff`는 Git 이력·원격 연결이 없는 사본입니다. 아래 명령으로 만든 `illegal-parking-detection` 폴더를 개발 도구에서 엽니다. 기존 ZIP 폴더에서 수정한 내용이 있다면 먼저 보존하고 변경 파일만 작업 브랜치로 옮깁니다.
 
 필요한 것은 Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24.13.0도 필요합니다(`frontend/.nvmrc`).
 
 ```sh
-git clone https://github.com/yh4752/parking-system.git
-cd parking-system
+git clone https://github.com/yh4752/illegal-parking-detection.git
+cd illegal-parking-detection
 python3 tools/handoff.py prepare
 ```
 

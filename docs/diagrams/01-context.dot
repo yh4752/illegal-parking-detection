@@ -4,7 +4,7 @@ digraph Context {
   edge [fontname="Apple SD Gothic Neo", fontsize=12, color="#607d91", fontcolor="#486478", arrowsize=0.75];
   operator [shape=oval, label="운영 관리자\n[Person · OPERATOR]\n상태 확인·현장 조치 요청"];
   viewer [shape=oval, label="조회 사용자\n[Person · VIEWER]\n상태와 이력 확인"];
-  system [label="엣지 AI 주정차 안내 시스템\n[Software System]\n현장 판단·안내 + 상태 저장·관리자 웹", fillcolor="#dceef6", color="#216582", penwidth=2];
+  system [label="엣지 AI 기반 불법주정차 감지·안내 시스템\n[Software System]\n현장 판단·안내 + 상태 저장·관리자 웹", fillcolor="#dceef6", color="#216582", penwidth=2];
   driver [shape=oval, label="현장 운전자\n[Person]\n별도 앱 없이 안내를 받음"];
   {rank=same; operator; viewer;}
   operator -> system [label="상태 조회\n중지·재개 요청"];

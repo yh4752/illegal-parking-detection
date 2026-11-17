@@ -47,7 +47,7 @@ EVENT_INGEST_READY topic=parking/v2/devices/+/events mode=local_persistence
 
 ## 3. 응답을 먼저 구독
 
-두 번째 터미널의 `parking-system/infra`에서 실행하고 대기한다.
+두 번째 터미널의 `illegal-parking-detection/infra`에서 실행하고 대기한다.
 
 ```sh
 docker compose --env-file .env.example exec mosquitto \
@@ -59,7 +59,7 @@ docker compose --env-file .env.example exec mosquitto \
 
 ## 4. 정상 발행과 재전송
 
-세 번째 터미널의 `parking-system/infra`에서 실행한다. `-s`는 표준 입력 전체를 메시지 본문으로 읽는 옵션이며 `-r`은 사용하지 않는다.
+세 번째 터미널의 `illegal-parking-detection/infra`에서 실행한다. `-s`는 표준 입력 전체를 메시지 본문으로 읽는 옵션이며 `-r`은 사용하지 않는다.
 
 ```sh
 python3 ../tools/event_fixture.py --message-id storage-001 --device-seq 10 |

@@ -2,11 +2,13 @@
 
 2026-11-17 · 공통 기준 `main` · 운영 구현 이력 PR #5 · 제품 기준 v1.43
 
-**실제 API에 연결된 React 인계판을 구현했습니다. 공개 HTTPS 배포와 받는 분의 PC 인수는 아직 완료하지 않았습니다.** 코드·문서는 공개 [저장소의 main](https://github.com/yh4752/parking-system/tree/main)을 공통 기준으로 사용합니다. MQTT → 조회 기반 → 인증·조회 → React 인계의 기존 누적 이력은 PR #4 → #1 → #2 → #3으로 통합합니다. 새 작업은 main에서 브랜치를 만들고 main 대상 PR로 올립니다. 프론트 시안의 적용 범위와 v1.43 차이는 [적용 기준](frontend-design-alignment.md)에 정리했습니다. 시안의 디자인 변경 자체는 아직 구현하지 않았습니다.
+**실제 API에 연결된 React 인계판을 구현했습니다. 공개 HTTPS 배포와 받는 분의 PC 인수는 아직 완료하지 않았습니다.** 코드·문서는 공개 [저장소의 main](https://github.com/yh4752/illegal-parking-detection/tree/main)을 공통 기준으로 사용합니다. MQTT → 조회 기반 → 인증·조회 → React 인계의 기존 누적 이력은 PR #4 → #1 → #2 → #3으로 통합합니다. 새 작업은 main에서 브랜치를 만들고 main 대상 PR로 올립니다. 프론트 시안의 적용 범위와 v1.43 차이는 [적용 기준](frontend-design-alignment.md)에 정리했습니다. 시안의 디자인 변경 자체는 아직 구현하지 않았습니다.
+
+저장소 이름은 **`illegal-parking-detection`**, 프로젝트 제목은 **엣지 AI 기반 불법주정차 감지·안내 시스템**으로 맞췄습니다. 이름 변경의 이유와 기존 자료 보존 범위는 [ADR-011](adr/011-project-identity.md), 기존 클론의 연결 방법은 [협업 안내](../CONTRIBUTING.md#저장소-이름-변경-후-기존-클론-연결하기)를 따릅니다. 이름 변경으로 구현·실차 검증·외부 배포 범위가 추가되지는 않습니다.
 
 ## 최신 운영 작업 요약
 
-**O1~O4는 로컬 구현·인수 완료, O5는 준비 문서 작성 상태다.** 운영 코드·문서·실행 증거의 변경 이력은 [PR #5](https://github.com/yh4752/parking-system/pull/5)에서 확인한다. 실제 반영 상태는 PR의 병합 기록과 [main의 CI](https://github.com/yh4752/parking-system/actions/workflows/verify.yml?query=branch%3Amain)를 따른다. 코드 병합은 외부 배포·실서버 인수 완료를 뜻하지 않는다. 아래 과거 단계별 수치는 당시 기록이며 최신 값과 합산하지 않는다.
+**O1~O4는 로컬 구현·인수 완료, O5는 준비 문서 작성 상태다.** 운영 코드·문서·실행 증거의 변경 이력은 [PR #5](https://github.com/yh4752/illegal-parking-detection/pull/5)에서 확인한다. 실제 반영 상태는 PR의 병합 기록과 [main의 CI](https://github.com/yh4752/illegal-parking-detection/actions/workflows/verify.yml?query=branch%3Amain)를 따른다. 코드 병합은 외부 배포·실서버 인수 완료를 뜻하지 않는다. 아래 과거 단계별 수치는 당시 기록이며 최신 값과 합산하지 않는다.
 
 | 단계 | 현재 상태 | 먼저 읽을 자료 |
 |---|---|---|
@@ -16,7 +18,7 @@
 | O4 백업·독립 revision 참조 구현·복원 | 로컬 인수 완료. 실제 호스트 독립성 미검증 | [백업·복원](local-backup.md) |
 | O5 실제 자원·외부 배포 | 추천/입력표 완료. 실제 자원·외부 어댑터·배포 인수 미완료 | [배포 준비](deployment-readiness.md) |
 
-**남은 운영 작업은 [후속 이슈 #6](https://github.com/yh4752/parking-system/issues/6)에서 추적한다.** F1 자원·비용·책임·복구 목표 확정 → F2 외부 revision 어댑터 → F3 자동 백업·보존·키 회수 → F4 실제 서버·HTTPS·릴리스 준비 → F5 서버 유실 복구·외부 관측/알림 → F6 팀원 외부 PC 인수 순서다. 각 항목의 의존 관계와 완료 증거를 이슈에 기록했으며 모두 후속 범위다. 첫 단계는 [비밀값 없는 결정표](deployment-readiness.md#6-지금-준비할-결정표)를 채우는 것이다. 이슈 등록이나 main 병합으로 유료 자원 생성·DNS 변경·외부 배포가 실행되지는 않는다.
+**남은 운영 작업은 [후속 이슈 #6](https://github.com/yh4752/illegal-parking-detection/issues/6)에서 추적한다.** F1 자원·비용·책임·복구 목표 확정 → F2 외부 revision 어댑터 → F3 자동 백업·보존·키 회수 → F4 실제 서버·HTTPS·릴리스 준비 → F5 서버 유실 복구·외부 관측/알림 → F6 팀원 외부 PC 인수 순서다. 각 항목의 의존 관계와 완료 증거를 이슈에 기록했으며 모두 후속 범위다. 첫 단계는 [비밀값 없는 결정표](deployment-readiness.md#6-지금-준비할-결정표)를 채우는 것이다. 이슈 등록이나 main 병합으로 유료 자원 생성·DNS 변경·외부 배포가 실행되지는 않는다.
 
 실물 보드·AI/실차 성능·LED/스피커·관리 명령·정책 변경·사진 기능은 운영 후속과 별도의 제품 작업으로 남아 있다.
 
@@ -24,7 +26,7 @@
 
 PR 반영 전 재검사와 원격 CI는 [PR 공유 검증 기록](../validation/pr5-publication-2026-11-16.json)을 기준으로 한다. 원격 실행은 로컬 수치와 구분하며, GitHub Checks 통과도 실제 외부 배포·팀원 PC 인수를 대신하지 않는다.
 
-첫 Linux CI(`3654f91`)는 8개 작업 중 6개가 통과했고 O2·O4에서 환경 차이를 발견했다. O2는 중단된 backend의 504를 502로 바뀔 때까지 기다리던 검사 가정을 수정했고, O4는 비공개 원장 폴더의 소유자 UID:GID로 실행하도록 수정했다. [실패 발췌·권한 재현 근거](operations-learning-evidence.md#6-linux-ci에서-확인한-환경-차이)를 보존했다. 과거 O4 해시 기록은 변경하지 않으며, 수정 후 정확한 커밋과 최종 원격 결과는 [PR #5 Checks](https://github.com/yh4752/parking-system/pull/5/checks)와 PR 본문에서 확인한다.
+첫 Linux CI(`3654f91`)는 8개 작업 중 6개가 통과했고 O2·O4에서 환경 차이를 발견했다. O2는 중단된 backend의 504를 502로 바뀔 때까지 기다리던 검사 가정을 수정했고, O4는 비공개 원장 폴더의 소유자 UID:GID로 실행하도록 수정했다. [실패 발췌·권한 재현 근거](operations-learning-evidence.md#6-linux-ci에서-확인한-환경-차이)를 보존했다. 과거 O4 해시 기록은 변경하지 않으며, 수정 후 정확한 커밋과 최종 원격 결과는 [PR #5 Checks](https://github.com/yh4752/illegal-parking-detection/pull/5/checks)와 PR 본문에서 확인한다.
 
 후속 Linux 검증에서는 O4 전체 복원을 포함해 7개 작업이 통과했고, O2의 자동 subnet에 특정 IP를 지정하던 시험도 주소 자동 할당으로 수정했다. 새 backend IP가 실제로 달라야 한다는 검사는 유지한다. 로컬 O2 재검사는 통과했다. 당시 추가 로컬 O4는 Docker 실행 환경 오류·시간 초과로 미완료였으며, 아래 11월 17일 별도 재검증으로 완료했다.
 

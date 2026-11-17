@@ -1,0 +1,31 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>불법주정차 감지·안내 시스템 · 구조와 개발 시작</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
+main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8f1f6;border-left:4px solid #40839c;padding:18px 24px;margin:18px 0 24px;border-radius:7px}.intro p{margin:5px 0}.intro strong{color:#1e526e}.page{background:white;border:1px solid #dce5eb;border-radius:12px;padding:32px 40px}h1{font-size:28px;line-height:1.4}h2{font-size:23px;line-height:1.5;border-top:1px solid #e1e8ed;padding-top:27px;margin-top:35px}h3{font-size:18px}p,li{word-break:keep-all;overflow-wrap:anywhere}li{margin:7px 0}a{color:#236b91;text-underline-offset:3px}strong{font-weight:700}
+.figure{margin:24px 0;background:#f8fafc;padding:18px;border:1px solid #e1e9ef;border-radius:8px}.figure img{display:block;width:100%;height:auto}.figure a{font-size:13px}.table-scroll{overflow-x:auto;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.65}th{text-align:left;background:#eaf1f5;color:#244c63}td,th{padding:12px 14px;border-bottom:1px solid #dce5ec;vertical-align:top}td:first-child{font-weight:600}td{min-width:110px}code{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}pre{background:#edf3f7;border:1px solid #dbe6ee;border-radius:8px;padding:18px;overflow-x:auto}pre code{padding:0;background:transparent}footer{max-width:1168px;margin:auto;padding:0 24px 28px;color:#6f8391;font-size:12px}
+@media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
+@media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ILLEGAL PARKING DETECTION</div><h1>엣지 AI 기반<br>불법주정차 감지·안내 시스템</h1><p>보드는 판단·안내하고, 서버는 기록하고 연결합니다.</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<nav aria-label="문서 메뉴"><a href="../index.html">팀 요약</a><a href="../backend.html">서버 구조</a><a href="../public-demo.html">웹 인계 계획</a><a href="../status.html">현재 상태</a><a href="../review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
+<main><aside class="intro"><p><strong>목적·역할은 팀 요약, 완료 범위는 현재 상태에서 확인하세요.</strong></p><p>가상 장치의 사건 수신·저장·ACK와 로그인·실시간 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 AI 보드·LED/스피커·실차 시험과 공개 배포는 남아 있습니다. 그림은 목표 구조이며 과거 검증 기록은 당시 조건을 따릅니다.</p></aside><article class="page"><h1>ADR-011: 불법주정차 감지·안내 목적을 드러내는 이름</h1>
+<p>2026-11-17 · 사용자 선택: <code>illegal-parking-detection</code></p>
+<h2>배경과 결정</h2>
+<p>기존 <code>parking-system</code>은 일반적인 주차장 관리 시스템으로 읽힐 수 있고, ‘엣지 AI 주정차 안내 시스템’이라는 제목에는 불법주정차 감지 목적이 드러나지 않았다. 발표용 주소의 <code>demo</code>도 제품 목적보다 시험 환경을 앞세운다.</p>
+<p>표시 제목은 <strong>엣지 AI 기반 불법주정차 감지·안내 시스템</strong>, GitHub 저장소 이름은 <strong>illegal-parking-detection</strong>으로 정한다. 짧은 <code>parking-watch</code>보다 목적을 직접 설명하는 이름을 선택했다. 기존 저장소의 이름을 변경하며 저장소를 새로 만들거나 Git 이력을 다시 쓰지 않는다.</p>
+<p>README는 목적 → 현재 구현 상태 → 실제 실행 화면 → 로컬 실행 → 개발·학습 자료 순서로 읽는다. AI가 판단하고 서버가 결과를 저장·전달한다는 역할을 설명하며, 가상 장치 기반 검증과 실물 AI 감지·안내의 미완료 범위를 같은 화면에서 확인할 수 있게 한다. 이름 변경은 제품 기능이나 감지 성능 검증의 추가를 뜻하지 않는다.</p>
+<h2>변경 범위와 보존 경계</h2>
+<ul>
+<li>현재 개발·인계 문서의 GitHub URL, 클론 명령, 새 클론의 기본 폴더 이름, AI용 인계 JSON을 갱신한다. HTML·SVG는 원본에서 다시 생성한다.</li>
+<li>GitHub 소개 문구도 불법주정차 감지·현장 안내·관리자 관제 목적에 맞춘다.</li>
+<li>기존 클론은 원격 주소만 갱신한다. 로컬 폴더는 그대로 사용해도 된다. <a href="../../CONTRIBUTING.md#%EC%A0%80%EC%9E%A5%EC%86%8C-%EC%9D%B4%EB%A6%84-%EB%B3%80%EA%B2%BD-%ED%9B%84-%EA%B8%B0%EC%A1%B4-%ED%81%B4%EB%A1%A0-%EC%97%B0%EA%B2%B0%ED%95%98%EA%B8%B0">팀원용 절차</a>를 따른다.</li>
+<li>Compose 프로젝트·볼륨, DB·애플리케이션 내부 식별자, 통신 계약은 유지한다. 표시 이름을 바꾸기 위해 기존 데이터와 연결된 이름까지 바꾸지 않는다.</li>
+<li><code>reference/v1.43</code> 원본과 <code>validation/</code>의 과거 로그·캡처·JSON·해시는 수정하지 않는다. 당시 저장소 이름과 경로는 기록의 일부다. 현재 문서의 링크 목적지만 새 주소로 맞춘다.</li>
+<li>실제 서비스 주소는 별도 결정이다. 저장소 이름의 선택으로 DNS 등록·구매·외부 배포를 진행하지 않는다.</li>
+</ul>
+<h2>링크와 검증</h2>
+<p>GitHub는 이름 변경 후 기존 웹·Git 주소를 새 주소로 연결한다. 다만 이전 이름으로 새 저장소를 만들면 그 연결이 끊길 수 있으므로 <code>parking-system</code>을 다른 저장소 이름으로 재사용하지 않는다. <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/renaming-a-repository">GitHub 공식 이름 변경 안내</a></p>
+<p>문서 재생성·링크 검사·v1.43 원본 검사, 변경 전후 저장소 ID 비교, PR #5·이슈 #6 접근, 기존 주소의 연결을 확인한다. PR과 main의 CI가 실제 실행 결과이며, 이 결정문 자체는 검사 통과를 대신하지 않는다.</p>
+</article></main>
+<footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

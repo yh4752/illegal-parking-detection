@@ -48,6 +48,7 @@ const pages = new Map([
   ['design/local-https-plan.md', 'design/local-https-plan.html'],
   ['design/deployment-operations-plan.md', 'design/deployment-operations-plan.html'],
   ['adr/010-deployment-operations.md', 'adr/010-deployment-operations.html'],
+  ['adr/011-project-identity.md', 'adr/011-project-identity.html'],
   ['frontend-design-alignment.md', 'frontend-design-alignment.html'],
   ['adr/009-public-repository-sharing.md', 'adr/009-public-repository-sharing.html'],
   ['learning-map.md', 'learning-map.html'],
@@ -85,10 +86,10 @@ for (const [source, target] of pages) {
   const prefix = parentPath ? `${parentPath}/` : '';
   const nav = [['index.html','팀 요약'],['backend.html','서버 구조'],['public-demo.html','웹 인계 계획'],['status.html','현재 상태'],['review.html','기존 검토']]
     .map(([f,label])=>`<a${f===target?' class="active"':''} href="${prefix}${f}">${label}</a>`).join('');
-  const doc = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>${css}</style></head><body>
-<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+  const doc = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>불법주정차 감지·안내 시스템 · 구조와 개발 시작</title><style>${css}</style></head><body>
+<header><div class="eyebrow">CAPSTONE / ILLEGAL PARKING DETECTION</div><h1>엣지 AI 기반<br>불법주정차 감지·안내 시스템</h1><p>보드는 판단·안내하고, 서버는 기록하고 연결합니다.</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴">${nav}<button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page">${html}</article></main>
+<main><aside class="intro"><p><strong>목적·역할은 팀 요약, 완료 범위는 현재 상태에서 확인하세요.</strong></p><p>가상 장치의 사건 수신·저장·ACK와 로그인·실시간 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 AI 보드·LED/스피커·실차 시험과 공개 배포는 남아 있습니다. 그림은 목표 구조이며 과거 검증 기록은 당시 조건을 따릅니다.</p></aside><article class="page">${html}</article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>`;
   await writeFile(path.join(docs, target), doc);
 }

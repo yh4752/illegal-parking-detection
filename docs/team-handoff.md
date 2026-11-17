@@ -8,23 +8,23 @@
 
 | 자료 | 용도 |
 |---|---|
-| [공통 개발 기준](https://github.com/yh4752/parking-system/tree/main) | 실행 코드와 문서. 각자 작업 브랜치와 PR은 main 기준 |
+| [공통 개발 기준](https://github.com/yh4752/illegal-parking-detection/tree/main) | 실행 코드와 문서. 각자 작업 브랜치와 PR은 main 기준 |
 | [인계 설명서](frontend-handoff.md) | 설치·로그인·가상 장치·화면 수정·오류 대응 |
 | [AI용 시작 JSON](frontend-handoff-context.json) | AI에게 읽을 순서·계약·수정 경계 전달. 저장소와 함께 제공 |
 | [인계 판정표](frontend-handoff-checklist.md) | 확인한 기능과 남은 범위 |
 | [프론트 시안 적용 기준](frontend-design-alignment.md) | v1.43과 다른 동작, 이번 작업 범위·PR 확인 항목 |
 
-**팀 개발은 아래 명령으로 저장소를 클론해서 시작합니다.** ZIP으로 받은 `parking-system-feat-frontend-handoff` 폴더에는 Git 이력과 원격 저장소 설정이 없습니다. 클론하면 `parking-system` 폴더가 생기고, 이후 pull·push·PR로 변경 내용을 주고받을 수 있습니다.
+**팀 개발은 아래 명령으로 저장소를 클론해서 시작합니다.** ZIP으로 받은 `parking-system-feat-frontend-handoff` 폴더에는 Git 이력과 원격 저장소 설정이 없습니다. 클론하면 `illegal-parking-detection` 폴더가 생기고, 이후 pull·push·PR로 변경 내용을 주고받을 수 있습니다.
 
-사람은 설명서부터 읽고, 코딩 AI에는 클론한 저장소와 시작 JSON을 함께 제공합니다. 저장소를 읽을 수 없고 파일 첨부만 가능한 AI에는 [코드 ZIP](https://github.com/yh4752/parking-system/archive/refs/heads/main.zip)을 참고 자료로 사용할 수 있습니다. JSON만으로 전체 구현을 알 수는 없습니다.
+사람은 설명서부터 읽고, 코딩 AI에는 클론한 저장소와 시작 JSON을 함께 제공합니다. 저장소를 읽을 수 없고 파일 첨부만 가능한 AI에는 [코드 ZIP](https://github.com/yh4752/illegal-parking-detection/archive/refs/heads/main.zip)을 참고 자료로 사용할 수 있습니다. JSON만으로 전체 구현을 알 수는 없습니다.
 
 ## 첫 실행
 
 Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2가 필요합니다. Windows는 WSL2를 사용합니다. 프론트 수정에는 Node.js 24.13.0이 필요합니다.
 
 ```sh
-git clone https://github.com/yh4752/parking-system.git
-cd parking-system
+git clone https://github.com/yh4752/illegal-parking-detection.git
+cd illegal-parking-detection
 git switch -c feat/console-ui
 python3 tools/handoff.py prepare
 ```

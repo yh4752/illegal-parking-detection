@@ -146,7 +146,7 @@
     }
   ],
   "followup": {
-    "issue": "https://github.com/yh4752/parking-system/issues/6",
+    "issue": "https://github.com/yh4752/illegal-parking-detection/issues/6",
     "status": "open_not_started",
     "steps": [
       "F1 resource, cost, ownership and recovery decisions",
