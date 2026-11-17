@@ -8,7 +8,7 @@
 
 ## 최신 운영 작업 요약
 
-**O1~O4는 로컬 구현·인수 완료, O5는 준비 문서 작성 상태다.** 운영 코드·문서·실행 증거의 변경 이력은 [PR #5](https://github.com/yh4752/illegal-parking-detection/pull/5)에서 확인한다. 실제 반영 상태는 PR의 병합 기록과 [main의 CI](https://github.com/yh4752/illegal-parking-detection/actions/workflows/verify.yml?query=branch%3Amain)를 따른다. 코드 병합은 외부 배포·실서버 인수 완료를 뜻하지 않는다. 아래 과거 단계별 수치는 당시 기록이며 최신 값과 합산하지 않는다.
+**O1~O4는 로컬 구현·인수 완료, O5는 일부 결정·복구 목표 승인 후 외부 구현·인수를 준비하는 상태다.** 운영 코드·문서·실행 증거의 변경 이력은 [PR #5](https://github.com/yh4752/illegal-parking-detection/pull/5)에서 확인한다. 실제 반영 상태는 PR의 병합 기록과 [main의 CI](https://github.com/yh4752/illegal-parking-detection/actions/workflows/verify.yml?query=branch%3Amain)를 따른다. 코드 병합은 외부 배포·실서버 인수 완료를 뜻하지 않는다. 아래 과거 단계별 수치는 당시 기록이며 최신 값과 합산하지 않는다.
 
 | 단계 | 현재 상태 | 먼저 읽을 자료 |
 |---|---|---|
@@ -16,9 +16,11 @@
 | O2 HTTPS·Nginx·로그인/SSE | 로컬 인수 완료 | [HTTPS 실습](local-https.md) |
 | O3 Prometheus·Grafana·장애 경보 | 로컬 인수 완료. 외부 알림 미구현 | [모니터링](local-monitoring.md) |
 | O4 백업·독립 revision 참조 구현·복원 | 로컬 인수 완료. 실제 호스트 독립성 미검증 | [백업·복원](local-backup.md) |
-| O5 실제 자원·외부 배포 | 추천/입력표 완료. 실제 자원·외부 어댑터·배포 인수 미완료 | [배포 준비](deployment-readiness.md) |
+| O5 실제 자원·외부 배포 | 단기 예산·후보·복구 목표·본인 단독 관리 일부 확정. 실제 자원·외부 어댑터·배포 인수 미완료 | [배포 준비](deployment-readiness.md) |
 
-**남은 운영 작업은 [후속 이슈 #6](https://github.com/yh4752/illegal-parking-detection/issues/6)에서 추적한다.** F1 자원·비용·책임·복구 목표 확정 → F2 외부 revision 어댑터 → F3 자동 백업·보존·키 회수 → F4 실제 서버·HTTPS·릴리스 준비 → F5 서버 유실 복구·외부 관측/알림 → F6 팀원 외부 PC 인수 순서다. 각 항목의 의존 관계와 완료 증거를 이슈에 기록했으며 모두 후속 범위다. 첫 단계는 [비밀값 없는 결정표](deployment-readiness.md#6-지금-준비할-결정표)를 채우는 것이다. 이슈 등록이나 main 병합으로 유료 자원 생성·DNS 변경·외부 배포가 실행되지는 않는다.
+**남은 운영 작업은 [후속 이슈 #6](https://github.com/yh4752/illegal-parking-detection/issues/6)에서 추적한다.** F1 자원·비용·책임·복구 목표 확정 → F2 외부 revision 어댑터 → F3 자동 백업·보존·키 회수 → F4 실제 서버·HTTPS·릴리스 준비 → F5 서버 유실 복구·외부 관측/알림 → F6 팀원 외부 PC 인수 순서다. 각 항목의 의존 관계와 완료 증거를 이슈에 기록했다. F1은 일부 결정이 완료됐지만 전체는 미완료이며 F2~F6도 후속 범위다. 남은 결정은 [비밀값 없는 결정표](deployment-readiness.md#6-지금-준비할-결정표)를 채우는 것이다. 이슈 등록이나 main 병합으로 유료 자원 생성·DNS 변경·외부 배포가 실행되지는 않는다.
+
+**2026-11-17 목표 승인:** 가상 사건 DB는 재생성 가능, 발표·블로그 로그·캡처·검증 수치는 필수 보존이다. DB 매일 03:00 KST 및 변경·종료 전 백업/24시간 손실/서비스 2시간 복구, 보존 완료 증거 손실 0/15분 회수, 실행 중 로그 5분 외부 복사, 발표 전환 5분을 [승인 정책](backup-recovery-policy.md)에 기록했다. 계정·키는 본인 단독 관리하며 보조 담당자는 없다. 외부 사본·자동화·주 기기 없는 로그인/키 회수·실제 복구 시험은 아직 수행하지 않았다.
 
 실물 보드·AI/실차 성능·LED/스피커·관리 명령·정책 변경·사진 기능은 운영 후속과 별도의 제품 작업으로 남아 있다.
 
@@ -127,6 +129,8 @@ DB-only 및 DB+두 파일 롤백 시 실제 backend 기동 거부, hold 중 API/
 
 
 ## O5 배포 준비 문서 (2026-11-16)
+
+아래는 11월 16일의 초기 추천 기록이다. 현재 단기 예산·무료 주소 후보·승인된 복구 목표·본인 단독 관리 선택은 위 최신 요약과 [승인 정책](backup-recovery-policy.md)을 따른다.
 
 [배포 준비 안내](deployment-readiness.md)에 학교 서버의 확인 조건, Lightsail 4GB/8GB 후보, 월 6만/10만 원 관리 예산과 첫 달·3개월 지출, 도메인/DNS/갱신 책임, 별도 계정의 S3 백업·revision 버킷, 주·부 담당자의 금고·추가 키 사본을 정리했다. 공식 단가와 계획용 환율·사용량 가정을 [예산 예시](../infra/deploy/budget.example.json)로 분리했다. 추천안은 미확정이고 [입력 양식](../infra/deploy/inputs.example.json)의 실제 선택값은 미정으로 남겼다.
 

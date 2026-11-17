@@ -58,6 +58,6 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p>예약은 <strong>독립 CAS → 로컬 primary → 로컬 copy → DB</strong>다. 독립 기록이 앞서고 로컬/DB가 뒤처지거나 두 파일이 다르면 기동/읽기/수신을 차단한다. 복구 시에는 세 저장소의 최대 상한 다음 범위를 예약한다. 자동 정합화·과거 버전 덮어쓰기·누락 기록 자동 생성은 하지 않는다.</p>
 <p>O4 overlay에서 독립 기록을 필수로 한다. O1/O2/O3 기존 학습 환경은 이번 작업에서 변환하지 않는다. 외부 운영 환경은 현재 로컬 HTTP 어댑터를 그대로 사용하지 않으며 공급자 TLS·최신 읽기·CAS/버전 내구성 계약을 별도로 인수한다.</p>
 <p>완료 여부는 <a href="../../validation/local-backup-2026-11-16.json">검증 기록</a>과 <a href="../status.html">현재 상태</a>를 따른다. 명령은 <a href="../local-backup.html">사람용 설명서</a>에 있다. 각 시험의 정상 경로와 실패 경로 관측을 구분한다.</p>
-<p>실행하지 않는 항목: 실제 서버 공개, 외부 object storage, OS/디스크 전체 유실, 외부 키 복구, 실제 장치 현장 대조, PITR/WAL, 대용량 복원·SLA, 자동 보존 삭제와 운영 스케줄. 백업 24시간/RTO 60분은 초기 목표이며 로컬 측정은 해당 시험 자료에만 적용한다.</p>
+<p>실행하지 않는 항목: 실제 서버 공개, 외부 object storage, OS/디스크 전체 유실, 외부 키 복구, 실제 장치 현장 대조, PITR/WAL, 대용량 복원·SLA, 자동 보존 삭제와 운영 스케줄. 백업 24시간/RTO 60분은 당시 초기 목표다. 현재는 <a href="../backup-recovery-policy.html">승인 정책</a>의 DB 24시간 손실·전체 서비스 2시간 복구를 따르며, 기존 로컬 측정은 해당 시험 자료에만 적용한다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

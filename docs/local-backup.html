@@ -104,7 +104,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tbody></table></div>
 <p>복원된 snapshot은 과거 관측이다. 연결 상태는 OFFLINE으로 되돌리고 heartbeat 시각과 측정값을 비운다. 차량이 나갔다고 추정하지 않는다. 실제 명령·server outbox 자료가 있는 DB는 현재 로컬 인수 도구가 개방을 거부한다. 그 기능의 복구 정책은 별도 검토가 필요하다.</p>
 <p><strong>ACK 이후 손실 예:</strong> 10시에 백업하고 10시 5분 사건을 DB에 저장한 뒤 성공 ACK를 보냈다면, 장치는 그 사건을 outbox에서 지울 수 있다. 10시 백업으로 복원하면 10시 5분 사건은 사라지며 장치도 재전송할 원문이 없을 수 있다. 독립 revision 기록은 새 번호를 안전하게 정할 뿐 이 사건을 복구하지 않는다. 더 촘촘한 백업이나 WAL/PITR는 향후 별도 선택이다.</p>
-<p>RPO는 허용 가능한 데이터 손실 구간, RTO는 서비스 복구에 걸리는 시간이다. 최초 목표는 각각 24시간·60분이지만 보장이 아니다. 이번 검증은 실제 백업 시각부터 장애까지의 경과, ACK 후 백업에 없는 사건 수, 복원 시작부터 HTTPS 재개까지를 기록한다. 작은 가상 자료에서의 실측을 실제 서버 SLA로 확대하지 않는다.</p>
+<p>RPO는 허용 가능한 데이터 손실 구간, RTO는 서비스 복구에 걸리는 시간이다. 최초 로컬 설계 목표는 각각 24시간·60분이었다. 현재 운영 목표는 <a href="backup-recovery-policy.html">2026-11-17 승인 정책</a>의 DB 24시간 손실·전체 서비스 2시간 복구이며 아직 실제 외부 인수하지 않았다. 이번 검증은 실제 백업 시각부터 장애까지의 경과, ACK 후 백업에 없는 사건 수, 복원 시작부터 HTTPS 재개까지를 기록한다. 작은 가상 자료에서의 실측을 실제 서버 SLA로 확대하지 않는다.</p>
 <h2>직접 실행하기</h2>
 <p>저장소 루트에서 실행한다. Docker가 켜져 있어야 한다. 암호는 화면에 출력하지 않고 파일로 관리한다.</p>
 <pre><code class="language-sh">python3 -m venv .local-state/backup-python
@@ -177,7 +177,7 @@ cat .local-state/backup-demo/recovery/report.json
 </tr>
 </tbody></table></div>
 <p>모두 같은 PC에 있으므로 디스크나 PC가 통째로 사라지면 함께 잃을 수 있다. <strong>로컬의 저장 경계 분리와 실제 재해 독립성은 별도다.</strong> O5에서는 외부 저장소의 최신성·조건부 갱신·버전 보존·삭제 권한·TLS·비용, 독립 백업 위치, 키 보관과 복구 담당자를 실제 공급자에서 검증해야 한다. 저장소 관리자 탈취나 독립 원장 자체의 과거 복원까지 자동 방어한다고 주장하지 않는다.</p>
-<p>일일 03:00 KST·배포 전 백업, 일별 7개·주별 4개 보존은 운영 목표다. 이번 로컬 작업은 자동 스케줄이나 자동 삭제를 설치하지 않는다. 새 원격 저장소의 보존 정책과 백업 실패 알림을 검증한 후 운영 서버에서 설정한다. 실패한 백업도 최근 성공 시각을 갱신하지 않아야 한다.</p>
+<p>현재 승인 목표는 매일 03:00 KST·배포/DB 변경 전·운영 종료 전 백업, 성공 일별 7세대·변경 직전/최종본 별도 보호다. 증거·revision·키의 별도 보관 기간과 회수 목표는 <a href="backup-recovery-policy.html">승인 정책</a>을 따른다. 이번 로컬 작업은 자동 스케줄이나 자동 삭제를 설치하지 않는다. 새 원격 저장소의 보존 정책과 백업 실패 알림을 검증한 후 운영 서버에서 설정한다. 실패한 백업도 최근 성공 시각을 갱신하지 않아야 한다.</p>
 <h2>검증 재현</h2>
 <pre><code class="language-sh">.local-state/backup-python/bin/python -m unittest discover -s tools/production -p &#39;test_*.py&#39; -v
 .local-state/backup-python/bin/python tools/production/verify_o4.py
