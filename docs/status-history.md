@@ -6,7 +6,7 @@
 
 2026-11-14 · 이 파일이 현재 개발 저장소의 현황입니다. reference/v1.43의 상태표는 설계 작성 당시 기록입니다.
 
-개인 비공개 저장소 [yh4752/parking-system](https://github.com/yh4752/parking-system)에 코드·설계·협업 지침을 올렸습니다. 팀원 초대와 브랜치 보호는 별도 설정입니다.
+개인 비공개 저장소 [yh4752/parking-system](https://github.com/yh4752/illegal-parking-detection)에 코드·설계·협업 지침을 올렸습니다. 팀원 초대와 브랜치 보호는 별도 설정입니다.
 
 | 항목 | 작성 여부 | 실행 확인 |
 |---|---|---|
@@ -37,7 +37,7 @@
 
 - [11월 13일 JSON 파싱 실습 기록](mqtt-learning.md#실습-결과): 사용자가 공유한 실제 서버 로그에 근거.
 
-- [성공한 CI](https://github.com/yh4752/parking-system/actions/runs/42995478170): 커밋 `b22f3b88fb92f2be6aba02c93b010ac9aae1a1dd`, JDK 17, `./gradlew test bootJar --no-daemon`와 문서·Compose 검사.
+- [성공한 CI](https://github.com/yh4752/illegal-parking-detection/actions/runs/42995478170): 커밋 `b22f3b88fb92f2be6aba02c93b010ac9aae1a1dd`, JDK 17, `./gradlew test bootJar --no-daemon`와 문서·Compose 검사.
 - [이번 검증 기록](../validation/onboarding-2026-11-11.json): 새 클론 재현, 독립 검토, 첫 CI 실패 원인과 수정, 미검증 범위.
 - [첫 CI 실패와 버전 수정 이유](adr/001-start-small.md): Kotlin 컴파일러·라이브러리 메타데이터 충돌을 수정했다. 이전 validation/report.json·bootstrap-v0.1.json은 당시 기록으로 보존한다.
 
@@ -79,9 +79,9 @@
 
 ## 공개 조회 데모 M0 — 2026-11-14
 
-[구현 PR #1](https://github.com/yh4752/parking-system/pull/1)은 `feat/mqtt-learning` 기준의 별도 브랜치입니다. 기존 MQTT 원본·성공 DTO·V1/V2를 보존하고, REST 전용 유효 계약과 V3/V4, 신규 단일 구역 데모 초기화 CLI를 추가했습니다. 초기화는 기본 검사 모드이며, 명시 적용 시 외부 manifest claim을 먼저 저장한 뒤 hold와 audit를 커밋합니다. 기존 실습 DB에는 적용하지 않았습니다.
+[구현 PR #1](https://github.com/yh4752/illegal-parking-detection/pull/1)은 `feat/mqtt-learning` 기준의 별도 브랜치입니다. 기존 MQTT 원본·성공 DTO·V1/V2를 보존하고, REST 전용 유효 계약과 V3/V4, 신규 단일 구역 데모 초기화 CLI를 추가했습니다. 초기화는 기본 검사 모드이며, 명시 적용 시 외부 manifest claim을 먼저 저장한 뒤 hold와 audit를 커밋합니다. 기존 실습 DB에는 적용하지 않았습니다.
 
-코드 커밋 `db939572`의 [GitHub CI](https://github.com/yh4752/parking-system/actions/runs/43568432860)에서 문서·계약·Compose 검사와 `test databaseTest bootJar`가 모두 통과했습니다. 로컬 최종 bootJar 생성도 성공했고, 그 산출물을 사용한 별도 CLI 프로세스 5개 사례를 PostgreSQL 17.11에서 확인했습니다. 미마이그레이션 DB 거부, 검사 모드 무변경, 신규 초기화, 재적용 거부, 최신 manifest를 유지한 초기 DB 복원 뒤 claim 재사용 거부입니다. 오류를 기대한 사례의 종료 코드 1은 성공적인 거부 결과입니다.
+코드 커밋 `db939572`의 [GitHub CI](https://github.com/yh4752/illegal-parking-detection/actions/runs/43568432860)에서 문서·계약·Compose 검사와 `test databaseTest bootJar`가 모두 통과했습니다. 로컬 최종 bootJar 생성도 성공했고, 그 산출물을 사용한 별도 CLI 프로세스 5개 사례를 PostgreSQL 17.11에서 확인했습니다. 미마이그레이션 DB 거부, 검사 모드 무변경, 신규 초기화, 재적용 거부, 최신 manifest를 유지한 초기 DB 복원 뒤 claim 재사용 거부입니다. 오류를 기대한 사례의 종료 코드 1은 성공적인 거부 결과입니다.
 
 [시험 기록](../validation/demo-foundation-2026-11-14.json)에 환경·실패한 초기 시도·검증 한계를 남겼습니다. 원본 127개 보존과 계약 보호 시험 6개도 통과했습니다. 로컬 전체 테스트가 통과했다고 보고하는 것은 아니며 전체 회귀의 근거는 위 GitHub CI입니다. 이전 Mac 설계 커밋 `052fa95`의 문서 병합은 남아 있습니다.
 
@@ -98,4 +98,4 @@ Mac에서 일반 테스트 **140개**, 실제 PostgreSQL 테스트 **64개**, �
 
 [검증 기록](../validation/authenticated-read-2026-11-14.json)에 실행 환경·실패 수정·코드 해시·범위를 남겼습니다. 현재 계정·세션은 단일 서버용입니다. 공개 HTTPS·실제 MQTT 장애·브라우저·부하·실보드 시험을 완료했다는 뜻은 아닙니다. heartbeat와 SSE는 **다음 M2**, React는 M3입니다. 전체 인계판은 아직 완성되지 않았습니다.
 
-M1 공유 완료: 구현 `36ff6a1`을 `feat/authenticated-read-api`에 푸시했고 [초안 PR #2](https://github.com/yh4752/parking-system/pull/2)를 만들었습니다. 해당 코드의 [GitHub 전체 CI](https://github.com/yh4752/parking-system/actions/runs/43578261661)도 통과했습니다. 기본 브랜치 병합·외부 배포는 수행하지 않았습니다.
+M1 공유 완료: 구현 `36ff6a1`을 `feat/authenticated-read-api`에 푸시했고 [초안 PR #2](https://github.com/yh4752/illegal-parking-detection/pull/2)를 만들었습니다. 해당 코드의 [GitHub 전체 CI](https://github.com/yh4752/illegal-parking-detection/actions/runs/43578261661)도 통과했습니다. 기본 브랜치 병합·외부 배포는 수행하지 않았습니다.

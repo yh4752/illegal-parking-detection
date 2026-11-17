@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>불법주정차 감지·안내 시스템 · 구조와 개발 시작</title><style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
 nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
@@ -7,9 +7,9 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 @media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
 @media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
 </style></head><body>
-<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<header><div class="eyebrow">CAPSTONE / ILLEGAL PARKING DETECTION</div><h1>엣지 AI 기반<br>불법주정차 감지·안내 시스템</h1><p>보드는 판단·안내하고, 서버는 기록하고 연결합니다.</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>프론트 인계 설명서</h1>
+<main><aside class="intro"><p><strong>목적·역할은 팀 요약, 완료 범위는 현재 상태에서 확인하세요.</strong></p><p>가상 장치의 사건 수신·저장·ACK와 로그인·실시간 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 AI 보드·LED/스피커·실차 시험과 공개 배포는 남아 있습니다. 그림은 목표 구조이며 과거 검증 기록은 당시 조건을 따릅니다.</p></aside><article class="page"><h1>프론트 인계 설명서</h1>
 <p>2026-11-15 · 공통 기준 브랜치 <code>main</code> · 제품 기준 v1.43</p>
 <h2>무엇을 받게 되나요?</h2>
 <p>로그인 → 구역 현황 → 사건 목록·상세 → 로그아웃까지 연결된 React 앱입니다. 화면의 데이터는 가상 장치가 MQTT로 보낸 메시지를 Spring Boot가 PostgreSQL에 저장한 결과입니다. 정적인 예제 화면이나 별도 가짜 API가 아닙니다.</p>
@@ -35,13 +35,13 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tr>
 </tbody></table></div>
 <p><strong>전달 기준:</strong> <a href="frontend-handoff-checklist.html">작업표</a>와 <a href="../validation/frontend-handoff-2026-11-14.json">검증 기록</a>을 확인합니다. 로컬 실행판과 공개 HTTPS 완료는 별개입니다. 현재 공개 URL·배포 서버·DNS가 지정되지 않았습니다.</p>
-<p>사람은 이 문서부터 읽습니다. 코딩 AI에는 <a href="frontend-handoff-context.json">인계 컨텍스트 JSON</a>과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 실행 코드와 문서는 <code>main</code>을 기준으로 합니다. 기존 인계 구현의 변경 이력은 <a href="https://github.com/yh4752/parking-system/pull/3">PR #3</a>, 새 시안의 적용 범위는 <a href="frontend-design-alignment.html">시안 적용 기준</a>에서 확인합니다.</p>
+<p>사람은 이 문서부터 읽습니다. 코딩 AI에는 <a href="frontend-handoff-context.json">인계 컨텍스트 JSON</a>과 저장소를 함께 제공합니다. JSON은 읽을 순서와 작업 범위를 안내하며 원본 계약을 대체하지 않습니다. 실행 코드와 문서는 <code>main</code>을 기준으로 합니다. 기존 인계 구현의 변경 이력은 <a href="https://github.com/yh4752/illegal-parking-detection/pull/3">PR #3</a>, 새 시안의 적용 범위는 <a href="frontend-design-alignment.html">시안 적용 기준</a>에서 확인합니다.</p>
 <figure class="figure"><img src="screenshots/zone-desktop.png" alt="실제 가상 장치 데이터로 실행한 구역 현황"><a href="screenshots/zone-desktop.png" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
 <h2>1. 처음 실행하기</h2>
-<p>팀 개발은 <strong>ZIP 다운로드 대신 클론</strong>으로 시작합니다. ZIP으로 받은 <code>parking-system-feat-frontend-handoff</code>는 Git 이력·원격 연결이 없는 사본입니다. 아래 명령으로 만든 <code>parking-system</code> 폴더를 개발 도구에서 엽니다. 기존 ZIP 폴더에서 수정한 내용이 있다면 먼저 보존하고 변경 파일만 작업 브랜치로 옮깁니다.</p>
+<p>팀 개발은 <strong>ZIP 다운로드 대신 클론</strong>으로 시작합니다. ZIP으로 받은 <code>parking-system-feat-frontend-handoff</code>는 Git 이력·원격 연결이 없는 사본입니다. 아래 명령으로 만든 <code>illegal-parking-detection</code> 폴더를 개발 도구에서 엽니다. 기존 ZIP 폴더에서 수정한 내용이 있다면 먼저 보존하고 변경 파일만 작업 브랜치로 옮깁니다.</p>
 <p>필요한 것은 Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2입니다. Linux/macOS 기준입니다. Windows는 WSL2를 사용합니다. 첫 실행은 이미지·의존성을 내려받습니다. 프론트 코드를 수정하려면 Node.js 24.13.0도 필요합니다(<code>frontend/.nvmrc</code>).</p>
-<pre><code class="language-sh">git clone https://github.com/yh4752/parking-system.git
-cd parking-system
+<pre><code class="language-sh">git clone https://github.com/yh4752/illegal-parking-detection.git
+cd illegal-parking-detection
 python3 tools/handoff.py prepare
 </code></pre>
 <p><code>prepare</code>는 저장소에 포함된 실행 도구입니다. Docker 자체 명령은 아닙니다. 별도 <code>parking-handoff</code> 프로젝트에 빈 DB·브로커·서버·화면을 만들고 구역·정책·조회 계정을 준비합니다. 기존 <code>parking-local</code>의 8080/11883/15432와 DB를 변경하지 않습니다. 브라우저 세션 쿠키도 <code>PARKING_HANDOFF_SESSION</code>으로 분리합니다. 이미 초기화한 인계 DB는 보존하며, 기존 데이터가 있는 DB를 초기화하려는 요청은 거부합니다.</p>

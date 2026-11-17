@@ -2,7 +2,7 @@
 
 ## 처음 참여할 때
 
-개인 계정 `yh4752`의 공개 [parking-system](https://github.com/yh4752/parking-system)을 하나의 개발 저장소로 사용합니다. 누구나 열람·클론할 수 있습니다. 원본 저장소에 직접 push할 팀원은 소유자에게 GitHub 사용자명을 전달해 협업자 초대를 받습니다. 쓰기 권한이 없으면 fork에서 작업한 뒤 PR로 제안할 수 있습니다. 공개 전환이 쓰기 권한을 부여하지는 않습니다.
+개인 계정 `yh4752`의 공개 [illegal-parking-detection](https://github.com/yh4752/illegal-parking-detection)을 하나의 개발 저장소로 사용합니다. 누구나 열람·클론할 수 있습니다. 원본 저장소에 직접 push할 팀원은 소유자에게 GitHub 사용자명을 전달해 협업자 초대를 받습니다. 쓰기 권한이 없으면 fork에서 작업한 뒤 PR로 제안할 수 있습니다. 공개 전환이 쓰기 권한을 부여하지는 않습니다.
 
 [README](README.md)의 도구·클론·기동 절차부터 따라 하세요. 백엔드 기동만 확인한다면 Docker나 Node.js 설치는 필요하지 않습니다. GitHub CLI를 사용한다면 `gh auth login`으로 인증할 수 있습니다. 토큰을 URL·명령 예제·설정 파일에 적어 공유하지 않습니다.
 
@@ -20,6 +20,18 @@
 6. 변경 이유·실행한 검사·한계·다른 담당자 영향이 PR에 드러나도록 작성하고 관련 담당자 검토와 CI 결과를 확인한 뒤 병합합니다.
 
 기능 구현을 위해 모든 설계 문서를 다시 쓸 필요는 없습니다. 첫 개발 범위는 [첫 구현 작업표](docs/first-slice.md), 현재 완료 상태는 [현재 상태](docs/status.md)를 확인합니다.
+
+## 저장소 이름 변경 후 기존 클론 연결하기
+
+2026-11-17부터 저장소 이름은 `illegal-parking-detection`입니다. 이미 클론한 `parking-system` 폴더에서 다음 명령으로 원격 주소를 갱신합니다. 새로 클론하거나 로컬 폴더·DB·Docker 볼륨 이름을 바꿀 필요는 없습니다.
+
+```sh
+git remote set-url origin https://github.com/yh4752/illegal-parking-detection.git
+git remote -v
+git fetch origin
+```
+
+위 주소는 원본 저장소를 origin으로 쓰는 팀원 기준입니다. fork로 작업한다면 본인의 origin은 유지하고 원본을 가리키는 원격(보통 `upstream`)만 갱신합니다. 예전 이름으로 된 ZIP·검증 로그는 당시 기록이며, 새 클론의 기본 폴더 이름은 `illegal-parking-detection`입니다. 이름의 선택과 보존 범위는 [ADR-011](docs/adr/011-project-identity.md)에 기록했습니다.
 
 ## 이전 인계 브랜치에서 작업 중이라면
 

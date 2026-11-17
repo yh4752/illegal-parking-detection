@@ -1,8 +1,8 @@
 # 프론트 인계 판정표
 
-2026-11-15 · 공통 기준 `main` · [PR #3](https://github.com/yh4752/parking-system/pull/3)
+2026-11-15 · 공통 기준 `main` · [PR #3](https://github.com/yh4752/illegal-parking-detection/pull/3)
 
-**로컬 실행 코드 인계 기준을 충족했습니다. 공개 HTTPS 운영 인계는 아직 완료하지 않았습니다.** [설명서](frontend-handoff.md)에서 실행 방법·담당 범위를 확인합니다. 코드 `32778db`의 [전체 CI](https://github.com/yh4752/parking-system/actions/runs/43591711156)가 통과했으며, 미검증 범위까지 [검증 기록](../validation/frontend-handoff-2026-11-14.json)에 남겼습니다.
+**로컬 실행 코드 인계 기준을 충족했습니다. 공개 HTTPS 운영 인계는 아직 완료하지 않았습니다.** [설명서](frontend-handoff.md)에서 실행 방법·담당 범위를 확인합니다. 코드 `32778db`의 [전체 CI](https://github.com/yh4752/illegal-parking-detection/actions/runs/43591711156)가 통과했으며, 미검증 범위까지 [검증 기록](../validation/frontend-handoff-2026-11-14.json)에 남겼습니다.
 
 | ID | 완료 조건 | 현재 확인 |
 |---|---|---|

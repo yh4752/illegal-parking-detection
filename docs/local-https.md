@@ -23,7 +23,7 @@
 
 ## 2. 준비와 실행
 
-모든 명령은 저장소 루트 `parking-system`에서 실행한다. 실행 중인 Docker/Compose, Python 3.10 이상, OpenSSL, Node.js 24가 필요하다. 기존 `parking-local`·`parking-handoff`와 다른 컨테이너·볼륨·쿠키를 사용한다.
+모든 명령은 저장소 루트 `illegal-parking-detection`에서 실행한다. 실행 중인 Docker/Compose, Python 3.10 이상, OpenSSL, Node.js 24가 필요하다. 기존 `parking-local`·`parking-handoff`와 다른 컨테이너·볼륨·쿠키를 사용한다.
 
 ```sh
 python3 tools/production/local_https.py prepare

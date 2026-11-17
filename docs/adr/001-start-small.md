@@ -26,4 +26,4 @@
 
 ## 첫 CI에서 확인한 버전 수정
 
-2026-11-11 첫 [CI 실행](https://github.com/yh4752/parking-system/actions/runs/42994869519)에서 Kotlin 1.9.25 컴파일러와 실제로 해석된 kotlin-reflect/stdlib 2.1.21의 메타데이터가 충돌했다. 컴파일러를 2.1.21로 맞추고, [Kotlin 공식 호환 표](https://kotlinlang.org/docs/gradle-configure-project.html)에 명시된 Gradle 8.12.1로 Wrapper를 정렬했다. 메타데이터 검사를 끄거나 테스트를 생략하지 않는다. Wrapper JAR와 배포 ZIP의 SHA-256은 [공식 체크섬](https://gradle.org/release-checksums/)과 대조했다. 최종 실행 결과는 status.md에 기록한다.
+2026-11-11 첫 [CI 실행](https://github.com/yh4752/illegal-parking-detection/actions/runs/42994869519)에서 Kotlin 1.9.25 컴파일러와 실제로 해석된 kotlin-reflect/stdlib 2.1.21의 메타데이터가 충돌했다. 컴파일러를 2.1.21로 맞추고, [Kotlin 공식 호환 표](https://kotlinlang.org/docs/gradle-configure-project.html)에 명시된 Gradle 8.12.1로 Wrapper를 정렬했다. 메타데이터 검사를 끄거나 테스트를 생략하지 않는다. Wrapper JAR와 배포 ZIP의 SHA-256은 [공식 체크섬](https://gradle.org/release-checksums/)과 대조했다. 최종 실행 결과는 status.md에 기록한다.

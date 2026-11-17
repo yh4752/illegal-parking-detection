@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>주정차 안내 시스템 · 구조와 개발 시작</title><style>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>불법주정차 감지·안내 시스템 · 구조와 개발 시작</title><style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f6f8;color:#203546;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 header{background:#17374b;color:white;padding:35px max(24px,calc((100vw - 1120px)/2)) 30px}header .eyebrow{color:#a5d8e5;font-size:12px;font-weight:700;letter-spacing:.08em}header h1{font-size:32px;line-height:1.4;margin:8px 0 12px}header p{color:#d1e2eb;margin:6px 0}.badge{display:inline-block;border:1px solid #7595a7;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
 nav{max-width:1168px;margin:auto;display:flex;flex-wrap:wrap;gap:9px;padding:20px 24px 0}nav a,nav button{font:inherit;font-size:14px;color:#254e66;border:1px solid #c7d6df;border-radius:7px;background:white;padding:8px 14px;text-decoration:none;cursor:pointer}nav a.active{background:#276880;color:white;border-color:#276880}
@@ -7,13 +7,13 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 @media(max-width:700px){header{padding:25px 20px}header h1{font-size:26px}main{padding:0 12px 25px}.page{padding:18px}h1{font-size:24px}h2{font-size:21px}nav{padding:16px 12px 0}.figure{padding:6px}.figure img{min-width:680px}.figure{overflow-x:auto}td,th{padding:9px}}
 @media print{body{background:white;font-size:11pt}header{background:white;color:#17374b;padding:0}header p,header .eyebrow{color:#436477}header h1{font-size:21pt}nav,.intro,footer{display:none}main{padding:0;margin:0;max-width:none}.page{border:0;padding:0}.page>h1{font-size:18pt}h2{break-after:avoid;font-size:15pt}tr,.figure{break-inside:avoid}.figure{padding:3px;border:0;background:white}.figure img{min-width:0}.figure a{display:none}table{font-size:9pt}a{color:inherit}}
 </style></head><body>
-<header><div class="eyebrow">CAPSTONE / ARCHITECTURE START</div><h1>보드는 판단하고,<br>서버는 기록하고 연결합니다.</h1><p>지금 필요한 구조·역할·첫 개발 흐름</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
+<header><div class="eyebrow">CAPSTONE / ILLEGAL PARKING DETECTION</div><h1>엣지 AI 기반<br>불법주정차 감지·안내 시스템</h1><p>보드는 판단·안내하고, 서버는 기록하고 연결합니다.</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
-<main><aside class="intro"><p><strong>빠르게 읽으려면 팀 요약과 웹 인계 계획을 보세요.</strong></p><p>사건 수신·저장·ACK의 정상·중복·충돌·역순 처리를 MQTT/SQL로 확인했습니다. 로그인·조회 API와 heartbeat·실시간 화면을 작성했고, 인계 환경을 통합 시험 중입니다. 공개 배포와 외부 접속 검증은 별도입니다. 그림은 목표 구조이며 구현·시험의 실제 범위는 현재 상태에서 확인하세요.</p></aside><article class="page"><h1>개발 단계별 과거 기록</h1>
+<main><aside class="intro"><p><strong>목적·역할은 팀 요약, 완료 범위는 현재 상태에서 확인하세요.</strong></p><p>가상 장치의 사건 수신·저장·ACK와 로그인·실시간 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 AI 보드·LED/스피커·실차 시험과 공개 배포는 남아 있습니다. 그림은 목표 구조이며 과거 검증 기록은 당시 조건을 따릅니다.</p></aside><article class="page"><h1>개발 단계별 과거 기록</h1>
 <p>이 문서는 M1까지의 구현과 실습 경위를 보존합니다. 아래의 미구현·다음 작업 표현은 당시의 상태이며, 현재 상태는 <a href="status.html">status.md</a>를 확인합니다.</p>
 <h1>당시 구현 범위</h1>
 <p>2026-11-14 · 이 파일이 현재 개발 저장소의 현황입니다. reference/v1.43의 상태표는 설계 작성 당시 기록입니다.</p>
-<p>개인 비공개 저장소 <a href="https://github.com/yh4752/parking-system">yh4752/parking-system</a>에 코드·설계·협업 지침을 올렸습니다. 팀원 초대와 브랜치 보호는 별도 설정입니다.</p>
+<p>개인 비공개 저장소 <a href="https://github.com/yh4752/illegal-parking-detection">yh4752/parking-system</a>에 코드·설계·협업 지침을 올렸습니다. 팀원 초대와 브랜치 보호는 별도 설정입니다.</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
@@ -119,7 +119,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <ul>
 <li><p><a href="mqtt-learning.md#%EC%8B%A4%EC%8A%B5-%EA%B2%B0%EA%B3%BC">11월 13일 JSON 파싱 실습 기록</a>: 사용자가 공유한 실제 서버 로그에 근거.</p>
 </li>
-<li><p><a href="https://github.com/yh4752/parking-system/actions/runs/42995478170">성공한 CI</a>: 커밋 <code>b22f3b88fb92f2be6aba02c93b010ac9aae1a1dd</code>, JDK 17, <code>./gradlew test bootJar --no-daemon</code>와 문서·Compose 검사.</p>
+<li><p><a href="https://github.com/yh4752/illegal-parking-detection/actions/runs/42995478170">성공한 CI</a>: 커밋 <code>b22f3b88fb92f2be6aba02c93b010ac9aae1a1dd</code>, JDK 17, <code>./gradlew test bootJar --no-daemon</code>와 문서·Compose 검사.</p>
 </li>
 <li><p><a href="../validation/onboarding-2026-11-11.json">이번 검증 기록</a>: 새 클론 재현, 독립 검토, 첫 CI 실패 원인과 수정, 미검증 범위.</p>
 </li>
@@ -145,8 +145,8 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p>사용자 역순 수신 로그: PID 48082에서 storage-012(seq 12)는 17:02:32.185 KST 커밋 후 .186 ACK 발행, storage-011(seq 11)은 17:02:38.914 커밋 후 .916 ACK 발행을 확인했다. 두 응답은 모두 STORED/error_code=null이며 구독자도 각각 수신했다(ACK committed_at: 08:02:32.185887Z, 08:02:38.915496Z). 이는 역순 두 메시지의 커밋·응답 확인이다. event_message의 두 원문과 incident·zone_view의 last_device_seq=12 유지는 다음 SQL 조회로 확인한다.</p>
 <p>사용자 역순 후 SQL 확인: event_message에서 storage-012/12와 storage-011/11 두 행, incident의 evt-001/last_device_seq=12, zone_view의 zone-01/last_device_seq=12를 확인했다. 정상·중복·내용 충돌·역순의 실제 MQTT/SQL 실습을 완료했다. 다음 구현은 기존 OpenAPI/ZoneView에 맞는 GET /api/zones/{id}/status와 명시적 로컬 조회 접근 제어다. SQL 조회 성공을 HTTP API 구현 완료로 취급하지 않는다. 실제 브로커 장애·재시작·보드·부하 검증은 별도로 남아 있다.</p>
 <h2>공개 조회 데모 M0 — 2026-11-14</h2>
-<p><a href="https://github.com/yh4752/parking-system/pull/1">구현 PR #1</a>은 <code>feat/mqtt-learning</code> 기준의 별도 브랜치입니다. 기존 MQTT 원본·성공 DTO·V1/V2를 보존하고, REST 전용 유효 계약과 V3/V4, 신규 단일 구역 데모 초기화 CLI를 추가했습니다. 초기화는 기본 검사 모드이며, 명시 적용 시 외부 manifest claim을 먼저 저장한 뒤 hold와 audit를 커밋합니다. 기존 실습 DB에는 적용하지 않았습니다.</p>
-<p>코드 커밋 <code>db939572</code>의 <a href="https://github.com/yh4752/parking-system/actions/runs/43568432860">GitHub CI</a>에서 문서·계약·Compose 검사와 <code>test databaseTest bootJar</code>가 모두 통과했습니다. 로컬 최종 bootJar 생성도 성공했고, 그 산출물을 사용한 별도 CLI 프로세스 5개 사례를 PostgreSQL 17.11에서 확인했습니다. 미마이그레이션 DB 거부, 검사 모드 무변경, 신규 초기화, 재적용 거부, 최신 manifest를 유지한 초기 DB 복원 뒤 claim 재사용 거부입니다. 오류를 기대한 사례의 종료 코드 1은 성공적인 거부 결과입니다.</p>
+<p><a href="https://github.com/yh4752/illegal-parking-detection/pull/1">구현 PR #1</a>은 <code>feat/mqtt-learning</code> 기준의 별도 브랜치입니다. 기존 MQTT 원본·성공 DTO·V1/V2를 보존하고, REST 전용 유효 계약과 V3/V4, 신규 단일 구역 데모 초기화 CLI를 추가했습니다. 초기화는 기본 검사 모드이며, 명시 적용 시 외부 manifest claim을 먼저 저장한 뒤 hold와 audit를 커밋합니다. 기존 실습 DB에는 적용하지 않았습니다.</p>
+<p>코드 커밋 <code>db939572</code>의 <a href="https://github.com/yh4752/illegal-parking-detection/actions/runs/43568432860">GitHub CI</a>에서 문서·계약·Compose 검사와 <code>test databaseTest bootJar</code>가 모두 통과했습니다. 로컬 최종 bootJar 생성도 성공했고, 그 산출물을 사용한 별도 CLI 프로세스 5개 사례를 PostgreSQL 17.11에서 확인했습니다. 미마이그레이션 DB 거부, 검사 모드 무변경, 신규 초기화, 재적용 거부, 최신 manifest를 유지한 초기 DB 복원 뒤 claim 재사용 거부입니다. 오류를 기대한 사례의 종료 코드 1은 성공적인 거부 결과입니다.</p>
 <p><a href="../validation/demo-foundation-2026-11-14.json">시험 기록</a>에 환경·실패한 초기 시도·검증 한계를 남겼습니다. 원본 127개 보존과 계약 보호 시험 6개도 통과했습니다. 로컬 전체 테스트가 통과했다고 보고하는 것은 아니며 전체 회귀의 근거는 위 GitHub CI입니다. 이전 Mac 설계 커밋 <code>052fa95</code>의 문서 병합은 남아 있습니다.</p>
 <p>다음 작업은 <strong>M1 로그인·세션·CSRF·구역 권한·조회 API</strong>입니다. M0의 권한 테이블 추가는 HTTP 권한 검사 구현 완료를 뜻하지 않습니다. heartbeat 수신·SSE·React·실제 배포는 후속 단계입니다.</p>
 <p>2026-11-14 Mac 작업 재개: 로컬 설계 커밋 <code>052fa95</code>와 원격 M0 <code>7ec0792</code>를 <code>feat/authenticated-read-api</code>에서 통합했다. 아래 후속 작업은 M1이며, 과거 기록의 “설계 병합 필요”는 당시 상황이다. 기존 사용 DB를 초기화하지 않는다.</p>
@@ -154,6 +154,6 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <p><strong>로그인·세션·CSRF·구역 권한과 조회 API 7개를 구현했습니다.</strong> 상태·목록·상세는 실제 저장 자료와 유효 계약을 사용합니다. 계정/권한 CLI, 만료 자료 제외, 확인 토큰 마스킹, 서명 cursor, 복구 gate 및 오류 응답을 포함합니다. <a href="authenticated-read.html">실행 안내</a>와 <a href="adr/007-authenticated-read-api.html">ADR-007</a>을 함께 봅니다.</p>
 <p>Mac에서 일반 테스트 <strong>140개</strong>, 실제 PostgreSQL 테스트 <strong>64개</strong>, 계약 보호 시험 <strong>6개</strong>가 실패·오류·건너뜀 없이 통과했고 bootJar를 생성했습니다. 신규 시험은 일반 10개·DB 18개이며 DB 18개에 웹 통합 17개와 파일 조회 gate 1개가 포함됩니다. 실제 HTTP 쿠키·세션 교체와 별도 계정 CLI 프로세스 4회도 DB 시험 안에서 검증했습니다. 테스트용 스키마·파일만 생성/정리했으며 기존 사용자 public 데이터는 변경하지 않았습니다.</p>
 <p><a href="../validation/authenticated-read-2026-11-14.json">검증 기록</a>에 실행 환경·실패 수정·코드 해시·범위를 남겼습니다. 현재 계정·세션은 단일 서버용입니다. 공개 HTTPS·실제 MQTT 장애·브라우저·부하·실보드 시험을 완료했다는 뜻은 아닙니다. heartbeat와 SSE는 <strong>다음 M2</strong>, React는 M3입니다. 전체 인계판은 아직 완성되지 않았습니다.</p>
-<p>M1 공유 완료: 구현 <code>36ff6a1</code>을 <code>feat/authenticated-read-api</code>에 푸시했고 <a href="https://github.com/yh4752/parking-system/pull/2">초안 PR #2</a>를 만들었습니다. 해당 코드의 <a href="https://github.com/yh4752/parking-system/actions/runs/43578261661">GitHub 전체 CI</a>도 통과했습니다. 기본 브랜치 병합·외부 배포는 수행하지 않았습니다.</p>
+<p>M1 공유 완료: 구현 <code>36ff6a1</code>을 <code>feat/authenticated-read-api</code>에 푸시했고 <a href="https://github.com/yh4752/illegal-parking-detection/pull/2">초안 PR #2</a>를 만들었습니다. 해당 코드의 <a href="https://github.com/yh4752/illegal-parking-detection/actions/runs/43578261661">GitHub 전체 CI</a>도 통과했습니다. 기본 브랜치 병합·외부 배포는 수행하지 않았습니다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

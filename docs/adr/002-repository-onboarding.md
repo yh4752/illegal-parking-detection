@@ -2,7 +2,7 @@
 
 - 날짜: 2026-11-11
 - 상태: 채택. 문서 책임을 설계한 후 README·CONTRIBUTING·루트/백엔드 AGENTS에 반영했다.
-- 저장소: 개인 계정 yh4752의 비공개 parking-system. 팀원 계정·초대는 별도.
+- 당시 저장소: 개인 계정 yh4752의 비공개 parking-system. 현재 공개 범위는 [ADR-009](009-public-repository-sharing.md), 현재 이름은 [ADR-011](011-project-identity.md)을 따른다. 팀원 계정·초대는 별도.
 
 ## 해결할 문제
 

@@ -10,14 +10,14 @@
 4. 최근 이야기한 예외 차량의 300초 후 관리자 웹 표시·이력 기록은 v1.43에 아직 반영되지 않은 변경 사항이에요. 이번에는 기존 기준을 유지하고, AI·백엔드 계약에 반영한 뒤 연결할게요. 단속·과태료 기능으로 보이는 문구는 관리자 확인·현장 조치로 맞춰주세요.
 
 로그인·로그아웃과 기존 API/SSE 연결은 유지하면서 디자인을 옮겨주시면 돼요. 세부 차이와 확인 항목은 여기 정리해뒀어요.
-https://github.com/yh4752/parking-system/blob/main/docs/frontend-design-alignment.md
+https://github.com/yh4752/illegal-parking-detection/blob/main/docs/frontend-design-alignment.md
 
 저장소는 여기예요.
-https://github.com/yh4752/parking-system
+https://github.com/yh4752/illegal-parking-detection
 
 처음 받는 경우:
-git clone https://github.com/yh4752/parking-system.git
-cd parking-system
+git clone https://github.com/yh4752/illegal-parking-detection.git
+cd illegal-parking-detection
 git switch -c feat/console-ui
 
 이미 클론해서 작업 중이면 기존 수정은 보존하고, CONTRIBUTING.md의 전환 절차에 따라 main 변경을 받아주세요.

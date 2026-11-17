@@ -56,7 +56,7 @@ export PARKING_REVISION_BACKUP="$PWD/../.local-state/demo/revisions-copy/manifes
 
 ## 검증과 다음 단계
 
-[GitHub CI](https://github.com/yh4752/parking-system/actions/runs/43568432860)의 전체 테스트·DB 시험·bootJar가 통과했습니다. 별도 프로세스의 초기화 명령 5개 사례도 PostgreSQL 17.11에서 통과했습니다. [검증 기록](../validation/demo-foundation-2026-11-14.json)에 근거와 한계를 기록했습니다.
+[GitHub CI](https://github.com/yh4752/illegal-parking-detection/actions/runs/43568432860)의 전체 테스트·DB 시험·bootJar가 통과했습니다. 별도 프로세스의 초기화 명령 5개 사례도 PostgreSQL 17.11에서 통과했습니다. [검증 기록](../validation/demo-foundation-2026-11-14.json)에 근거와 한계를 기록했습니다.
 
 저장소 루트에서 계약·문서를 검사하고 백엔드에서 코드·DB 시험을 실행합니다. DB 시험은 매번 새 `it_...` 스키마를 만들고 자신이 만든 스키마만 제거합니다.
 
