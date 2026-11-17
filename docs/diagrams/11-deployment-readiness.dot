@@ -1,5 +1,5 @@
 digraph Readiness {
-  graph [rankdir=TB, bgcolor="transparent", pad="0.25", nodesep="0.35", ranksep="0.55", fontname="Arial", label="O5 recovery targets approved · Sole owner · Resources NOT created", labelloc=t];
+  graph [rankdir=TB, bgcolor="transparent", pad="0.25", nodesep="0.35", ranksep="0.55", fontname="Arial", label="O5 recovery targets and custody approved · Sole owner · Resources NOT created", labelloc=t];
   node [shape=box, style="rounded,filled", fillcolor="#EDF4F5", color="#9FB9C2", fontname="Arial", fontsize=11, margin="0.13,0.1"];
   edge [fontname="Arial", fontsize=9, color="#557783", arrowsize=0.7, style=dashed];
   team [label="Team browser\nDuckDNS candidate / future HTTPS", fillcolor="#DCEFE5"];
@@ -17,7 +17,7 @@ digraph Readiness {
     archive [shape=cylinder, fillcolor="#FFF0DC", label="Backup bucket / DB prefix\n7 successful daily generations + protected copies\nFinal DB: review after 2027-01-10"];
     evidence [shape=cylinder, fillcolor="#FFF0DC", label="Backup bucket / separate evidence prefix\nNo automatic evidence expiry\nKeep at least through 2027-12-11"];
   }
-  vault [label="Off-host key custody / sole owner\nPersonal vault + independent recovery copy\nRecover without primary login device", fillcolor="#DCEFE5"];
+  vault [label="Off-host key custody / sole owner\nBitwarden Free + encrypted USB + paper\nLocations TBD / recovery NOT tested", fillcolor="#DCEFE5"];
   offline [label="Second independent evidence copy\nSeparate physical location / access pending\nRead-back + hash verification before sealed", fillcolor="#DCEFE5"];
   restore [label="Replacement host / new database\nLatest ledger + reconciliation + explicit acceptance\nService RTO target 2 h / evidence retrieval 15 min", fillcolor="#EAE4F7"];
   monitor [label="External HTTPS check + alert destination\nStill observable when app host fails", fillcolor="#EAE4F7"];
