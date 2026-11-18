@@ -1,0 +1,7 @@
+{
+  "existing_container_ids_preserved": 78,
+  "mount_and_running_state_mismatches": [],
+  "learning_containers_restarted": 12,
+  "test_running_containers": 0,
+  "scope": "IDs, mount names/destinations and running state; not a byte-level database comparison"
+}

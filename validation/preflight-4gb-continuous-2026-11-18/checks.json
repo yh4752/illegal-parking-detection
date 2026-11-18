@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "date": "2026-11-18",
+  "checks": {
+    "production_unittest": {
+      "passed": 43,
+      "log": "unit-tests.txt"
+    },
+    "docs_build": {
+      "exit_code": 0
+    },
+    "structure_links_baseline": {
+      "exit_code": 0,
+      "local_links": 1291,
+      "baseline_files": 127
+    },
+    "contracts_check": {
+      "exit_code": 0,
+      "result": "REST contracts verified; MQTT source unchanged"
+    },
+    "git_diff_check": {
+      "exit_code": 0,
+      "scope": "staged tracked and new files; generated SVG trailing whitespace normalized before publication"
+    },
+    "private_value_scan": {
+      "files_scanned": 99,
+      "values_checked": 98,
+      "matches": 0,
+      "scope": "exact complete private file values >=16 bytes from local preflight stack secrets/accounts/pki; not a comprehensive secret detector"
+    },
+    "frozen_source_hashes": {
+      "verified": 8
+    },
+    "historical_evidence_hashes": {
+      "verified": 37
+    }
+  },
+  "external_deployment_performed": false,
+  "remote_push_performed": false
+}

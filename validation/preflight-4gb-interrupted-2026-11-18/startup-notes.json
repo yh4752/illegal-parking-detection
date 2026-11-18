@@ -1,0 +1,25 @@
+{
+  "preparation_attempts": [
+    {
+      "run": "b289c2ee",
+      "outcome": "operator_interrupted_before_measurement",
+      "reason": "correct backup elapsed measurement before load run"
+    },
+    {
+      "run": "893ebc48",
+      "outcome": "network_pool_exhausted",
+      "reason": "no existing networks deleted; selected non-overlapping explicit test IPAM"
+    },
+    {
+      "run": "066943f9",
+      "outcome": "monitoring_not_ready_with_grafana_384m",
+      "oom_killed": false,
+      "readiness_timeout_seconds": 90,
+      "action": "diagnostic increase to512MiB, then fresh30minute run"
+    }
+  ],
+  "measured_run": "2eb7351e",
+  "grafana_test_limit_mib": 512,
+  "network_changes": "new test-only networks; host routes checked manually; no existing network prune",
+  "scope": "all local; no cloud provisioning or purchase"
+}

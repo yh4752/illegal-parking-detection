@@ -41,6 +41,8 @@ const pages = new Map([
   ['team-handoff.md', 'team-handoff.html'],
   ['deployment-operations.md', 'deployment-operations.html'],
   ['deployment-readiness.md', 'deployment-readiness.html'],
+  ['preflight-4gb.md', 'preflight-4gb.html'],
+  ['team-integration-preparation.md', 'team-integration-preparation.html'],
   ['backup-recovery-policy.md', 'backup-recovery-policy.html'],
   ['production-basics.md', 'production-basics.html'],
   ['operations-learning-evidence.md', 'operations-learning-evidence.html'],

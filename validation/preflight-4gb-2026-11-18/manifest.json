@@ -1,0 +1,10 @@
+{
+  "algorithm": "SHA-256",
+  "scope": "local_evidence_files_not_offsite_sealed",
+  "files": {
+    "README.md": "6316cf67e6dd9ac4d1894260137256b5a577e787c10480732881e663c463533d",
+    "checks.json": "66a80cfda75e437c0fd79d806d4500f9056e7fa33b3162fbd4ebdf46889703d8",
+    "summary.json": "88834ec5f3c5820edea7a73745e0b13bcaffcbee42bec5c125fa1f1bad58b58c",
+    "unit-tests.txt": "611ca6cec0a6881c4a5ac87fb4c81dbbdca362c5864864434fb52371bac884c2"
+  }
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "local_time": "2026-11-18 18:01:03 +0900",
+    "event": "sleep",
+    "reason": "clamshell"
+  },
+  {
+    "local_time": "2026-11-18 18:05:28 +0900",
+    "event": "wake",
+    "reason": "wake"
+  }
+]

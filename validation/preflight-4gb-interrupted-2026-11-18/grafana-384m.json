@@ -1,0 +1,17 @@
+{
+  "container": "parking-o4-066943f9-grafana-1",
+  "limit_mib": 384,
+  "events": "low 0\nhigh 0\nmax 347461\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+  "current": "402616320\n",
+  "stats": {
+    "BlockIO": "70.2GB / 98.3kB",
+    "CPUPerc": "974.04%",
+    "Container": "parking-o4-066943f9-grafana-1",
+    "ID": "1ce7d990eef2",
+    "MemPerc": "73.16%",
+    "MemUsage": "280.9MiB / 384MiB",
+    "Name": "parking-o4-066943f9-grafana-1",
+    "NetIO": "2.7kB / 444B",
+    "PIDs": "159"
+  }
+}

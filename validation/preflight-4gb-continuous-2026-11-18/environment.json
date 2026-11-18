@@ -1,0 +1,32 @@
+{
+  "base_commit": "67c5f332ca3675d994e8967fee01b898dde7a38e",
+  "branch": "perf/4gb-preflight",
+  "uncommitted_changes": true,
+  "docker": {
+    "Architecture": "aarch64",
+    "NCPU": 10,
+    "MemTotal": 8319504384,
+    "OperatingSystem": "Docker Desktop",
+    "ServerVersion": "29.8.2"
+  },
+  "python": "3.14.5",
+  "source_sha256": {
+    "tools/production/preflight_4gb.py": "6c12a6a8d43c9cee1b328458fa48ac354709e108bae2a003fb6c877a916813fc",
+    "tools/production/observe_preflight_cgroups.py": "8ec7d6f5f11947a8d6581f17f70abba72998892199283678112de26a1150263a",
+    "tools/production/observe_preflight_dashboard.py": "31c34d81b69166c3108e2cc7f39bbbd49a13feb20766d619e7b25a1567a0320b",
+    "tools/production/summarize_preflight.py": "4214811a46e02451cff3dfedc95164411d97962f1954015da30e8d969739e5e1",
+    "tools/production/local_backup.py": "505e281c2483ed8e6e55bb39c5912218c6259d278e05255451e8c0a96985ec61",
+    "tools/production/local_monitoring.py": "369db305b911313e9813e1a6fe995d3be159af60be9188125967a0ff3a1ecb9c",
+    "tools/production/local_https.py": "42fbf6d062b29ab791c9947aef1749831167649b0adb2b91d275afe3a8977ecd",
+    "infra/preflight/compose.yaml": "9a927ba4f0e17e939c122a148ffcf56da929af2c58460f6929c44f5e94289365"
+  },
+  "planned_minutes": 30,
+  "users": 5,
+  "request_mode": "closed loop HTTPS status polling at most1 request/second per session; initial/relogin time included in those samples",
+  "cpu_limit": false,
+  "actual_4gb_vm": false,
+  "backup_mode": "quiesce web/backend; serialize virtual-device generation around backup",
+  "sleep_prevention": "process-scoped caffeinate -i; lid must stay open",
+  "clock_guard": "wall/monotonic drift >2s rejects run",
+  "full_browser_load": false
+}

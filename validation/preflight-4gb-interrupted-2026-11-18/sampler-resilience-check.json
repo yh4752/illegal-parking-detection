@@ -1,0 +1,8 @@
+{
+  "attempts": 13,
+  "returncode": 1,
+  "preserved_rows": 0,
+  "warnings": [
+    "no_resource_rows:docker_stats_nonzero:EOF"
+  ]
+}

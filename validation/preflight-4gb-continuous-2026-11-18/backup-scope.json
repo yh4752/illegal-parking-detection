@@ -1,0 +1,30 @@
+{
+  "archive_bytes": 251852,
+  "database_dump_bytes": 77561,
+  "public_table_count": 20,
+  "restored_table_row_counts": {
+    "app_user": 2,
+    "audit_entry": 2,
+    "command": 0,
+    "device": 1,
+    "device_image": 0,
+    "entity_tombstone": 0,
+    "event_message": 50,
+    "flyway_schema_history": 4,
+    "image_upload_intent": 0,
+    "inbound_quarantine": 0,
+    "inbound_receipt": 50,
+    "incident": 50,
+    "pause_projection": 0,
+    "request_receipt": 0,
+    "review": 0,
+    "server_outbox": 0,
+    "user_zone_access": 1,
+    "zone": 1,
+    "zone_policy": 1,
+    "zone_view": 1
+  },
+  "scope": "LOCAL_ONLY",
+  "schema": "1\n2\n3\n4",
+  "verification": "all public table row counts and sorted-row hashes compared by LocalBackup.backup"
+}

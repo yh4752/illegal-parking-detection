@@ -1,0 +1,135 @@
+{
+  "backend": {
+    "memory_limit": "1073741824",
+    "memory_plus_swap_limit": "1073741824",
+    "ports": [],
+    "profiles": []
+  },
+  "blackbox": {
+    "memory_limit": "67108864",
+    "memory_plus_swap_limit": "67108864",
+    "ports": [],
+    "profiles": []
+  },
+  "grafana": {
+    "memory_limit": "536870912",
+    "memory_plus_swap_limit": "536870912",
+    "ports": [
+      {
+        "mode": "ingress",
+        "host_ip": "127.0.0.1",
+        "target": 3000,
+        "published": "61552",
+        "protocol": "tcp"
+      }
+    ],
+    "profiles": []
+  },
+  "grants": {
+    "memory_limit": "67108864",
+    "memory_plus_swap_limit": "67108864",
+    "ports": [],
+    "profiles": [
+      "tools"
+    ]
+  },
+  "initialize-local": {
+    "memory_limit": "402653184",
+    "memory_plus_swap_limit": "402653184",
+    "ports": [],
+    "profiles": [
+      "local-fixture"
+    ]
+  },
+  "migrate": {
+    "memory_limit": "402653184",
+    "memory_plus_swap_limit": "402653184",
+    "ports": [],
+    "profiles": [
+      "tools"
+    ]
+  },
+  "mosquitto": {
+    "memory_limit": "67108864",
+    "memory_plus_swap_limit": "67108864",
+    "ports": [],
+    "profiles": []
+  },
+  "node-exporter": {
+    "memory_limit": "67108864",
+    "memory_plus_swap_limit": "67108864",
+    "ports": [],
+    "profiles": []
+  },
+  "operator": {
+    "memory_limit": "402653184",
+    "memory_plus_swap_limit": "402653184",
+    "ports": [],
+    "profiles": [
+      "tools"
+    ]
+  },
+  "postgres": {
+    "memory_limit": "536870912",
+    "memory_plus_swap_limit": "536870912",
+    "ports": [],
+    "profiles": []
+  },
+  "probe": {
+    "memory_limit": "134217728",
+    "memory_plus_swap_limit": "134217728",
+    "ports": [],
+    "profiles": [
+      "tools"
+    ]
+  },
+  "prometheus": {
+    "memory_limit": "402653184",
+    "memory_plus_swap_limit": "402653184",
+    "ports": [],
+    "profiles": []
+  },
+  "recovery": {
+    "memory_limit": "402653184",
+    "memory_plus_swap_limit": "402653184",
+    "ports": [],
+    "profiles": [
+      "tools"
+    ]
+  },
+  "revision-ledger": {
+    "memory_limit": "67108864",
+    "memory_plus_swap_limit": "67108864",
+    "ports": [],
+    "profiles": []
+  },
+  "simulator": {
+    "memory_limit": "134217728",
+    "memory_plus_swap_limit": "134217728",
+    "ports": [],
+    "profiles": [
+      "simulation"
+    ]
+  },
+  "web": {
+    "memory_limit": "67108864",
+    "memory_plus_swap_limit": "67108864",
+    "ports": [
+      {
+        "mode": "ingress",
+        "host_ip": "127.0.0.1",
+        "target": 443,
+        "published": "61550",
+        "protocol": "tcp"
+      },
+      {
+        "mode": "ingress",
+        "host_ip": "127.0.0.1",
+        "target": 80,
+        "published": "61551",
+        "protocol": "tcp"
+      }
+    ],
+    "profiles": []
+  }
+}

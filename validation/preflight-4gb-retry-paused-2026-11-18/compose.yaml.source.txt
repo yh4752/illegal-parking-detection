@@ -1,0 +1,20 @@
+# LOCAL_ONLY memory-budget probe, not a 4GB VM or cloud-performance guarantee.
+# Steady services: 2752 MiB. Simulator: 128 MiB. Recovery helper: 384 MiB.
+# OS/Docker + host-side backup process are NOT constrained by this overlay.
+services:
+  backend: {mem_limit: 1024m, memswap_limit: 1024m}
+  postgres: {mem_limit: 512m, memswap_limit: 512m}
+  prometheus: {mem_limit: 384m, memswap_limit: 384m}
+  grafana: {mem_limit: 512m, memswap_limit: 512m}
+  mosquitto: {mem_limit: 64m, memswap_limit: 64m}
+  web: {mem_limit: 64m, memswap_limit: 64m}
+  node-exporter: {mem_limit: 64m, memswap_limit: 64m}
+  blackbox: {mem_limit: 64m, memswap_limit: 64m}
+  revision-ledger: {mem_limit: 64m, memswap_limit: 64m}
+  simulator: {mem_limit: 128m, memswap_limit: 128m}
+  recovery: {mem_limit: 384m, memswap_limit: 384m}
+  initialize-local: {mem_limit: 384m, memswap_limit: 384m}
+  migrate: {mem_limit: 384m, memswap_limit: 384m}
+  operator: {mem_limit: 384m, memswap_limit: 384m}
+  grants: {mem_limit: 64m, memswap_limit: 64m}
+  probe: {mem_limit: 128m, memswap_limit: 128m}

@@ -72,7 +72,7 @@ PostgreSQL의 `SELECT FOR UPDATE`에는 UPDATE 권한도 필요하므로 runtime
 
 ## MQTT TLS와 장치 인증
 
-[Mosquitto 설정](mosquitto/mosquitto.conf)은 2.0.22용이며 TLS 8883만 수신한다. `/mosquitto/config/`에 `mosquitto.conf`, [acl](mosquitto/acl), 해시된 `passwords`, `server.crt`, `server.key`를 공급한다. 첫 공개에서 호스트 포트로 publish하지 않는다. 암호 파일은 `mosquitto_passwd`의 대화형 입력 등 비공개 경로로 준비하고 평문 암호를 CLI 인자나 Git에 넣지 않는다.
+[Mosquitto 설정](mosquitto/mosquitto.conf)은 2.0.22용이며 TLS 8883만 수신한다. `/mosquitto/config/`에 `mosquitto.conf`, [acl](mosquitto/acl), 해시된 `passwords`, `server.crt`, `server.key`를 공급한다. 현재 로컬 Compose에서는 호스트 포트로 publish하지 않는다. [조기 팀 통합 준비](../../docs/team-integration-preparation.md)에 따른 외부 8883 공개는 별도 운영 오버레이·도메인 인증서·장치별 ACL 인수 후 수행하며 아직 구현·배포하지 않았다. 암호 파일은 `mosquitto_passwd`의 대화형 입력 등 비공개 경로로 준비하고 평문 암호를 CLI 인자나 Git에 넣지 않는다.
 
 `parking-server`는 events/heartbeat/availability 읽기와 acks 쓰기만, `edge-01`은 자기 세 토픽 쓰기와 자기 acks 읽기만 허용한다. 장치에 wildcard 권한이나 commands/desired 권한을 미리 주지 않는다. TLS CA·호스트 검증을 서버와 가상 장치 모두 유지한다. MQTT 프로토콜 PUBACK는 DB 커밋 후 보내는 응용 ACK와 다르다.
 

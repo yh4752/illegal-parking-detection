@@ -1,0 +1,23 @@
+{
+  "algorithm": "SHA-256",
+  "scope": "local_evidence_files_not_offsite_sealed",
+  "files": {
+    "README.md": "40949f51ed7e56f83f5b382dde86d94bcaedf633c374302f5a450dc765736954",
+    "backup-scope.json": "52705b2ce6ec90075de747a79af89aebb7872c8e10b8f7bd6ab94ac61a0364b4",
+    "cgroups.jsonl": "2e1468a9ff9d7ad2dee8307e85cee895fe24216ed885099fd3cd5f85c417fc41",
+    "dashboard-queries.jsonl": "9e73f2a645789cadc26fdcd7d2b96127bd68c41447001b0da199b3c6199743b6",
+    "environment.json": "e0b92e4475395c1e65e475f7d64c674a9e77eebb63a0d6811f0a079b20b98f17",
+    "executed-memory-overlay.yaml": "9a927ba4f0e17e939c122a148ffcf56da929af2c58460f6929c44f5e94289365",
+    "executed-runner-source.txt": "a592cb8593a703d8ea8233f33d193f7a60f713048b5dc7f9957cdebe8d54cb34",
+    "grafana-384m.json": "d25f94dd3e6e98c8ba72e89efea9066cac3fc4217196e616888b3cad3786a4e0",
+    "grafana-512m-detail.json": "5b0b701ed0de14c9b4a2f4537e7cdb102366e077dcf2459183f74bd55b815b57",
+    "host-sleep-events.json": "b56b38bc4e99be58b01f97257d63bd95d15a9257a1b3f3eb77b3e66553bad42c",
+    "monitoring-backup-window.json": "2bccf6be8124ebe737fd397440daa795d8fd24820dbac5992453dc7b0bd69859",
+    "observations.jsonl": "562b5a63ef18c945e76c0c719344dab8a7732108f076020f0e0dd286b3fe78d1",
+    "preservation.json": "4e7a7a5a70d9e1a5d3ec165586b59b8f2310ec5515550f11ddc82c5d3c06619e",
+    "sampler-race-diagnosis.json": "bf171326b514e30296f23f64384794646b6a6c76cfbeea237146328946797ea8",
+    "sampler-resilience-check.json": "c2ee983a79053d885ae85729a860378bc861b7952ec7a43439913b349d0dd5bd",
+    "startup-notes.json": "b1057ac757bf165e793cefa9c71328c6833249b6df9b92deb10d7602cde80e16",
+    "summary.json": "678f76809536594171ea05623616efdb9bfc1c301ce13af70c4115357a7cabf8"
+  }
+}
