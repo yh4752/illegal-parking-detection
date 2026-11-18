@@ -1,0 +1,163 @@
+{
+  "scope": "LOCAL_PER_CONTAINER_MEMORY_BUDGET_NOT_A_4GB_VM",
+  "timing": {
+    "valid_continuous_timing": true,
+    "maximum_clock_offset_drift_seconds": 0.004831075668334961,
+    "wall_clock_span_seconds": 1812.0593519210815,
+    "clock_discontinuities": []
+  },
+  "phases": {
+    "normal": {
+      "requests": 2991,
+      "statuses": {
+        "200": 2991
+      },
+      "successful_response_p50_ms": 13.064,
+      "successful_response_p95_ms": 34.183,
+      "successful_response_max_ms": 3111.0132500180043,
+      "viewers": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "backup_window": {
+      "requests": 2989,
+      "statuses": {
+        "200": 2867,
+        "0": 92,
+        "502": 25,
+        "401": 5
+      },
+      "successful_response_p50_ms": 14.427,
+      "successful_response_p95_ms": 35.107,
+      "successful_response_max_ms": 3154.6107920003124,
+      "viewers": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "recovery": {
+      "requests": 2990,
+      "statuses": {
+        "200": 2990
+      },
+      "successful_response_p50_ms": 13.285,
+      "successful_response_p95_ms": 53.87,
+      "successful_response_max_ms": 998.2852920074947,
+      "viewers": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  },
+  "resources": {
+    "samples": 211,
+    "working_set_peak_mib_by_service": {
+      "backend": 338.7,
+      "blackbox": 37.31,
+      "grafana": 447.5,
+      "mosquitto": 6.629,
+      "node-exporter": 23.98,
+      "postgres": 83.49,
+      "prometheus": 108.5,
+      "revision-ledger": 19.67,
+      "simulator": 35.38,
+      "unknown": 26.41,
+      "web": 18.79
+    },
+    "simultaneous_sampled_working_set_peak_mib": 986.6149999999999,
+    "sampled_container_cpu_peak_percent": 155.03,
+    "longest_sample_gap_seconds": 15.259470416989643,
+    "runner_rss_peak_mib": 25.421875,
+    "sampled_oom_services": [],
+    "max_automatic_restarts": 0
+  },
+  "backup": {
+    "completed": true,
+    "whole_operation_seconds": 31.528015541960485,
+    "verification": "BACKUP_VERIFIED_LOCAL",
+    "restore_comparison": "all public table row counts and sorted-row hashes",
+    "failed_requests_including_relogin": 122,
+    "first_failed_request_start_elapsed": 603.4180894989404,
+    "last_failed_request_end_elapsed": 627.5407626659726,
+    "first_success_after_last_failure_elapsed": 629.0239065409987,
+    "observed_failure_to_recovery_seconds": 25.605817042058334
+  },
+  "device": {
+    "generated_unique_events": 147,
+    "acknowledged_unique_events": 147,
+    "generated_events_without_observed_ack": [],
+    "ack_statuses": {
+      "STORED": 147
+    },
+    "initial_db_rows": 0,
+    "final_db_rows": 147,
+    "final_pending": 0
+  },
+  "final_http_status": 200,
+  "observed_revision_regressions": 0,
+  "measured_elapsed_seconds": 1810.8478412079858,
+  "errors": {
+    "sample_error": 33
+  },
+  "acceptance": "OBSERVATIONS_ONLY_CLOUD_CAPACITY_NOT_ACCEPTED",
+  "cgroups": {
+    "samples": 170,
+    "first_elapsed_seconds": 0.9924943447113037,
+    "sequential_sample_sum_peak_mib": 1228.6796875,
+    "container_peak_mib_by_service": {
+      "backend": 379.796875,
+      "blackbox": 49.87890625,
+      "grafana": 512.01171875,
+      "mosquitto": 13.05859375,
+      "node-exporter": 34.18359375,
+      "postgres": 139.75390625,
+      "prometheus": 136.71484375,
+      "recovery": 268.62890625,
+      "revision-ledger": 25.0234375,
+      "simulator": 45.4921875,
+      "web": 29.87890625
+    },
+    "observed_oom_kills": 0,
+    "missed_container_reads": 4
+  },
+  "dashboard": {
+    "cleanup_rounds_excluded_but_preserved_in_raw": 0,
+    "rounds": 61,
+    "queries": 1281,
+    "query_errors": 0,
+    "successful_query_p95_ms": 39.247,
+    "sse_smoke_successes": 61,
+    "sse_smoke_failures": 0
+  },
+  "observations_sha256": "19ccec13cbd512b4196acf857ae40a2560cd6577c85fff5b5068fe60c50b206d",
+  "local_scenario_decision": {
+    "status": "CONTINUOUS_LOCAL_SCENARIO_COMPLETED",
+    "gates": {
+      "continuous_clock": true,
+      "at_least_30_minutes": true,
+      "five_sessions_all_phases": true,
+      "normal_and_recovery_all_200": true,
+      "verified_backup": true,
+      "events_db_ack_match": true,
+      "pending_zero": true,
+      "revision_no_regression": true,
+      "no_observed_oom_or_automatic_restarts": true,
+      "final_app_and_monitoring_ready": true,
+      "no_functional_fatal_errors": true
+    },
+    "actual_4gb_host_accepted": false,
+    "external_deployment_performed": false,
+    "latency_sla_accepted": false,
+    "scope": "measured local scenario; not a throughput ceiling, full-host sizing or external RTO acceptance"
+  }
+}

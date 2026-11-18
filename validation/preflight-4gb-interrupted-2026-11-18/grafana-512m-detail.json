@@ -1,0 +1,8 @@
+{
+  "elapsed": 1244.130377167021,
+  "limit_mib": 512,
+  "memory.current": "536788992\n",
+  "memory.peak": "536875008\n",
+  "memory.events": "low 0\nhigh 0\nmax 156108\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 21\n",
+  "memory.stat": "anon 281993216\nfile 243032064\nkernel 10579968\nkernel_stack 2850816\npagetables 3858432\nsec_pagetables 0\npercpu 29664\nsock 0\nvmalloc 16384\nshmem 0\nzswap 0\nzswapped 0\nfile_mapped 44204032\nfile_dirty 0\nfile_writeback 0\nswapcached 0\nanon_thp 10485760\nfile_thp 0\nshmem_thp 0\ninactive_anon 140738560\nactive_anon 141029376\ninactive_file 139792384\nactive_file 103243776\nunevictable 0\nslab_reclaimable 1913240\nslab_unreclaimable 1753264\nslab 3666504\nworkingset_refault_anon 0\nworkingset_refault_file 7943458\nworkingset_activate_anon 0\nworkingset_activate_file 2927231\nworkingset_restore_anon 0\nworkingset_restore_file 32069\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 8619227\npgsteal 8105534\npswpin 0\npswpout 0\npgscan_kswapd 744573\npgscan_direct 7873603\npgscan_khugepaged 1051\npgscan_proactive 0\npgsteal_kswapd 696859\npgsteal_direct 7407672\npgsteal_khugepaged 1003\npgsteal_proactive 0\npgfault 556670\npgmajfault 11569\npgrefill 52483\npgactivate 251890\npgdeactivate 0\npglazyfree 0\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nzswpin 0\nzswpout 0\nzswpwb 0\nthp_fault_alloc 0\nthp_collapse_alloc 5\nthp_swpout 0\nthp_swpout_fallback 0\n"
+}

@@ -1,0 +1,30 @@
+{
+  "base_commit": "67c5f332ca3675d994e8967fee01b898dde7a38e",
+  "branch": "perf/4gb-preflight",
+  "uncommitted_changes": true,
+  "docker": {
+    "Architecture": "aarch64",
+    "NCPU": 10,
+    "MemTotal": 8319504384,
+    "OperatingSystem": "Docker Desktop",
+    "ServerVersion": "29.8.2"
+  },
+  "python": "3.14.5",
+  "source_sha256": {
+    "tools/production/preflight_4gb.py": "a592cb8593a703d8ea8233f33d193f7a60f713048b5dc7f9957cdebe8d54cb34",
+    "infra/preflight/compose.yaml": "9a927ba4f0e17e939c122a148ffcf56da929af2c58460f6929c44f5e94289365",
+    "tools/production/local_backup.py": "505e281c2483ed8e6e55bb39c5912218c6259d278e05255451e8c0a96985ec61",
+    "tools/production/local_monitoring.py": "369db305b911313e9813e1a6fe995d3be159af60be9188125967a0ff3a1ecb9c",
+    "tools/production/local_https.py": "42fbf6d062b29ab791c9947aef1749831167649b0adb2b91d275afe3a8977ecd",
+    "tools/production/observe_preflight_cgroups.py": "e443fa4de10837299db7da5deb0dbe1a867e887230c6322bf3216ab5379358a1",
+    "tools/production/observe_preflight_dashboard.py": "aa01cbfc5738ec181444bb2eabc67419203f12bd75a9d096dda7577e5a0be70a"
+  },
+  "planned_minutes": 30,
+  "users": 5,
+  "request_mode": "closed-loop status polling, at most one start per second per session; timeout8s",
+  "backup_mode": "quiesced web/backend, simulator serialized around backup",
+  "swap": "container memory+swap equal to memory limit; no container swap",
+  "cpu": "no CPU limit; shared10CPU ARM host",
+  "isolated_4gb_host": false,
+  "full_browser_load": false
+}

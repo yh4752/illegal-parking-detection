@@ -1,0 +1,5 @@
+{
+  "step": "stats",
+  "error": "Command failed: docker\nEOF\n",
+  "seconds_to_reproduce": 8.197008958959486
+}

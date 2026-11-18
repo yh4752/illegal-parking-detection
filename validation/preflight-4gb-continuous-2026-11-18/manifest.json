@@ -1,0 +1,29 @@
+{
+  "algorithm": "SHA-256",
+  "scope": "local_evidence_files_not_offsite_sealed",
+  "files": {
+    "README.md": "72362709c13d1acc1bd8793e82d2dccb35831ac213016000607795fd08864770",
+    "backup-scope.json": "2263a92b9056e6f10a3186b6dfa3dfb8b6a87530576bb0aff1715db346132d9d",
+    "cgroups.jsonl": "4d4272421c38b6d0d807a4b05d6df95afe8fa4e183e0daddf07d496a1e76d04d",
+    "checks.json": "cf8110712a6267bb74524236bc039c0b5cbc65fadee655199cc78f17ddb85892",
+    "compose.yaml.source.txt": "9a927ba4f0e17e939c122a148ffcf56da929af2c58460f6929c44f5e94289365",
+    "dashboard-queries.jsonl": "ab3dbb216bf56bd3df549ee5ba0b79745d7add7986a5e10baa22e09fe149ed9f",
+    "effective-memory-limits.json": "0137657f58c468c9a07eeb19c429da5628c92b8b39b922ec981a8b08931e5e30",
+    "environment.json": "e79b2b066a49d3413efa07b312de3ffb8d19d5ecc4768490dafa40d2a675d6b2",
+    "local_backup.py.source.txt": "505e281c2483ed8e6e55bb39c5912218c6259d278e05255451e8c0a96985ec61",
+    "local_https.py.source.txt": "42fbf6d062b29ab791c9947aef1749831167649b0adb2b91d275afe3a8977ecd",
+    "local_monitoring.py.source.txt": "369db305b911313e9813e1a6fe995d3be159af60be9188125967a0ff3a1ecb9c",
+    "measurements.png": "955085dc51daf56a81dd550aa265f33946e01c97ddd6e4a4b5833b580d29205e",
+    "measurements.svg": "e3ada2605b5e1dd4b472bc21e3335a892b3dca5539d8793815101d7047e783d9",
+    "monitoring-backup-window.json": "2589cdffad3595f0864bd618300338a75a043c523d5c7f94941c0b31fff92e9f",
+    "observations.jsonl": "19ccec13cbd512b4196acf857ae40a2560cd6577c85fff5b5068fe60c50b206d",
+    "observe_preflight_cgroups.py.source.txt": "8ec7d6f5f11947a8d6581f17f70abba72998892199283678112de26a1150263a",
+    "observe_preflight_dashboard.py.source.txt": "31c34d81b69166c3108e2cc7f39bbbd49a13feb20766d619e7b25a1567a0320b",
+    "preflight_4gb.py.source.txt": "6c12a6a8d43c9cee1b328458fa48ac354709e108bae2a003fb6c877a916813fc",
+    "preservation.json": "e0ffdd00463a4142b470b2b1bedb4e80bdb277bb5ec7da268195997251bc11bd",
+    "render-chart.py": "c8a90210393a91c77c2388d857e110150e5c37ea850f781678d61d521cab2ec1",
+    "summarize_preflight.py.source.txt": "4214811a46e02451cff3dfedc95164411d97962f1954015da30e8d969739e5e1",
+    "summary.json": "735f66f7f1935dfb11830ddbae22fdbfbe61e1c6aff8a986b46042c8b6417999",
+    "unit-tests.txt": "c79b0b4501f315bc736a086935658c92bcebee68732df4154adc69dcf555cdd2"
+  }
+}

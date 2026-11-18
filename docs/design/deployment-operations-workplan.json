@@ -1,6 +1,6 @@
 {
   "plan_id": "deployment-operations-1",
-  "updated_at": "2026-11-17",
+  "updated_at": "2026-11-18",
   "status": "O5_PREPARATION_DOCUMENTED_NOT_DEPLOYED",
   "baseline_commit": "03b6dd51c0524750e02353be45ee14b62ed02ad5",
   "product_design": "v1.43",
@@ -14,7 +14,9 @@
     "docs/local-https.md",
     "docs/local-monitoring.md",
     "docs/local-backup.md",
-    "docs/deployment-readiness.md"
+    "docs/deployment-readiness.md",
+    "docs/preflight-4gb.md",
+    "docs/team-integration-preparation.md"
   ],
   "stages": [
     {
@@ -144,10 +146,17 @@
         "recovery_policy_approved": true,
         "recovery_policy_guide": "docs/backup-recovery-policy.md",
         "custody_mode_selected": "sole_owner_no_secondary",
-        "budget_status": "historical_monthly_example; current total budget target KRW 30000",
-        "evidence_scope": "historical 2026-11-16 preparation checks, not recovery-target acceptance"
+        "budget_status": "historical_monthly_example; current total budget target KRW 50000",
+        "evidence_scope": "historical 2026-11-16 preparation checks, not recovery-target acceptance",
+        "local_preflight": {
+          "status": "continuous_local_scenario_completed_not_actual_4gb_host",
+          "guide": "docs/preflight-4gb.md",
+          "evidence": "validation/preflight-4gb-continuous-2026-11-18/summary.json",
+          "continuous_30_minute_test_accepted": true,
+          "actual_4gb_host_accepted": false
+        }
       },
-      "next": "Issue #6 F1: confirm actual backup account, vault, independent copies, billing and recovery access; approved recovery targets are not external acceptance."
+      "next": "External revision/backup/certificate/device connection implementation, then separately authorized actual-host acceptance; no provisioning performed."
     }
   ],
   "followup": {
@@ -165,7 +174,7 @@
     "recovery_policy_approved": true
   },
   "external_inputs": [
-    "host/account, conditional 4GB load test, total KRW 30000 budget and actual retention cost",
+    "host/account, conditional 4GB load test, total KRW 50000 budget and actual retention cost",
     "domain and DNS authority",
     "independent storage with verified versioning/CAS and retention",
     "backup encryption key custody",
@@ -173,10 +182,10 @@
   ],
   "limits": [
     "single backend; no rolling overlap",
-    "no public MQTT in first deployment",
+    "team integration plans restricted public MQTT TLS; not configured or deployed",
     "no cloud resource purchase or publication performed",
     "O1-O4 accepted locally; off-host storage/key recovery, public certificates and external deployment remain pending",
-    "Production sizing, retention, RPO/RTO remain targets; only the small O4 local drill has measured timing"
+    "Production sizing, retention, RPO/RTO remain targets; O4 drill and continuous2026-11-18 container-budget observations do not establish actual4GB host acceptance"
   ],
   "evidence_required": [
     "commit and image digest",
@@ -245,5 +254,17 @@
     },
     "external_provisioning_authorized": false,
     "external_deployment_authorized": false
+  },
+  "team_integration": {
+    "budget_total_krw": 50000,
+    "schedule": "early_deployment_after_readiness_until_2026-12-11",
+    "actual_start": null,
+    "server": "Lightsail 4GB conditional",
+    "external_provisioning_authorized": false,
+    "external_deployment_authorized": false,
+    "guide": "docs/team-integration-preparation.md",
+    "local_preflight": "continuous30minute local scenario completed after user resumed",
+    "operation_end_target": "2026-12-11",
+    "preflight_evidence": "validation/preflight-4gb-continuous-2026-11-18/summary.json"
   }
 }

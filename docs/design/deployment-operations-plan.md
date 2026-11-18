@@ -1,6 +1,6 @@
 # M5 배포·운영 구현 명세
 
-2026-11-16 · 설계 기준 main `03b6dd5` · 상태: O4_ACCEPTED_LOCAL
+2026-11-18 갱신 · 초기 설계 기준 main `03b6dd5` · O4_ACCEPTED_LOCAL / O5 로컬 연속 관측 완료·외부 인수 미완료
 
 ## 1. 범위·근거·책임
 
@@ -18,7 +18,7 @@
 | Spring → PostgreSQL | 내부 5432 | host ports 없음. runtime DML만 허용 |
 | Spring·가상 장치 → Mosquitto | 내부 MQTT TLS 8883 | 익명 금지·장치별 계정·ACL. 서버 인증서 SAN에 내부 접속 이름 포함 |
 | 관리자 → Grafana | SSH 터널 | Grafana는 호스트 127.0.0.1에만 바인딩. Prometheus·관리 포트는 내부만 |
-| 실제 보드 → Mosquitto | 외부 TLS 8883 | 첫 공개에서 차단. 보드 CA 신뢰·계정·망 확인 후 별도 단계로 개방 |
+| 실제 보드 → Mosquitto | 외부 TLS 8883 | 2026-11-18 조기 팀 통합 방향으로 제한된 공개를 준비. 인증서 이름·신뢰·장치 계정/ACL·망 인수 후 개방하며 현재는 미공개 |
 
 Compose 네트워크는 web/app, app/data, app/mqtt, monitoring으로 역할별 분리하고 DB·브로커의 불필요한 egress를 제한한다. 관리자 SSH는 키 인증과 허용 IP를 사용한다. 클라우드 방화벽과 실제 외부 포트 스캔을 함께 확인한다. Docker publish가 UFW만으로 차단된다고 가정하지 않는다 [S4].
 

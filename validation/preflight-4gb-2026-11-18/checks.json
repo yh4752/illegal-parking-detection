@@ -1,0 +1,53 @@
+{
+  "documentation": {
+    "command": [
+      "python3",
+      "tools/check_structure.py"
+    ],
+    "exit_code": 0,
+    "output": "{\n  \"status\": \"PASS\",\n  \"scope\": \"문서 구조·링크·SVG·v1.43 원본 보존\",\n  \"counts\": {\n    \"markdown\": 75,\n    \"html\": 47,\n    \"svg\": 23,\n    \"local_links\": 1264,\n    \"baseline_files\": 127\n  },\n  \"errors\": []\n}",
+    "error": ""
+  },
+  "contracts": {
+    "command": [
+      "python3",
+      "tools/build_contracts.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "output": "REST contracts: verified; MQTT source unchanged",
+    "error": ""
+  },
+  "whitespace": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "output": "",
+    "error": ""
+  },
+  "unit_tests": {
+    "command": [
+      ".local-state/publish-python/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/production",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "tests": 43,
+    "result": "OK",
+    "log": "unit-tests.txt"
+  },
+  "source_and_secrets": {
+    "executed_runner_snapshot_verified": true,
+    "retry_source_snapshots_verified": true,
+    "actual_secret_values_found_in_changed_files": 0,
+    "method": "compare changed files against private preflight secrets/accounts/PKI complete values; structured allowlist publication"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "algorithm": "SHA-256",
+  "scope": "local_evidence_files_not_offsite_sealed",
+  "files": {
+    "README.md": "4191b85b23fb266be29f36c8e16dd973f284d217a61c56a6f26075f3c50baf33",
+    "cgroups.jsonl": "a85809d00bc7afb2720a63c36d1458cbb05e22ffccb2efda27535329234214f5",
+    "compose.yaml.source.txt": "9a927ba4f0e17e939c122a148ffcf56da929af2c58460f6929c44f5e94289365",
+    "dashboard-queries.jsonl": "0f531f8d2c8cf22afcf1af12fd722f94beb828c833c78dca46eb130cbb7637e1",
+    "effective-memory-limits.json": "2ecbcc895b78365e55d29dab5fe767850cba3024cb998ca2bc5bf53a717658ff",
+    "environment.json": "018c91e4612fab79c50fa00596d374d8308ef27aaa42d47810cffd52a5384819",
+    "host-sleep-events.json": "fc073926221eec92d36112c8d3efb4b546bb00df9fdf5e915d7d565e6aae3c24",
+    "local_backup.py.source.txt": "505e281c2483ed8e6e55bb39c5912218c6259d278e05255451e8c0a96985ec61",
+    "local_https.py.source.txt": "42fbf6d062b29ab791c9947aef1749831167649b0adb2b91d275afe3a8977ecd",
+    "local_monitoring.py.source.txt": "369db305b911313e9813e1a6fe995d3be159af60be9188125967a0ff3a1ecb9c",
+    "observations.jsonl": "753f1ecc9b3a8a9f4cfc4a484f9fa8e049369a08c6c5c3a6e0982a365f2c7966",
+    "observe_preflight_cgroups.py.source.txt": "8ec7d6f5f11947a8d6581f17f70abba72998892199283678112de26a1150263a",
+    "observe_preflight_dashboard.py.source.txt": "31c34d81b69166c3108e2cc7f39bbbd49a13feb20766d619e7b25a1567a0320b",
+    "preflight_4gb.py.source.txt": "6c12a6a8d43c9cee1b328458fa48ac354709e108bae2a003fb6c877a916813fc",
+    "preservation.json": "4e7a7a5a70d9e1a5d3ec165586b59b8f2310ec5515550f11ddc82c5d3c06619e",
+    "summary.json": "4a4fa0e61b662221126a47aa9846bce82a8783e1c20b68e8791f737d22c86e97"
+  }
+}

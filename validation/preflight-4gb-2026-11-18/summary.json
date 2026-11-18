@@ -1,0 +1,54 @@
+{
+  "status": "PARTIAL_LOCAL_OBSERVATIONS_CONTINUOUS_RETEST_DEFERRED",
+  "date": "2026-11-18",
+  "continuous_30_minute_test_accepted": false,
+  "actual_4gb_cloud_host_accepted": false,
+  "user_decision": "preserve records now; continuous retest later",
+  "attempts": [
+    {
+      "run": "2eb7351e",
+      "evidence": "../preflight-4gb-interrupted-2026-11-18/summary.json",
+      "result": "backup and final data checks completed, but host sleep invalidates continuous timing"
+    },
+    {
+      "run": "664376a0",
+      "evidence": "../preflight-4gb-retry-paused-2026-11-18/summary.json",
+      "result": "new clock guard rejected run after host sleep; no backup or final data acceptance"
+    }
+  ],
+  "first_run_observations_only": {
+    "normal_before_sleep_requests": 2984,
+    "normal_before_sleep_errors": 0,
+    "normal_before_sleep_success_p95_ms": 59.908,
+    "sampled_working_set_peak_mib": 988.636,
+    "sampled_cgroup_sequential_sum_peak_mib": 1222.11328125,
+    "backup_operation_seconds": 40.743942125,
+    "failed_request_to_recovery_span_seconds": 34.880221875,
+    "backup_window_failed_requests_including_relogin": 168,
+    "backup_verified_public_tables": 20,
+    "backup_event_rows": 49,
+    "generated_stored_acked_events": 142,
+    "final_pending": 0
+  },
+  "final_preservation": {
+    "existing_container_ids_preserved": 45,
+    "mount_and_running_state_mismatches": 0,
+    "learning_containers_restarted": 12,
+    "both_test_stacks_running_containers": 0,
+    "scope": "not a byte-level data comparison"
+  },
+  "external_actions": {
+    "server_created": false,
+    "purchase": false,
+    "account_created": false,
+    "dns_registered": false,
+    "deployed": false
+  },
+  "budget_total_krw": 50000,
+  "server_candidate": "Lightsail4GB conditional; no capacity confirmation",
+  "next": [
+    "awake30minute continuous local run plus preparation time",
+    "actual2vCPU/4GB Linux sizing acceptance after separate cloud authorization",
+    "external revision adapter, off-host backup, certificates and device ACL/public network acceptance"
+  ]
+}

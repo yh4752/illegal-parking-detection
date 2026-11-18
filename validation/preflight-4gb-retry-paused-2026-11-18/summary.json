@@ -1,0 +1,132 @@
+{
+  "scope": "LOCAL_PER_CONTAINER_MEMORY_BUDGET_NOT_A_4GB_VM",
+  "timing": {
+    "valid_continuous_timing": false,
+    "maximum_clock_offset_drift_seconds": 263.578489780426,
+    "wall_clock_span_seconds": 467.83778381347656,
+    "clock_discontinuities": [
+      {
+        "elapsed": 202.95397120795678,
+        "timestamp": 1794992728.7566981,
+        "offset_change_seconds": 263.57879281044006
+      }
+    ]
+  },
+  "phases": {
+    "normal": {
+      "requests": 1009,
+      "statuses": {
+        "200": 1009
+      },
+      "successful_response_p50_ms": 14.874,
+      "successful_response_p95_ms": 41.292,
+      "successful_response_max_ms": 2856.167040998116,
+      "viewers": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "backup_window": {
+      "requests": 0,
+      "statuses": {},
+      "successful_response_p50_ms": null,
+      "successful_response_p95_ms": null,
+      "successful_response_max_ms": null,
+      "viewers": []
+    },
+    "recovery": {
+      "requests": 0,
+      "statuses": {},
+      "successful_response_p50_ms": null,
+      "successful_response_p95_ms": null,
+      "successful_response_max_ms": null,
+      "viewers": []
+    }
+  },
+  "resources": {
+    "samples": 25,
+    "working_set_peak_mib_by_service": {
+      "backend": 300.1,
+      "blackbox": 23.46,
+      "grafana": 407.4,
+      "mosquitto": 7.629,
+      "node-exporter": 21.98,
+      "postgres": 63.33,
+      "prometheus": 96.66,
+      "revision-ledger": 22.07,
+      "simulator": 31.06,
+      "unknown": 18.93,
+      "web": 18.84
+    },
+    "simultaneous_sampled_working_set_peak_mib": 892.968,
+    "sampled_container_cpu_peak_percent": 126.99,
+    "longest_sample_gap_seconds": 14.502013665973209,
+    "runner_rss_peak_mib": 23.9375,
+    "sampled_oom_services": [],
+    "max_automatic_restarts": 0
+  },
+  "backup": {
+    "completed": false,
+    "whole_operation_seconds": null,
+    "verification": null,
+    "restore_comparison": null,
+    "failed_requests_including_relogin": 0,
+    "first_failed_request_start_elapsed": null,
+    "last_failed_request_end_elapsed": null,
+    "first_success_after_last_failure_elapsed": null,
+    "observed_failure_to_recovery_seconds": null
+  },
+  "device": {
+    "generated_unique_events": 17,
+    "acknowledged_unique_events": 17,
+    "generated_events_without_observed_ack": [],
+    "ack_statuses": {
+      "STORED": 17
+    },
+    "initial_db_rows": 0,
+    "final_db_rows": null,
+    "final_pending": null
+  },
+  "final_http_status": null,
+  "observed_revision_regressions": 0,
+  "measured_elapsed_seconds": null,
+  "errors": {
+    "sample_error": 3,
+    "fatal": 1
+  },
+  "acceptance": "STOPPED_ON_CLOCK_DISCONTINUITY_RETEST_DEFERRED_BY_USER",
+  "cgroups": {
+    "samples": 13,
+    "first_elapsed_seconds": 69.79626679420471,
+    "sequential_sample_sum_peak_mib": 1189.78515625,
+    "container_peak_mib_by_service": {
+      "backend": 315.734375,
+      "blackbox": 39.0390625,
+      "grafana": 512.0078125,
+      "mosquitto": 12.78125,
+      "node-exporter": 33.24609375,
+      "postgres": 141.6328125,
+      "prometheus": 130.51953125,
+      "revision-ledger": 29.37890625,
+      "simulator": 41.4609375,
+      "web": 22.80859375
+    },
+    "observed_oom_kills": 0,
+    "missed_container_reads": 0
+  },
+  "dashboard": {
+    "cleanup_rounds_excluded_but_preserved_in_raw": 0,
+    "rounds": 5,
+    "queries": 105,
+    "query_errors": 0,
+    "successful_query_p95_ms": 33.458,
+    "sse_smoke_successes": 5,
+    "sse_smoke_failures": 0
+  },
+  "observations_sha256": "753f1ecc9b3a8a9f4cfc4a484f9fa8e049369a08c6c5c3a6e0982a365f2c7966",
+  "stop_reason": "host_sleep_or_clock_discontinuity_invalidates_continuous_run",
+  "user_decision": "defer continuous retest; finish preserving observations and preparation"
+}

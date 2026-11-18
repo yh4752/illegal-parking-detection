@@ -55,3 +55,5 @@ npm --prefix tools/docs run build
 2026-11-17 승인한 단기 운영의 [백업·증거 보존·복구 목표와 단독 관리](backup-recovery-policy.md)를 함께 읽습니다. 목표 승인과 실제 외부 자동화·회수 시험 완료를 구분합니다.
 
 운영 학습은 [O1 개념 안내](production-basics.md)부터 시작합니다. [학습·블로그 근거 모음](operations-learning-evidence.md)에 자기 설명 질문과 Git으로 보존한 로그·캡처·측정 조건이 있습니다. 두 문서의 같은 이름 HTML도 자동 생성합니다.
+
+[4GB 사전 측정](preflight-4gb.md) · [팀 통합 조기 배포 준비](team-integration-preparation.md): 총 5만 원 방향과 로컬 측정, 외부 배포 전 남은 구현.

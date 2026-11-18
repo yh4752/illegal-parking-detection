@@ -5,7 +5,7 @@ digraph Readiness {
   team [label="Team browser\nDuckDNS candidate / future HTTPS", fillcolor="#DCEFE5"];
   subgraph cluster_app {
     label="App account / Lightsail 4GB conditional on load test"; color="#9FB9C2";
-    app [label="Nginx + Spring + internal MQTT\nPostgreSQL + local revision pair\nPrometheus + Grafana + simulator"];
+    app [label="Nginx + Spring + TLS MQTT\nPostgreSQL + local revision pair\nPrometheus + Grafana + simulator"];
     job [label="Backup job / future schedule\nDaily 03:00 KST + before change/shutdown\nEncrypt + verify / restricted working key"];
     capture [label="Evidence collection / future automation\nLogs every 5 min + final run artifacts\nOriginal measurements + SHA-256 manifest"];
     app -> job [label="Consistent database/device backup"];
@@ -22,6 +22,8 @@ digraph Readiness {
   restore [label="Replacement host / new database\nLatest ledger + reconciliation + explicit acceptance\nService RTO target 2 h / evidence retrieval 15 min", fillcolor="#EAE4F7"];
   monitor [label="External HTTPS check + alert destination\nStill observable when app host fails", fillcolor="#EAE4F7"];
   team -> app [label="HTTPS 443 / future"];
+  board [label="Remote team board / future\nDevice credentials + topic ACL", fillcolor="#FFF0DC"];
+  board -> app [label="Restricted MQTT TLS 8883 / future",dir=both];
   app -> ledger [label="Authenticated latest reads + CAS\nCritical live dependency / future"];
   job -> archive [label="Upload / download / verify\nFuture automation"];
   capture -> evidence [label="Encrypted private originals\nFuture copy + read-back"];
