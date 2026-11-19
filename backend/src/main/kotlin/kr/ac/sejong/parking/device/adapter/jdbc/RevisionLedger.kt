@@ -13,8 +13,8 @@ import java.time.Duration
 
 data class RevisionHead(val version: Long, val sha256: String, val document: ObjectNode)
 
-/** Internal LOCAL_ONLY reference adapter. An external provider needs its own authenticated TLS adapter. */
-class RevisionLedger(private val url: URI, private val storeId: String, tokenFile: Path, private val mapper: ObjectMapper) {
+/** Private HTTP gateway; AWS_S3 storage uses SigV4/TLS from the gateway to the pinned S3 bucket. */
+class RevisionLedger(private val url: URI, private val storeId: String, tokenFile: Path, private val mapper: ObjectMapper, private val storage: String = "LOCAL_ONLY") {
     private val token = Files.readString(tokenFile).trim().also { require(it.matches(Regex("[A-Za-z0-9_-]{32,128}"))) }
     private val client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build()
 
@@ -23,6 +23,7 @@ class RevisionLedger(private val url: URI, private val storeId: String, tokenFil
             url.userInfo == null && url.query == null && url.fragment == null && url.path in setOf("", "/")) {
             "local_revision_ledger_url_required"
         }
+        require(storage in setOf("LOCAL_ONLY", "AWS_S3")) { "unsupported_ledger_storage" }
         java.util.UUID.fromString(storeId)
     }
 
@@ -49,6 +50,7 @@ class RevisionLedger(private val url: URI, private val storeId: String, tokenFil
             val bytes = response.body().use { it.readNBytes(1_048_577) }
             check(response.statusCode() in setOf(200, 201) && bytes.size <= 1_048_576) { "revision_ledger_request_rejected" }
             val json = mapper.readTree(bytes)
+            check(storage != "AWS_S3" || json.path("storage").asText() == "AWS_S3") { "external_storage_required" }
             check(json.path("store_id").asText() == storeId && json.path("version").canConvertToLong() &&
                 json.path("version").longValue() >= 0 && json.path("sha256").asText().matches(Regex("[a-f0-9]{64}")) &&
                 json.path("document").isObject && json["document"].path("format_version").asInt() == 1 &&
@@ -66,10 +68,11 @@ class RevisionLedger(private val url: URI, private val storeId: String, tokenFil
         fun configured(env: Environment, mapper: ObjectMapper): RevisionLedger? {
             val enabled = env.getProperty("PARKING_REVISION_LEDGER_REQUIRED", Boolean::class.java, false)
             if (!enabled) return null
-            check(env.getRequiredProperty("PARKING_REVISION_LEDGER_SCOPE") == "LOCAL_ONLY")
+            val storage = env.getRequiredProperty("PARKING_REVISION_LEDGER_SCOPE")
+            check(storage in setOf("LOCAL_ONLY", "AWS_S3"))
             return RevisionLedger(URI(env.getRequiredProperty("PARKING_REVISION_LEDGER_URL")),
                 env.getRequiredProperty("PARKING_REVISION_LEDGER_ID"),
-                Path.of(env.getRequiredProperty("PARKING_REVISION_LEDGER_TOKEN_FILE")), mapper)
+                Path.of(env.getRequiredProperty("PARKING_REVISION_LEDGER_TOKEN_FILE")), mapper, storage)
         }
     }
 }

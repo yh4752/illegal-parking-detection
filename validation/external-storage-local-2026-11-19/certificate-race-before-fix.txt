@@ -1,0 +1,18 @@
+test_matching_key_name_chain_and_expiry_required_before_staging (test_stage_certificate.CertificateStageTest.test_matching_key_name_chain_and_expiry_required_before_staging) ... ERROR
+
+======================================================================
+ERROR: test_matching_key_name_chain_and_expiry_required_before_staging (test_stage_certificate.CertificateStageTest.test_matching_key_name_chain_and_expiry_required_before_staging)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/production/test_stage_certificate.py", line 38, in test_matching_key_name_chain_and_expiry_required_before_staging
+    module.stage(cert,private,cert,'test.invalid',folder/'snapshot')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/tools/production/stage_certificate.py", line 32, in stage
+    if check.returncode:raise ValueError('certificate_chain_invalid')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: certificate_chain_invalid
+
+----------------------------------------------------------------------
+Ran 1 test in 0.359s
+
+FAILED (errors=1)

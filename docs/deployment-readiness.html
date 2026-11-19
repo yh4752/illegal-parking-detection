@@ -10,6 +10,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <header><div class="eyebrow">CAPSTONE / ILLEGAL PARKING DETECTION</div><h1>엣지 AI 기반<br>불법주정차 감지·안내 시스템</h1><p>보드는 판단·안내하고, 서버는 기록하고 연결합니다.</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>목적·역할은 팀 요약, 완료 범위는 현재 상태에서 확인하세요.</strong></p><p>가상 장치의 사건 수신·저장·ACK와 로그인·실시간 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 AI 보드·LED/스피커·실차 시험과 공개 배포는 남아 있습니다. 그림은 목표 구조이며 과거 검증 기록은 당시 조건을 따릅니다.</p></aside><article class="page"><h1>O5 배포 준비 — 서버·비용·도메인·백업·키를 정하는 방법</h1>
+<p><strong>2026-11-19 구현 업데이트:</strong> S3 revision gateway, age 암호화·버전 지정 백업/회수, DB 백업·로그 복사 작업, 서버용 Compose·권한 정책 생성기를 로컬에서 구현·검증했다. 실제 AWS 권한·공인 인증서·전체 서버 유실 복구는 아직 검증하지 않았다. <a href="external-storage-preparation.html">외부 저장·서버 준비 안내</a>를 최신 구현 기준으로 읽는다.</p>
 <p>2026-11-18 · <strong>복구 목표·본인 단독 관리 승인, 실제 자원 선택 일부 미정. 구매·외부 배포·외부 인수 미수행</strong></p>
 <p>O1~O4는 로컬에서 검증했다. 이번 O5 작업은 사용할 자원과 운영 책임을 결정할 수 있게 준비하는 단계다. 아래 추천을 채택해도 곧바로 배포할 수 있는 것은 아니다. 실제 외부 저장소 어댑터와 운영 백업 자동화 등 남은 구현은 마지막 표에 따로 적었다.</p>
 <h2>현재 정한 방향과 남은 결정</h2>
@@ -260,12 +261,12 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tr>
 <tr>
 <td>2</td>
-<td>실제 S3 원장 어댑터와 최소 권한 구현</td>
+<td>S3 어댑터·정책의 로컬 구현 이후 실제 AWS 권한 인수</td>
 <td>인증/TLS·최신 head·CAS 경쟁·과거 버전/삭제/설정 변경 거부·예약 중단·저장소 장애 시 차단</td>
 </tr>
 <tr>
 <td>3</td>
-<td>외부 백업 업로드/다운로드 검증·주기·보존·키 회수 구현</td>
+<td>외부 백업 코드·timer 예시 이후 실제 설치·보존·키 회수 인수</td>
 <td>서버 밖 복사본을 내려받아 복호화·임시 DB 전 테이블 비교, 실패 시 성공 시각 미갱신</td>
 </tr>
 <tr>
@@ -284,9 +285,9 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <td>로그인·SSE·가상 사건·계정 회수·재접속 확인</td>
 </tr>
 </tbody></table></div>
-<p>현재 백업 도구는 작은 로컬 훈련용으로 128MiB 제한과 메모리 내 처리를 사용하며, 로컬 이미지·새 격리 DB만 허용한다. 운영용 크기·자동 실행·보존·업로드·키 복구는 위 단계에서 구현해야 한다. 가상 사건은 승인한 24시간 손실 목표에 맞춰 일별 백업하며, 발표·블로그 증거는 시험마다 보존하는 별도 주기를 구현한다. 독립 원장은 사건 본문의 연속 백업이 아니다.</p>
+<p>기존 로컬 O4 도구의 128MiB 제한과 Fernet 파일은 유지한다. 새 age 스트리밍 도구는 4GiB 상한이며 129MiB 왕복 및 작은 PostgreSQL의 모의 S3 회수를 검증했다. 일별 백업/로그 복사 timer는 예시만 작성했고 실제 설치·보존 삭제·독립 키 복구는 남아 있다. 가상 사건은 승인한 24시간 손실 목표에 맞춰 일별 백업하며, 발표·블로그 증거는 시험마다 보존하는 별도 주기를 구현한다. 독립 원장은 사건 본문의 연속 백업이 아니다.</p>
 <p>O4의 85.65초는 이미 수신을 멈춘 뒤 <strong>복원 시작부터 로컬 HTTPS/모니터링 준비까지</strong>의 소규모 측정이다. 서버 구매·자료 다운로드·키 회수·수신 중단 시간은 포함하지 않았다. 외부 RTO로 약속하지 않는다. <a href="../validation/local-backup-2026-11-16.json">O4 실행 증거</a>, <a href="local-backup.html">복원 순서 설명</a></p>
-<p>현재 변경은 승인 목표·담당 방식·문서·그림 정리다. 새 클라우드 자원·계정·DNS·키를 만들지 않았고 외부 배포나 외부 복원 시험도 수행하지 않았다. <a href="../validation/deployment-readiness-2026-11-16.json">11월 16일 준비 검증 기록</a>은 당시 기록이며 이번 목표 달성의 근거가 아니다. <a href="design/deployment-operations-workplan.json">전체 작업표</a>에서 승인과 구현·인수 상태를 구분한다.</p>
+<p>최신 변경은 외부 저장·배포 준비 코드와 로컬 검증이다. 새 클라우드 자원·계정·DNS·키를 만들지 않았고 외부 배포나 외부 복원 시험도 수행하지 않았다. <a href="../validation/deployment-readiness-2026-11-16.json">11월 16일 준비 검증 기록</a>은 당시 기록이며 이번 목표 달성의 근거가 아니다. <a href="design/deployment-operations-workplan.json">전체 작업표</a>에서 승인과 구현·인수 상태를 구분한다.</p>
 <p><a href="team-integration-preparation.html">팀 통합용 조기 배포 준비</a>에서 보드 연결 계약·현재 로컬 구현과 실제 배포의 차이·실행 순서를 확인한다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

@@ -1,0 +1,26 @@
+{
+  "domain": "illegal-parking-detection.duckdns.org",
+  "state_dir": "/opt/parking/state",
+  "public_access": false,
+  "devices": [
+    "edge-01"
+  ],
+  "region": "ap-northeast-2",
+  "backup_owner": "123456789012",
+  "ledger_bucket": "replace-with-ledger-bucket",
+  "backup_bucket": "replace-with-backup-bucket",
+  "store_id": "fd09530c-042e-4368-8fd4-c5ec2bbdd490",
+  "ledger_principal": "arn:aws:iam::111122223333:role/parking-ledger",
+  "backup_principal": "arn:aws:iam::111122223333:role/parking-backup",
+  "images": {
+    "backend": "example.invalid/parking/backend@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "web": "example.invalid/parking/web@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "postgres": "example.invalid/parking/postgres@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "mosquitto": "example.invalid/parking/mosquitto@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "ledger": "example.invalid/parking/ledger@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "prometheus": "example.invalid/parking/prometheus@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "grafana": "example.invalid/parking/grafana@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "node-exporter": "example.invalid/parking/node-exporter@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "blackbox": "example.invalid/parking/blackbox@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

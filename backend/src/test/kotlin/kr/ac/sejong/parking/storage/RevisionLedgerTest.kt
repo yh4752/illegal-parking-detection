@@ -37,6 +37,15 @@ class RevisionLedgerTest {
         }
     }
 
+    @Test fun `S3 scope refuses the SQLite reference gateway`() {
+        RevisionLedgerFixture(temp, mapper).use { fixture ->
+            val token = temp.resolve("s3-token")
+            Files.writeString(token, "a".repeat(48))
+            val client = RevisionLedger(fixture.uri, fixture.identity, token, mapper, "AWS_S3")
+            assertThatThrownBy { client.head() }.hasMessage("revision_ledger_unavailable_or_invalid")
+        }
+    }
+
     @Test fun `wrong identity bad credentials missing store and outage never yield a fallback head`() {
         RevisionLedgerFixture(temp, mapper).use { fixture ->
             val wrongToken = temp.resolve("wrong-token")
@@ -62,7 +71,7 @@ internal class RevisionLedgerFixture(directory: Path, private val mapper: Object
     val database = directory.resolve("ledger.sqlite3")
     private val tokenFile = directory.resolve("ledger-token")
     private val process: Process
-    private val uri: URI
+    val uri: URI
 
     init {
         Files.createDirectories(directory)

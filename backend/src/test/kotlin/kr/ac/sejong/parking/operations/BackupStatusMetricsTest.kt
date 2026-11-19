@@ -28,4 +28,18 @@ class BackupStatusMetricsTest {
         Files.delete(file); metrics.refresh()
         assertThat(registry.get("parking.backup.status.valid").gauge().value()).isZero()
     }
+    @Test fun `external upload and source restore do not claim independent decrypt restore`() {
+        val registry = SimpleMeterRegistry()
+        val file = temp.resolve("external.json")
+        val metrics = BackupStatusMetrics(file, ObjectMapper(), registry)
+        Files.writeString(file, """{"result":"BACKUP_UPLOADED_SOURCE_RESTORE_VERIFIED","completed_at":1700000000,"source_database_restore_verified":true,"version_id":"version-1","ciphertext_sha256":"${"a".repeat(64)}"}""")
+        metrics.refresh()
+        assertThat(registry.get("parking.backup.external.upload.timestamp.seconds").gauge().value()).isEqualTo(1700000000.0)
+        assertThat(registry.get("parking.backup.external.source.restore.valid").gauge().value()).isEqualTo(1.0)
+        assertThat(registry.get("parking.backup.status.valid").gauge().value()).isZero()
+        Files.writeString(file, """{"result":"BACKUP_UPLOADED_SOURCE_RESTORE_VERIFIED","completed_at":1700000000,"source_database_restore_verified":false}""")
+        metrics.refresh()
+        assertThat(registry.get("parking.backup.external.source.restore.valid").gauge().value()).isZero()
+    }
+
 }

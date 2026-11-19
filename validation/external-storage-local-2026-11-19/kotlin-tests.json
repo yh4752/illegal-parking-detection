@@ -1,0 +1,13 @@
+{
+  "task": "test bootJar",
+  "command": "bash ./gradlew test bootJar --no-daemon --max-workers=2",
+  "working_directory": "backend",
+  "result": "BUILD SUCCESSFUL",
+  "junit": {
+    "tests": 171,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "note": "A preceding incremental build failure was resolved by a clean build; production changes then passed again. databaseTest not rerun in this change."
+}

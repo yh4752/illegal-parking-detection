@@ -1,0 +1,57 @@
+{
+  "result": "LOCAL_EXTERNAL_STORAGE_PREPARATION_VERIFIED",
+  "date": "2026-11-19",
+  "base_commit": "d4229cd49efb741dbeb8e8681fc4ff10331f69c9",
+  "working_tree_changes_uncommitted": true,
+  "branch": "feat/external-storage-preparation",
+  "python_tests": 63,
+  "kotlin_tests": {
+    "tests": 171,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "wire_checks": 8,
+  "postgres": {
+    "result": "LOCAL_EXTERNAL_POSTGRES_ROUNDTRIP_PASSED",
+    "rows": 147,
+    "tables": 1,
+    "fixture": "sample_event, not the complete application database",
+    "dump_bytes": 2387,
+    "encrypted_bytes": 10513,
+    "source_unchanged": true,
+    "source_and_downloaded_dump_restores_verified": true,
+    "external_aws_used": false,
+    "whole_host_rto_verified": false,
+    "existing_running_containers_preserved": 30,
+    "seconds": 3.975
+  },
+  "streaming_fixture_mib": 129,
+  "archive_max_gib": 4,
+  "compose_config": "passed, tools profile included, generated from placeholder input; no up",
+  "promtool": "passed, 2 external-backup rules syntax checked",
+  "gateway_image": {
+    "platform": "linux/amd64",
+    "local_image_id": "sha256:6e849f76453f5f1211b593f660fb2fe379b0f3be23d0d6d44a7a036f22d3d6ed",
+    "build_and_cli": "passed",
+    "registry_published": false
+  },
+  "scope": {
+    "real_aws_used": false,
+    "accounts_or_servers_created": false,
+    "purchase": false,
+    "external_deployment": false,
+    "full_application_db_restore": false,
+    "whole_host_rto_verified": false,
+    "timers_installed": false,
+    "ci_remote_run": false
+  },
+  "review_fixes": [
+    "explicit initializer CHOWN/DAC_OVERRIDE",
+    "Grafana subdirectory mounts and bundled plugin path",
+    "separate external status/gauges",
+    "restore completion marker",
+    "no readiness claim from compose up",
+    "certificate validated and staged from identical snapshot bytes"
+  ]
+}

@@ -1,5 +1,7 @@
 # 운영 배포 준비
 
+**2026-11-19:** 이 폴더의 로컬 O2/O3/O4 경로를 유지한다. 실제 서버용 생성물은 [infra/server](../server/README.md), S3·암호화 백업 구현은 [새 안내](../../docs/external-storage-preparation.md)를 따른다. 외부 배포는 수행하지 않았다.
+
 **O1 운영 프로필·DB 권한·MQTT TLS/ACL과 O2 로컬 HTTPS Compose의 구현 경로**다. 먼저 [로컬 HTTPS 안내](../../docs/local-https.md)에서 구조와 실행 순서를 읽는다. O3 모니터링과 O4 로컬 독립 revision·복원도 인수했다. O5는 준비 추천 문서까지 작성했고 외부 저장소 구현·실제 서버 공개는 남아 있다. `app-prod`라는 이름만으로 외부 공개 조건을 충족하지 않는다. 기존 HTTP 인계 실행은 `infra/handoff`와 [인계 설명서](../../docs/frontend-handoff.md)를 따른다.
 
 - [O1 개념·이해 확인 질문](../../docs/production-basics.md): TLS·계정·ACL·DB 역할을 먼저 구분한다.

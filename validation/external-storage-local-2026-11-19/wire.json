@@ -1,0 +1,17 @@
+{
+  "result": "LOCAL_EXTERNAL_STORAGE_PROTOCOL_PASSED",
+  "scope": "loopback S3 emulator; no AWS IAM/TLS acceptance",
+  "checks": [
+    "bearer authentication",
+    "signed S3 HTTP requests",
+    "CAS update",
+    "identical retry",
+    "streaming age round trip",
+    "version-pinned download",
+    "independent ledger preserved",
+    "missing head returns 503"
+  ],
+  "seconds": 0.237,
+  "external_aws_used": false,
+  "database_restore_verified": false
+}

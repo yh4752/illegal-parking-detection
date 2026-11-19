@@ -1,0 +1,21 @@
+{
+  "structure": {
+    "status": "PASS",
+    "scope": "문서 구조·링크·SVG·v1.43 원본 보존",
+    "counts": {
+      "markdown": 82,
+      "html": 49,
+      "svg": 25,
+      "local_links": 1354,
+      "baseline_files": 127
+    },
+    "errors": []
+  },
+  "contracts": "REST contracts: verified; MQTT source unchanged",
+  "docs_regeneration": "> build\n> node build.mjs\n\n구조 그림 SVG 14개와 HTML 48개 생성 완료. 제품 계약은 수정하지 않았습니다.",
+  "contract_generator_unit_tests": {
+    "tests": 6,
+    "result": "OK"
+  },
+  "diff_whitespace": "passed"
+}
