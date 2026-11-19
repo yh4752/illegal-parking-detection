@@ -30,11 +30,11 @@ def verify():
         with tempfile.TemporaryDirectory(prefix='external-db-',dir=ROOT/'.local-state') as folder:
             folder=Path(folder);keydir=folder/'secrets';keydir.mkdir(mode=0o700)
             for name in ('admin','migrator','runtime','operator','backup'):
-                path=keydir/(name+'-password');path.write_text(secrets.token_urlsafe(32));path.chmod(0o600)
+                path=keydir/(name+'-password');path.write_text(secrets.token_urlsafe(32));path.chmod(0o444)  # Host parent is 0700; only this file is mounted for PostgreSQL UID.
             config={'name':'parking-server','services':{'postgres':{'image':POSTGRES,'mem_limit':'512m','cpus':1,
                 'environment':{'POSTGRES_DB':'parking_handoff','POSTGRES_PASSWORD_FILE':'/run/secrets/admin-password'},
                 'network_mode':'none','tmpfs':['/var/lib/postgresql/data'],
-                'volumes':[str(keydir)+':/run/secrets:ro',str(ROOT/'infra/deploy/init-db.sql')+':/docker-entrypoint-initdb.d/10-parking.sql:ro',str(ROOT/'infra/deploy/sql/create-roles.sql')+':/opt/parking/create-roles.sql:ro']}}}
+                'volumes':[str(keydir/(name+'-password'))+':/run/secrets/'+name+'-password:ro' for name in ('admin','migrator','runtime','operator','backup')]+[str(ROOT/'infra/deploy/init-db.sql')+':/docker-entrypoint-initdb.d/10-parking.sql:ro',str(ROOT/'infra/deploy/sql/create-roles.sql')+':/opt/parking/create-roles.sql:ro']}}}
             (folder/'compose.json').write_text(json.dumps(config))
             db=ComposeDatabase(folder);db.prefix[-1]=project
             try:
@@ -46,7 +46,10 @@ def verify():
                         db.command('exec','-T','postgres','pg_isready','-h','127.0.0.1','-U','postgres','-d','parking_handoff')
                         db.sql('SELECT 1');break
                     except RuntimeError:
-                        if time.monotonic()>deadline:raise
+                        if time.monotonic()>deadline:
+                            logs=db.command('logs','--no-color','--tail','80','postgres').decode(errors='replace')
+                            for secret in keydir.iterdir():logs=logs.replace(secret.read_text(),'[redacted]')
+                            raise RuntimeError('isolated_postgres_not_ready: '+logs[-6000:]) from None
                         time.sleep(1)
                 db.sql("SET ROLE parking_migrator; CREATE TABLE sample_event (id bigint PRIMARY KEY, payload text NOT NULL); INSERT INTO sample_event SELECT n, '한글 사건 ' || n FROM generate_series(1,147) n; GRANT SELECT ON sample_event TO parking_backup;")
                 expected=db.fingerprints();dump=folder/'database.dump';db.dump(dump);db.verify_restore(dump,expected)
