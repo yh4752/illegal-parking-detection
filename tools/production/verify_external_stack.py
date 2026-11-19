@@ -4,6 +4,7 @@ No production credentials, host creation or external S3 endpoint is accepted.
 The gateway uses the real adapter with an explicitly injected test-only client.
 """
 import json
+import argparse
 import ipaddress
 import os
 from pathlib import Path
@@ -27,11 +28,25 @@ from verify_o2 import free_port
 class ExternalStack(LocalBackup):
     compose_files=(*LocalBackup.compose_files,'tools/production/fixtures/external-compose.yaml')
     loopback_services=('web','grafana','s3-test')
+    backend_jar=None
 
     def run(self,*args,input=None,timeout=180,env=None):
         if args[:2]!=('docker','build'):
             return super().run(*args,input=input,timeout=timeout,env=env)
         log=self.state/('build-'+args[args.index('-t')+1].split(':')[0]+'.txt')
+        if self.backend_jar is not None and args[args.index('-f')+1]=='backend/Dockerfile':
+            # Local diagnostic/acceptance may reuse an explicitly built and tested bootJar.
+            # CI omits this option and still builds the complete production Dockerfile.
+            context=self.state/'backend-runtime';context.mkdir()
+            shutil.copyfile(self.backend_jar,context/'app.jar')
+            shutil.copyfile(ROOT/'infra/handoff/bootstrap.sh',context/'bootstrap.sh')
+            recipe=(ROOT/'backend/Dockerfile').read_text().split('FROM eclipse-temurin:17-jre-jammy',1)[1]
+            recipe='FROM eclipse-temurin:17-jre-jammy'+recipe
+            recipe=recipe.replace('COPY --from=build /source/backend/build/libs/parking-backend-0.1.0-SNAPSHOT.jar /app/app.jar',
+                                  'COPY app.jar /app/app.jar').replace('COPY infra/handoff/bootstrap.sh /app/bootstrap.sh','COPY bootstrap.sh /app/bootstrap.sh')
+            assert '--from=build' not in recipe
+            (context/'Dockerfile').write_text(recipe)
+            args=('docker','build','-t',args[args.index('-t')+1],'-f',str(context/'Dockerfile'),str(context))
         with log.open('w') as output:
             result=subprocess.run([*args[:2],'--progress=plain',*args[2:]],cwd=ROOT,stdout=output,stderr=subprocess.STDOUT,timeout=timeout)
         if result.returncode:raise RuntimeError('fixture_image_build_failed: '+self.redact(log.read_text()[-8000:]))
@@ -39,6 +54,9 @@ class ExternalStack(LocalBackup):
 
     def configure_release(self):
         LocalMonitoring.configure_release(self)
+        if self.backend_jar is not None:
+            self.release['local_backend_artifact']={'sha256':digest(self.state/'backend-runtime/app.jar'),
+                'mode':'explicit prebuilt bootJar; production runtime stage; full Docker build remains required in CI'}
         dashboards=self.state/'backup-dashboards';dashboards.mkdir()
         for source,target in [('infra/monitoring/grafana/dashboards/parking.json','parking.json'),('infra/backup/grafana.json','backup.json')]:
             shutil.copy(ROOT/source,dashboards/target)
@@ -174,9 +192,14 @@ def run(stack):
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--backend-jar',type=Path,help='Local only: use an already built/tested bootJar and record its SHA-256; CI builds from source')
+    args=parser.parse_args()
     project='parking-o4-'+uuid.uuid4().hex[:8];state=ROOT/'.local-state'/('external-stack-'+project)
     before=set(subprocess.check_output(['docker','ps','-q'],text=True).split())
     stack=ExternalStack(state);result=None
+    if args.backend_jar is not None:
+        stack.backend_jar=args.backend_jar.resolve(strict=True)
     try:
         stack.prepare(free_port(),free_port(),project,'acceptance-external-stack',grafana_port=free_port())
         result=run(stack)
@@ -195,6 +218,8 @@ def main():
         after=set(subprocess.check_output(['docker','ps','-q'],text=True).split())
         if not before<=after:raise RuntimeError('preexisting_running_containers_changed')
     result['existing_running_containers_preserved']=len(before)
+    result['images']=stack.release['images']
+    result['local_backend_artifact']=stack.release.get('local_backend_artifact')
     (ROOT/'.local-state/external-full-stack-result.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result,indent=2),flush=True)
 

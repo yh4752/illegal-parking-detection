@@ -26,6 +26,7 @@ S3 업로드는 새 객체만 허용하고, 반환된 VersionId로 다시 읽어
 |---|---|---|
 | `UPLOADED_VERIFIED_CIPHERTEXT` | 업로드 버전의 암호문을 다시 읽고 해시 대조 | DB 복원, 개인키 회수, 서버 유실 RTO |
 | `BACKUP_UPLOADED_SOURCE_RESTORE_VERIFIED` | 원본 dump를 새 DB로 복원·비교하고 fence한 후 암호문 업로드 대조 | 외부 서버에서 개인키 회수·복호화·전체 서비스 인수 |
+| `LOCAL_EXTERNAL_FULL_STACK_PASSED` | 같은 Linux CI 안의 제품 20개 테이블·모의 S3·age 복원, O4 잠금/손실 인수·새 revision·SSE/ACK 재개 | 실제 AWS 권한·키 회수·서버용 생성 Compose·전체 호스트 RTO |
 | `LOCAL_EXTERNAL_POSTGRES_ROUNDTRIP_PASSED` | 로컬 모의 S3를 거쳐 회수한 dump의 실제 새 PostgreSQL 복원 | AWS 권한·외부 2시간 RTO·전체 제품 DB 인수 |
 
 [server_backup.py](../tools/production/server_backup.py)는 명시된 `parking-server` 환경에서 web/backend 중지 → backup 계정 dump → 임의 이름의 새 검증 DB 복원/전 테이블 비교 → revision 두 파일 포함 암호화 → 독립 원장 fence → 업로드 대조 → 재시작 요청 순서다. 기존 운영 DB를 DROP하지 않는다. 실패하면 자동 재개하거나 마지막 성공 기록을 갱신하지 않는다. 사용자가 원인을 확인한 뒤 재개한다. 완료 receipt의 `service_readiness_verified=false`를 유지한다. Compose 기동 요청 성공은 실제 로그인·새 사건 처리가 정상이라는 뜻이 아니다.
@@ -57,6 +58,7 @@ docker compose -f .local-state/server-review/compose.json --profile tools config
 
 - 전체 제품 연결 시험은 `tools/production/verify_external_stack.py`로 실행한다. 같은 PC의 별도 환경에서 HTTPS 로그인 → MQTT 사건 저장/ACK → 제품 DB 백업 → 모의 S3 업로드/회수 → 새 DB 복원 → 복구 인수 → 화면/SSE·새 사건 재개를 확인한다. [통합 시험 기록](../validation/external-integration-2026-11-19/README.md)에 실패 원인과 최종 판정을 구분해 보존한다.
 - **DB 백업은 과거의 내용이고 독립 revision은 이미 사용한 번호의 최신 기준이다.** 따라서 오래된 DB와 로컬 revision 두 파일을 함께 되돌려도 최신 외부 원장과 맞지 않으면 시작을 거부해야 한다. 복원 후에는 잠금 상태에서 장치와 대조하고, 백업 이후 손실을 명시적으로 인수한 다음 이전 예약 범위보다 큰 revision으로 재개한다. 저장소가 잠깐 돌아왔다는 이유만으로 차단을 자동 해제하지 않는다.
+- Linux CI에서 전체 제품 연결 시험을 통과했다. 실행 소요 231.968초는 이미 준비된 시험 환경의 정상/복원/장애 시나리오이며 운영 RTO가 아니다. 공유 노트북에서는 요청 시간 초과와 rollback probe 대기를 관측했다. 3초 원장 요청 제한과 실패 시 차단을 완화하지 않았으며 실제 호스트의 왕복 지연·가용성 검증은 남아 있다.
 - Python 단위 시험, 실제 loopback HTTP gateway/SigV4 요청, 별도 PostgreSQL dump·S3 회수·복원, Kotlin 회귀·bootJar, Compose 문법·문서/계약 검사를 실행한다. 정확한 횟수·해시는 실행 근거에 기록한다.
 - 실제 S3 버킷/권한·Versioning/삭제 거부·credential 만료·지역 장애, 공인 TLS 발급/갱신·MQTT 장치, 실제 4GB 서버 부하·원래 서버 없는 자료/키 회수는 미실행이다.
 - DB dump와 외부 키를 독립 환경에서 회수한 뒤에는 O4의 hold → 최신 원장 대조 → 새 DB 복원 → 장치 대조/손실 인수 → 새 revision 재개를 그대로 따른다. 암호문 다운로드만으로 hold를 해제하지 않는다.

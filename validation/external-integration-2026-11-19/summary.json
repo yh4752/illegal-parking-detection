@@ -1,0 +1,26 @@
+{
+  "result": "FULL_PRODUCT_LOCAL_NETWORK_INTEGRATION_PASSED_IN_LINUX_CI",
+  "ci_commit": "454e7184a54379d625f11473bd3f2828763a0c3d",
+  "ci_run": 44477830882,
+  "ci_jobs_passed": 8,
+  "product_tables": 20,
+  "ci_scenario_seconds_not_rto": 231.968,
+  "python_tests": 63,
+  "backend_tests": 172,
+  "shared_laptop_continuous_acceptance": false,
+  "shared_laptop_observed": [
+    "HttpTimeoutException",
+    "gateway head 6.315 seconds",
+    "Docker build 900 seconds timeout",
+    "rollback probe 50 seconds timeout",
+    "Docker simulator 34 seconds timeout after STORED ACK"
+  ],
+  "existing_laptop_running_container_ids_preserved": 30,
+  "temporary_learning_monitoring_pause_restored": true,
+  "external_aws_used": false,
+  "accounts_or_servers_created": false,
+  "purchase": false,
+  "external_deployment": false,
+  "whole_host_rto_verified": false,
+  "generated_production_compose_acceptance": false
+}

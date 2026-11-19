@@ -1,0 +1,12 @@
+{
+  "result": "BACKUP_UPLOADED_SOURCE_RESTORE_VERIFIED",
+  "source_table_count": 20,
+  "bytes": 82233,
+  "source_database_restore_verified": true,
+  "whole_host_recovery_verified": false,
+  "service_readiness_verified": false,
+  "started_at": 1795072819.226882,
+  "completed_at": 1795072857.2741592,
+  "backup_job_seconds": 38.047,
+  "scope": "attempt7 reached backup and downloaded-dump comparison, then rollback startup probe timed out; not full recovery acceptance or RTO"
+}

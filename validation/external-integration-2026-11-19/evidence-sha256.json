@@ -1,0 +1,20 @@
+{
+  "README.md": "4beada10e7ac0acc6fc02c92186f4c9f060524461df48c0ab981b2df3ab87147",
+  "attempt7-backup-partial.json": "6c30af1237381db456b36ccf12a7ef6db105a95cc8e5113f011bc18d4a5cba83",
+  "backend-build.txt": "9577f9564a20bd6b3ef155e725697e9126083c0215c29914e5be3ac7e31a50a5",
+  "backend-check.json": "6f5a49a5c16b13e3dd08b5aa3f74c44e2aa1acf2d666f813b32ad8308ad400f7",
+  "ci-full-stack-log.txt": "c4f089a58eb504b3be9576e2dd2fac5ea897f19d226071acaec1c21dfefda05b",
+  "ci-full-stack.json": "2ddd7c554169b15f837f0eaecbed767aaa5ccaf04166ce6439f71e8c80f601e9",
+  "ci-integrated-head.json": "49eb23ccb3399c7737713771f5e5b86830ea69cbd4f50087a292b08b5de5909c",
+  "ci-postgres-fix.json": "4dc50ec12cf6d87f8232104f6025ec40edf9af5e5d362d05bcad60e42c5579eb",
+  "ci-postgres-fixed-head.json": "0ca5048bbbb53c8656b1344e4dd0e27e6c4ad3f2fffeb6ccf3a480f2acbcfbfd",
+  "dependency-failure-excerpts.txt": "713c56893dcc458aa93dd7428d69c2a161a05c31ad7fc909904dfec81e7bb121",
+  "documentation-checks.json": "c58317126704fb15006c8cfa8a29e907185d71c6d5eaebe62c8a6a5e95e9c0be",
+  "initial-ci-failures.txt": "727df86a0d949dd8cee6a143f66e3c72f141d93026486953a461fe88d9e367fc",
+  "local-failure-excerpts.txt": "ec133e02153017062ff736e8a00bc50f7f5bd0591991e93b02fefc6943b579ae",
+  "monitoring-restored.json": "c75bc919beee8c7c911261d21ca2ad06037f86c02900f128cc53e6c8c2b610b0",
+  "observed-request-timeout.txt": "aeaab3f83339f1b45043d61d13cc659a74a4992166d5531e79f0465b1156a992",
+  "python-tests.txt": "5dcb512a235f5d9897c6534f23ef2dddc631f65f14179961462c5a06d6950be1",
+  "source-sha256.json": "04caa1573e859bb41a4a6bf633b2c966d949e96d89a1c8930b9350003ae4aee9",
+  "summary.json": "5f6146a7ce5d9ddf6390ee6bdb3fa66bf80d952e7baf46f66a0ce3f3d048237d"
+}

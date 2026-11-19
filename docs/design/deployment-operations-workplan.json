@@ -160,7 +160,11 @@
           "guide": "docs/external-storage-preparation.md",
           "evidence": "validation/external-storage-local-2026-11-19/summary.json",
           "aws_acceptance": false,
-          "full_application_recovery_acceptance": false
+          "full_application_recovery_acceptance": false,
+          "full_application_local_integration": true,
+          "integration_environment": "isolated Linux CI with loopback/in-network S3 emulator; shared laptop timeouts recorded separately",
+          "integration_evidence": "validation/external-integration-2026-11-19/ci-full-stack.json",
+          "shared_laptop_continuous_acceptance": false
         }
       },
       "next": "Review actual inputs and release images; separately authorize cloud resources, then verify IAM/TLS/full-host recovery before team access."

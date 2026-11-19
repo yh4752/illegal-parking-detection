@@ -1,0 +1,10 @@
+2026-11-19T07:16:03.5962077Z O4_PHASE normal HTTPS, stored ACK and baseline
+2026-11-19T07:16:10.2950985Z O4_PHASE encrypted backup and real isolated pg_restore comparison
+2026-11-19T07:16:48.3684784Z O4_PHASE already ACKed post-backup loss and rollback detection
+2026-11-19T07:17:33.0787439Z O4_PHASE isolated restore remains closed for API, SSE and MQTT
+2026-11-19T07:18:10.8406278Z O4_PHASE explicit device reconciliation, report-bound acceptance and retry
+2026-11-19T07:19:39.9436331Z O4_PHASE independent store outage fails closed and requires backend restart
+2026-11-19T07:21:03.6290895Z O4_ACCEPTANCE_PASSED
+2026-11-19T07:22:41.9344509Z EXTERNAL_PHASE real server backup and all-product-table verification
+2026-11-19T07:24:27.0883808Z EXTERNAL_PHASE recovery hold, reconciliation and explicit acceptance
+2026-11-19T07:25:44.2489354Z EXTERNAL_PHASE S3 gateway outage fails closed
