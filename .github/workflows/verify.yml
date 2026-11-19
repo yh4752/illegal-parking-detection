@@ -29,8 +29,10 @@ jobs:
       - run: python3 tools/check_structure.py
       - run: python3 tools/build_contracts.py --check
       - run: python3 -m unittest discover -s tools/tests -v
-      - run: pip install -r tools/production/requirements-backup.txt
+      - run: pip install -r tools/production/requirements-external-test.txt
       - run: python3 -m unittest discover -s tools/production -p 'test_*.py' -v
+      - run: python3 tools/production/verify_external_local.py
+      - run: python3 tools/production/verify_external_postgres.py
       - run: npm --prefix tools/docs ci
       - run: npm --prefix tools/docs run build
       - name: Require updated generated documentation
@@ -184,12 +186,16 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with: {persist-credentials: false}
-      - run: pip install -r tools/production/requirements-backup.txt
+      - run: pip install -r tools/production/requirements-external-test.txt
       - run: python3 tools/production/verify_o4.py
+      - name: Full product stack with local S3 adapter and age recovery
+        run: python3 tools/production/verify_external_stack.py
       - name: Restore evidence without credentials or database archives
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: local-backup-evidence
-          path: .local-state/o4-last-result.json
+          path: |
+            .local-state/o4-last-result.json
+            .local-state/external-full-stack-result.json
           retention-days: 7

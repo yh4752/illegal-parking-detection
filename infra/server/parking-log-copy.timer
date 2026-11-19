@@ -1,0 +1,11 @@
+[Unit]
+Description=Copy retained Parking logs every five minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+AccuracySec=1s
+Unit=parking-log-copy.service
+
+[Install]
+WantedBy=timers.target

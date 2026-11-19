@@ -1,0 +1,21 @@
+digraph external_storage {
+  graph [rankdir=LR, bgcolor="white", fontname="Arial", label="External storage implementation — local emulator verified; AWS deployment pending", labelloc=t, pad=0.3];
+  node [shape=box, style="rounded,filled", fillcolor="#eff6ff", color="#94a3b8", fontname="Arial"];
+  edge [fontname="Arial", color="#64748b"];
+  subgraph cluster_server {
+    label="Planned Linux host / private Compose networks"; color="#cbd5e1";
+    backend [label="Spring Boot\nNo AWS credentials"];
+    gateway [label="Revision gateway\nStore ID / monotonic CAS"];
+    db [label="PostgreSQL\nNo public port"];
+    backup [label="Quiesce → dump → isolated restore\nAge encrypt → upload/read-back"];
+    backend -> gateway [label="Private HTTP + bearer"];
+    backend -> db;
+    db -> backup [label="Snapshot"];
+  }
+  ledger [label="Backup account: S3 revision\nVersioning / conditional head", fillcolor="#fff7ed"];
+  archives [label="Backup account: S3 archives\nDaily / protected / evidence / logs", fillcolor="#fff7ed"];
+  keys [label="Owner vault / independent recovery copy\nAge identity — not ordinary runtime", fillcolor="#f0fdf4"];
+  gateway -> ledger [label="TLS + SigV4 / If-Match", style=dashed];
+  backup -> archives [label="TLS + SigV4 / create-only", style=dashed];
+  keys -> backup [label="Public recipient only", style=dashed];
+}

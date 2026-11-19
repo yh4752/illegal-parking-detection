@@ -1,5 +1,7 @@
 # 문서 사용·수정
 
+외부 저장과 배포 준비의 최신 구현은 [설명·실행 범위](external-storage-preparation.md), 선택 근거는 [ADR-012](adr/012-external-storage.md), 실제 로컬 시험은 [검증 기록](../validation/external-storage-local-2026-11-19/README.md)에서 확인한다.
+
 프로젝트 이름은 **엣지 AI 기반 불법주정차 감지·안내 시스템**, 저장소 이름은 `illegal-parking-detection`입니다. 목적과 현재 구현 상태는 [프로젝트 README](../README.md), 이름 변경과 기존 기록의 보존 기준은 [ADR-011](adr/011-project-identity.md)을 확인합니다.
 
 ## 읽는 순서

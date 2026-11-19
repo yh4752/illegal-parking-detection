@@ -35,6 +35,15 @@ def startup_rejected(stack, database, marker):
         wait('unsafe backend startup refused', lambda: stack.run('docker', 'inspect', '--format', '{{.State.Status}}', name).strip() == 'exited', 50)
         logs = stack.run('docker', 'logs', name)
         assert marker in logs and 'EVENT_INGEST_READY' not in logs, stack.redact(logs[-1500:])
+    except Exception:
+        # Preserve why startup did not fail as expected before removing this probe.
+        try:
+            detail = stack.redact(stack.run('docker', 'logs', name))
+            (stack.state / 'rollback-probe-failure.txt').write_text(detail)
+            print(detail[-6000:], flush=True)
+        except Exception:
+            print('ROLLBACK_PROBE_DIAGNOSTICS_UNAVAILABLE', flush=True)
+        raise
     finally:
         stack.run('docker', 'rm', '-f', name)
 

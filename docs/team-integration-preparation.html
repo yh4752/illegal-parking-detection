@@ -10,6 +10,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <header><div class="eyebrow">CAPSTONE / ILLEGAL PARKING DETECTION</div><h1>엣지 AI 기반<br>불법주정차 감지·안내 시스템</h1><p>보드는 판단·안내하고, 서버는 기록하고 연결합니다.</p><span class="badge">제품 기준 v1.43 · 구현 현황은 현재 상태 참조</span></header>
 <nav aria-label="문서 메뉴"><a href="index.html">팀 요약</a><a href="backend.html">서버 구조</a><a href="public-demo.html">웹 인계 계획</a><a href="status.html">현재 상태</a><a href="review.html">기존 검토</a><button type="button" id="print">인쇄</button></nav>
 <main><aside class="intro"><p><strong>목적·역할은 팀 요약, 완료 범위는 현재 상태에서 확인하세요.</strong></p><p>가상 장치의 사건 수신·저장·ACK와 로그인·실시간 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 AI 보드·LED/스피커·실차 시험과 공개 배포는 남아 있습니다. 그림은 목표 구조이며 과거 검증 기록은 당시 조건을 따릅니다.</p></aside><article class="page"><h1>팀 통합용 조기 배포 준비</h1>
+<p><strong>2026-11-19 구현 업데이트:</strong> S3 revision gateway, age 암호화·버전 지정 백업/회수, DB 백업·로그 복사 작업, 서버용 Compose·권한 정책 생성기를 로컬에서 구현·검증했다. 실제 AWS 권한·공인 인증서·전체 서버 유실 복구는 아직 검증하지 않았다. <a href="external-storage-preparation.html">외부 저장·서버 준비 안내</a>를 최신 구현 기준으로 읽는다.</p>
 <p>2026-11-18 · 총 예산 목표 50,000원 · 실제 자원 생성·구매·외부 배포 미승인/미실행</p>
 <p>서로 다른 장소의 보드 담당자와 같은 서버에서 통합하기 위해 발표 직전 일주일 운영안에서 조기 배포 방향으로 바꿨다. 12월 11일 발표까지 사용하되 생성·종료 시각은 아직 확정하지 않았다. Lightsail 4GB는 사전 자원 시험과 실제 서버 인수 조건부다. AI 추론은 현장 보드에서 수행하며 이 서버의 GPU 추론 비용을 포함하지 않는다.</p>
 <h2>비용과 실행 경계</h2>
@@ -78,11 +79,11 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <tr>
 <td>공개 포트</td>
 <td>로컬 Compose는 HTTPS·Grafana를 loopback으로 제한, MQTT host 포트 없음</td>
-<td>팀 통합용 443/8883 접근 경계·SSH 관리자 범위를 정해 별도 운영 오버레이 구성. DB·관리 포트 비공개 유지</td>
+<td>별도 서버 생성기는 기본 loopback·명시 공개 80/443/8883 지원. 실제 방화벽·SSH 관리자 범위 검증 필요</td>
 </tr>
 <tr>
 <td>TLS</td>
-<td>로컬 CA와 localhost/mosquitto 이름으로 검증</td>
+<td>로컬 CA 시험 + 공인 도메인 SAN/키/체인 staging 도구 검증</td>
 <td>도메인 인증서 발급·갱신·권한·Nginx/MQTT 재적용 시험</td>
 </tr>
 <tr>
@@ -92,13 +93,13 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 </tr>
 <tr>
 <td>revision</td>
-<td>외부 계약 시험용 LOCAL_ONLY HTTP/SQLite 참조 서비스</td>
+<td>기존 LOCAL_ONLY 보존 + AWS_S3 gateway의 모의 저장소·HTTP 로컬 검증</td>
 <td>실제 S3 인증/TLS·조건부 생성/갱신·응답 유실·단조 증가·삭제 거부 시험. URL만 바꿔 배포 금지</td>
 </tr>
 <tr>
 <td>백업</td>
 <td>O4 <code>backup()</code>은 web/backend/simulator 중지 후 dump·암호화·격리 복원 비교·fence·재기동</td>
-<td>초기 팀 통합은 새벽 03:00 KST 중단형 백업을 권장하며, 발표·집중 통합 중에는 실행하지 않는 운영안을 검토한다. DB·revision·outbox 정합성 확보가 이유다. 연속 수신이 필요해지면 온라인 백업 정합성을 따로 설계한다. 외부 업로드·보존·실패 알림·회수 시험은 별도</td>
+<td>초기 팀 통합은 새벽 03:00 KST 중단형 백업을 권장하며, 발표·집중 통합 중에는 실행하지 않는 운영안을 검토한다. DB·revision·outbox 정합성 확보가 이유다. 연속 수신이 필요해지면 온라인 백업 정합성을 따로 설계한다. 외부 전송·새 DB 회수 복원은 로컬 모의 S3로 검증했다. 실제 IAM·예약 작업 설치·보존 삭제·키 회수·전체 서비스 검증은 남음</td>
 </tr>
 <tr>
 <td>관측</td>
@@ -111,7 +112,7 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <td>새 운영 증거의 독립 사본 검증, 비밀값 가림, 반납 전 회수</td>
 </tr>
 </tbody></table></div>
-<p>이 표의 미구현 사항은 실제 외부 배포를 막는 조건이다. 사전 메모리 시험 통과로 O5 또는 이슈 #6의 F2~F6을 완료 처리하지 않는다.</p>
+<p>이 표의 외부 미검증 사항은 팀 공개 전 확인할 조건이다. 사전 메모리 시험 통과로 O5 또는 이슈 #6의 F2~F6을 완료 처리하지 않는다.</p>
 <h2>실제 연결 확인 순서</h2>
 <ol>
 <li>기존 계약의 가상 사건 1건을 고정한 뒤 보드 담당자의 출력과 매핑한다.</li>
@@ -121,6 +122,6 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <li>연결 단절·재접속·중복 전송·오래된 순번을 시험하고 잘못된 상태 덮어쓰기가 없는지 확인한다.</li>
 <li>백업 중 실제 접속 상태, 재개 후 pending 해소, 외부 사본 복원 결과를 확인한다.</li>
 </ol>
-<p>현재 작업은 30분 연속 로컬 시나리오와 준비 문서까지다. 앞선 두 번의 절전 기록을 보존했고 사용자 재개 후 새 실행을 완료했다. 실제 4GB 호스트·외부 인수는 미완료다. 사용할 AWS 계정·지역·정확한 실행 시각·결제 수단·실제 서버 생성은 아직 확정하거나 실행하지 않았다.</p>
+<p>현재 작업은 30분 연속 로컬 시나리오와 외부 저장·서버 준비 코드의 로컬 검증까지다. 앞선 두 번의 절전 기록을 보존했고 사용자 재개 후 새 실행을 완료했다. 실제 4GB 호스트·외부 인수는 미완료다. 사용할 AWS 계정·지역·정확한 실행 시각·결제 수단·실제 서버 생성은 아직 확정하거나 실행하지 않았다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>

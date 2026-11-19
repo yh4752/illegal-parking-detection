@@ -1,0 +1,12 @@
+groups:
+  - name: external-backup
+    rules:
+      - alert: ParkingExternalBackupMissing
+        expr: parking_backup_external_source_restore_valid{job="parking"} == 0
+        for: 1m
+        labels: {severity: warning}
+        annotations: {summary: 'No valid external upload plus source-dump restore report; not whole-host recovery'}
+      - alert: ParkingExternalBackupTooOld
+        expr: (time() - parking_backup_external_upload_timestamp_seconds{job="parking"} > 86400) and parking_backup_external_source_restore_valid{job="parking"} == 1
+        labels: {severity: warning}
+        annotations: {summary: 'External DB backup report exceeds 24 hours'}

@@ -1,0 +1,31 @@
+{
+  "result": "LOCAL_EXTERNAL_FULL_STACK_PASSED",
+  "tables": 20,
+  "baseline_events": 1,
+  "post_backup_acked_events_missing_in_snapshot": 1,
+  "source_database_preserved": true,
+  "external_source_restore_gauge": 1,
+  "local_backup_valid_gauge": 0,
+  "checks": [
+    "HTTPS login",
+    "real MQTT stored ACK",
+    "production server_backup orchestration",
+    "all-product-table dump restore equality",
+    "age and version-pinned S3 recovery",
+    "DB rollback refused",
+    "DB and revision pair rollback refused",
+    "API/SSE/ingest held",
+    "device reconcile and explicit loss acceptance",
+    "new revision and SSE/ACK recovery",
+    "S3 gateway outage latches closed"
+  ],
+  "seconds": 231.968,
+  "external_aws_used": false,
+  "whole_host_rto_verified": false,
+  "scope": "real product services; test-only loopback S3 injection; not generated production Compose or AWS IAM/TLS acceptance",
+  "existing_running_containers_preserved": 0,
+  "environment": "GitHub Actions ubuntu-24.04; all services and emulator on the same ephemeral runner",
+  "commit": "454e7184a54379d625f11473bd3f2828763a0c3d",
+  "run": 44477830882,
+  "job": 135402555381
+}

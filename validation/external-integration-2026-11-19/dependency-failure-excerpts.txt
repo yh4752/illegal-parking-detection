@@ -1,0 +1,41 @@
+O2 subsequent dependency fetch failure
+2026-11-19T06:33:20.5269545Z #17 17.37 > Could not resolve all artifacts for configuration 'classpath'.
+2026-11-19T06:33:20.5270010Z #17 17.37    > Could not resolve org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21.
+2026-11-19T06:33:20.5271573Z #17 17.37       > Could not resolve org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21.
+2026-11-19T06:33:20.5272279Z #17 17.37          > Could not parse POM https://plugins.gradle.org/m2/org/jetbrains/kotlin/kotlin-gradle-plugin/2.1.21/kotlin-gradle-plugin-2.1.21.pom
+2026-11-19T06:33:20.5273094Z #17 17.37             > Could not find org.jetbrains.kotlin:kotlin-gradle-plugins-bom:2.1.21.
+2026-11-19T06:33:20.5273512Z #17 17.37               Searched in the following locations:
+2026-11-19T06:33:20.5274196Z #17 17.37                 - https://plugins.gradle.org/m2/org/jetbrains/kotlin/kotlin-gradle-plugins-bom/2.1.21/kotlin-gradle-plugins-bom-2.1.21.pom
+2026-11-19T06:33:20.5274932Z #17 17.37    > Could not find org.springframework.boot:spring-boot-buildpack-platform:3.5.16.
+2026-11-19T06:33:20.5275395Z #17 17.37      Searched in the following locations:
+2026-11-19T06:33:20.5276064Z #17 17.37        - https://plugins.gradle.org/m2/org/springframework/boot/spring-boot-buildpack-platform/3.5.16/spring-boot-buildpack-platform-3.5.16.pom
+2026-11-19T06:33:20.5278613Z #17 17.37    > Could not find org.springframework.boot:spring-boot-loader-tools:3.5.16.
+2026-11-19T06:33:20.5279049Z #17 17.37      Searched in the following locations:
+2026-11-19T06:33:20.5279678Z #17 17.37        - https://plugins.gradle.org/m2/org/springframework/boot/spring-boot-loader-tools/3.5.16/spring-boot-loader-tools-3.5.16.pom
+2026-11-19T06:33:20.5281582Z #17 17.37    > Could not find org.apache.commons:commons-compress:1.27.1.
+2026-11-19T06:33:20.5281980Z #17 17.37      Searched in the following locations:
+2026-11-19T06:33:20.5282692Z #17 17.37        - https://plugins.gradle.org/m2/org/apache/commons/commons-compress/1.27.1/commons-compress-1.27.1.pom
+2026-11-19T06:33:20.5284592Z #17 17.37    > Could not find org.springframework:spring-core:6.2.19.
+2026-11-19T06:33:20.5284979Z #17 17.37      Searched in the following locations:
+2026-11-19T06:33:20.5285504Z #17 17.37        - https://plugins.gradle.org/m2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.pom
+
+O4 subsequent dependency fetch failure
+2026-11-19T06:29:09.8035431Z #17 17.44 > Could not resolve all artifacts for configuration 'classpath'.
+2026-11-19T06:29:09.8035839Z #17 17.44    > Could not resolve org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21.
+2026-11-19T06:29:09.8037218Z #17 17.44       > Could not resolve org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21.
+2026-11-19T06:29:09.8037823Z #17 17.44          > Could not parse POM https://plugins.gradle.org/m2/org/jetbrains/kotlin/kotlin-gradle-plugin/2.1.21/kotlin-gradle-plugin-2.1.21.pom
+2026-11-19T06:29:09.8038462Z #17 17.44             > Could not find org.jetbrains.kotlin:kotlin-gradle-plugins-bom:2.1.21.
+2026-11-19T06:29:09.8038855Z #17 17.45               Searched in the following locations:
+2026-11-19T06:29:09.8039389Z #17 17.45                 - https://plugins.gradle.org/m2/org/jetbrains/kotlin/kotlin-gradle-plugins-bom/2.1.21/kotlin-gradle-plugins-bom-2.1.21.pom
+2026-11-19T06:29:09.8040084Z #17 17.45    > Could not find org.springframework.boot:spring-boot-buildpack-platform:3.5.16.
+2026-11-19T06:29:09.8040566Z #17 17.45      Searched in the following locations:
+2026-11-19T06:29:09.8041128Z #17 17.45        - https://plugins.gradle.org/m2/org/springframework/boot/spring-boot-buildpack-platform/3.5.16/spring-boot-buildpack-platform-3.5.16.pom
+2026-11-19T06:29:09.8042879Z #17 17.45    > Could not find org.springframework.boot:spring-boot-loader-tools:3.5.16.
+2026-11-19T06:29:09.8043306Z #17 17.45      Searched in the following locations:
+2026-11-19T06:29:09.8043827Z #17 17.45        - https://plugins.gradle.org/m2/org/springframework/boot/spring-boot-loader-tools/3.5.16/spring-boot-loader-tools-3.5.16.pom
+2026-11-19T06:29:09.8045463Z #17 17.45    > Could not find org.apache.commons:commons-compress:1.27.1.
+2026-11-19T06:29:09.8045817Z #17 17.45      Searched in the following locations:
+2026-11-19T06:29:09.8046284Z #17 17.45        - https://plugins.gradle.org/m2/org/apache/commons/commons-compress/1.27.1/commons-compress-1.27.1.pom
+2026-11-19T06:29:09.8047934Z #17 17.45    > Could not find org.springframework:spring-core:6.2.19.
+2026-11-19T06:29:09.8048248Z #17 17.45      Searched in the following locations:
+2026-11-19T06:29:09.8048743Z #17 17.45        - https://plugins.gradle.org/m2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.pom

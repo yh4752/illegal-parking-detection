@@ -1,0 +1,9 @@
+{
+  "containers": [
+    "parking-monitoring-grafana-1",
+    "parking-monitoring-prometheus-1"
+  ],
+  "temporary_pause_only": true,
+  "same_container_ids_running_and_unpaused_after": true,
+  "integration_exit_code": 1
+}

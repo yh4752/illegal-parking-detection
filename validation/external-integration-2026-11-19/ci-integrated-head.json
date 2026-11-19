@@ -1,0 +1,55 @@
+{
+  "commit": "454e7184a54379d625f11473bd3f2828763a0c3d",
+  "run": 44477830882,
+  "result": "8 jobs passed",
+  "jobs": [
+    {
+      "id": 135402555011,
+      "name": "Documents and local configuration",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135402555318,
+      "name": "Local metrics, actual faults, alerts and Grafana browser",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135402555327,
+      "name": "Backend tests, PostgreSQL migration and build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135402555381,
+      "name": "Local encrypted backup, independent revision and restore acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135402555418,
+      "name": "Local HTTPS, Nginx recovery and real browser",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135402555439,
+      "name": "Fresh clone Docker and real browser handoff",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135402555456,
+      "name": "Production TLS, ACL and DB role isolation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135402555469,
+      "name": "Frontend contract, unit tests and build",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

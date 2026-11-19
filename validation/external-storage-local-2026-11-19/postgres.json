@@ -1,0 +1,14 @@
+{
+  "result": "LOCAL_EXTERNAL_POSTGRES_ROUNDTRIP_PASSED",
+  "rows": 147,
+  "tables": 1,
+  "fixture": "sample_event, not the complete application database",
+  "dump_bytes": 2387,
+  "encrypted_bytes": 10513,
+  "source_unchanged": true,
+  "source_and_downloaded_dump_restores_verified": true,
+  "external_aws_used": false,
+  "whole_host_rto_verified": false,
+  "existing_running_containers_preserved": 30,
+  "seconds": 3.975
+}

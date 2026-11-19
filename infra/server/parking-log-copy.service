@@ -1,0 +1,16 @@
+[Unit]
+Description=Parking incremental encrypted S3 log copy (explicit installation required)
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Provision this UID and Docker access explicitly; Docker access is host-administrator privilege.
+User=10001
+Group=10001
+SupplementaryGroups=docker
+UMask=0077
+EnvironmentFile=/opt/parking/backup.env
+ExecStart=/opt/parking/venv/bin/python /opt/parking/repository/tools/production/server_logs.py --release /opt/parking/release --config /opt/parking/release/backup-s3.json --credentials-file /opt/parking/private/backup-aws-credentials --state /opt/parking/state/log-status --recipient-file /opt/parking/private/backup-recipient --key-ref ${PARKING_BACKUP_KEY_REF} --confirm-project parking-server
+TimeoutStartSec=4min
+NoNewPrivileges=true

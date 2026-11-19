@@ -1,7 +1,7 @@
 {
   "plan_id": "deployment-operations-1",
-  "updated_at": "2026-11-18",
-  "status": "O5_PREPARATION_DOCUMENTED_NOT_DEPLOYED",
+  "updated_at": "2026-11-19",
+  "status": "O5_EXTERNAL_PREPARATION_IMPLEMENTED_LOCALLY_NOT_DEPLOYED",
   "baseline_commit": "03b6dd51c0524750e02353be45ee14b62ed02ad5",
   "product_design": "v1.43",
   "read_first": [
@@ -16,7 +16,8 @@
     "docs/local-backup.md",
     "docs/deployment-readiness.md",
     "docs/preflight-4gb.md",
-    "docs/team-integration-preparation.md"
+    "docs/team-integration-preparation.md",
+    "docs/external-storage-preparation.md"
   ],
   "stages": [
     {
@@ -112,7 +113,7 @@
     {
       "id": "O5",
       "name": "실제 외부 공개·인수",
-      "status": "preparation_partially_decided",
+      "status": "external_preparation_implemented_locally",
       "depends_on": [
         "O2",
         "O3",
@@ -120,8 +121,8 @@
       ],
       "deliverables": [
         "서버·예산·도메인·저장소·키 보관 추천과 비밀값 없는 입력표 (문서 작성 완료)",
-        "외부 S3 revision 어댑터·권한·CAS/최신성 검증 (미구현)",
-        "운영 백업 주기·보존·외부 복사·키 회수와 호스트 유실 복원 (미구현/미검증)",
+        "S3 revision gateway·조건부 쓰기·최신성·저장 유형 로컬 검증 완료; 실제 AWS 권한 인수 미완료",
+        "age 백업/회수·DB 백업·로그 복사·timer 예시 구현; 자동 보존 삭제·실제 독립 키/호스트 복구 미완료",
         "실제 도메인·공개 인증서·서버 배포",
         "팀원 웹 계정 전달",
         "외부 PC 인수 증거"
@@ -136,7 +137,7 @@
       ],
       "external_acceptance_status": "not_started",
       "preparation": {
-        "status": "documented",
+        "status": "implemented_and_verified_locally",
         "guide": "docs/deployment-readiness.md",
         "budget": "infra/deploy/budget.example.json",
         "evidence": "validation/deployment-readiness-2026-11-16.json",
@@ -154,14 +155,24 @@
           "evidence": "validation/preflight-4gb-continuous-2026-11-18/summary.json",
           "continuous_30_minute_test_accepted": true,
           "actual_4gb_host_accepted": false
+        },
+        "external_storage_local": {
+          "guide": "docs/external-storage-preparation.md",
+          "evidence": "validation/external-storage-local-2026-11-19/summary.json",
+          "aws_acceptance": false,
+          "full_application_recovery_acceptance": false,
+          "full_application_local_integration": true,
+          "integration_environment": "isolated Linux CI with loopback/in-network S3 emulator; shared laptop timeouts recorded separately",
+          "integration_evidence": "validation/external-integration-2026-11-19/ci-full-stack.json",
+          "shared_laptop_continuous_acceptance": false
         }
       },
-      "next": "External revision/backup/certificate/device connection implementation, then separately authorized actual-host acceptance; no provisioning performed."
+      "next": "Review actual inputs and release images; separately authorize cloud resources, then verify IAM/TLS/full-host recovery before team access."
     }
   ],
   "followup": {
     "issue": "https://github.com/yh4752/illegal-parking-detection/issues/6",
-    "status": "open_f1_partially_decided",
+    "status": "open_f1_partial_f2_f3_f4_local_implementation_external_acceptance_pending",
     "steps": [
       "F1 resource, cost, ownership and recovery decisions",
       "F2 external revision adapter and permission acceptance",
@@ -182,7 +193,7 @@
   ],
   "limits": [
     "single backend; no rolling overlap",
-    "team integration plans restricted public MQTT TLS; not configured or deployed",
+    "server generator configures device ACL and opt-in public MQTT TLS; not externally deployed",
     "no cloud resource purchase or publication performed",
     "O1-O4 accepted locally; off-host storage/key recovery, public certificates and external deployment remain pending",
     "Production sizing, retention, RPO/RTO remain targets; O4 drill and continuous2026-11-18 container-budget observations do not establish actual4GB host acceptance"
@@ -195,7 +206,7 @@
   ],
   "recovery_policy": {
     "approved_at": "2026-11-17",
-    "status": "approved_targets_not_implemented_or_accepted_externally",
+    "status": "approved_targets_local_implementation_not_accepted_externally",
     "guide": "docs/backup-recovery-policy.md",
     "data_priority": {
       "virtual_events": "regenerable",

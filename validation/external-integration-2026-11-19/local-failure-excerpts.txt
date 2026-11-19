@@ -1,0 +1,25 @@
+ATTEMPT 2 (failure, not acceptance)
+ Network parking-o4-3dbc7a82_ledger Error Error response from daemon: all predefined address pools have been fully subnetted
+ network:ledger failed to create network parking-o4-3dbc7a82_ledger: Error response from daemon: all predefined address pools have been fully subnetted
+failed to create network parking-o4-3dbc7a82_ledger: Error response from daemon: all predefined address pools have been fully subnetted
+ATTEMPT 3 (failure, not acceptance)
+AssertionError
+ATTEMPT 4 (failure, not acceptance)
+EXTERNAL_PHASE real server backup and all-product-table verification
+botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://127.0.0.1:61441/parking-test-backup?versioning"
+ATTEMPT 5 (failure, not acceptance)
+backend-1  | java.lang.IllegalStateException: revision_gate_closed
+revision-ledger-1  | {"test_ledger_slow_seconds": 1.076}
+AssertionError
+ATTEMPT 6 (build timeout; no full-stack acceptance)
+subprocess.TimeoutExpired: Command '['docker', 'build', '--progress=plain', '-t', 'parking-https-backend:parking-o4-970fae09', '-f', 'backend/Dockerfile', '.']' timed out after 900 seconds
+ATTEMPT 7 (partial backup success, not full acceptance)
+AssertionError: timeout:unsafe backend startup refused
+ATTEMPT 8 (rollback refusals and hold passed; restart failed before acceptance)
+RuntimeError: HTTPS_NOT_READY; run local_https.py logs
+revision-ledger-1  | {"test_ledger_slow_seconds": 6.315}
+2026-11-19T07:33:22.995Z  WARN 1 --- [parking-backend] [readiness-probe] k.a.s.p.d.adapter.jdbc.RevisionLedger    : REVISION_LEDGER_REQUEST_FAILED type=HttpTimeoutException
+ATTEMPT 9 (two learning monitoring containers temporarily paused, then restored)
+backend-1  | 2026-11-19T07:43:46.456Z  WARN 1 --- [parking-backend] [   scheduling-1] k.a.s.p.d.adapter.jdbc.RevisionLedger    : REVISION_LEDGER_REQUEST_FAILED type=HttpTimeoutException
+RuntimeError: Command timed out after 34s: docker
+{"kind": "APPLICATION_ACK", "message_id": "demo-c0594a2a2ffd4600883b409a679f18d0", "status": "STORED", "event_id": "demo-16994c134858"}

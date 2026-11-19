@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Parking DB backup at 03:00 Korea time
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 Asia/Seoul
+# Do not unexpectedly stop the app on boot to catch up a missed timer.
+Persistent=false
+Unit=parking-backup.service
+
+[Install]
+WantedBy=timers.target

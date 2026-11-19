@@ -1,0 +1,26 @@
+{
+  "original_run": 44437068782,
+  "original_job": 135268496396,
+  "observed_failure": "PostgreSQL TCP readiness never completed after 60 seconds",
+  "reproduced": "postgres user cannot read a root-owned directory 0700 and file 0600 inside a Linux container",
+  "fix": "Private host parent retained; individual read-only password files with 0444 mode instead of mounting the whole 0700 directory",
+  "local_verification": {
+    "result": "LOCAL_EXTERNAL_POSTGRES_ROUNDTRIP_PASSED",
+    "rows": 147,
+    "tables": 1,
+    "fixture": "sample_event, not the complete application database",
+    "dump_bytes": 2387,
+    "encrypted_bytes": 10524,
+    "source_unchanged": true,
+    "source_and_downloaded_dump_restores_verified": true,
+    "external_aws_used": false,
+    "whole_host_rto_verified": false,
+    "existing_running_containers_preserved": 30,
+    "seconds": 7.238
+  },
+  "linux_ci_verification": {
+    "run": 44472397198,
+    "job": 135384782899,
+    "result": "success"
+  }
+}

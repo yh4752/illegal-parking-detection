@@ -1,5 +1,7 @@
 # O4 로컬 백업·복원
 
+**2026-11-19:** 기존 LOCAL_ONLY SQLite/Fernet 검증 경로는 보존한다. 별도 [S3 gateway](../external-storage/README.md)와 [age 외부 백업 경로](../../docs/external-storage-preparation.md)를 추가했다. 기존 키/자료는 변환·삭제하지 않으며 실제 AWS 인수는 남아 있다.
+
 먼저 [설명과 실습](../../docs/local-backup.md)을 읽는다. `tools/production/local_backup.py`가 O2·O3 Compose 위에 이 overlay를 적용한다. `verify_o4.py`는 별도 환경에서 실제 복원·차단·인수·재전송을 검증한다.
 
 - `ledger.py`: 내부 전용 HTTP API, 명시 초기화, SQLite 버전/CAS 기록. GET head와 POST versions만 허용하며 삭제 API는 없다. 실제 공급자 어댑터가 아니다.
