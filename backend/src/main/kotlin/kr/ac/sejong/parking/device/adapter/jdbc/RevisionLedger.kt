@@ -3,6 +3,7 @@ package kr.ac.sejong.parking.device.adapter.jdbc
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.springframework.core.env.Environment
+import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -17,6 +18,7 @@ data class RevisionHead(val version: Long, val sha256: String, val document: Obj
 class RevisionLedger(private val url: URI, private val storeId: String, tokenFile: Path, private val mapper: ObjectMapper, private val storage: String = "LOCAL_ONLY") {
     private val token = Files.readString(tokenFile).trim().also { require(it.matches(Regex("[A-Za-z0-9_-]{32,128}"))) }
     private val client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build()
+    private val logger = LoggerFactory.getLogger(RevisionLedger::class.java)
 
     init {
         require(url.scheme == "http" && url.host in setOf("revision-ledger", "127.0.0.1", "localhost") &&
@@ -58,8 +60,9 @@ class RevisionLedger(private val url: URI, private val storeId: String, tokenFil
             return RevisionHead(json["version"].longValue(), json["sha256"].asText(), json["document"] as ObjectNode)
         } catch (error: InterruptedException) {
             Thread.currentThread().interrupt(); throw IllegalStateException("revision_ledger_unavailable")
-        } catch (_: Exception) {
+        } catch (error: Exception) {
             // Never emit credentials, remote bodies or user-controlled document contents.
+            logger.warn("REVISION_LEDGER_REQUEST_FAILED type={}", error.javaClass.simpleName)
             throw IllegalStateException("revision_ledger_unavailable_or_invalid")
         }
     }

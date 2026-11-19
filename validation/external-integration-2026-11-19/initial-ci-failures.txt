@@ -1,0 +1,44 @@
+# Initial PR #12 CI failure excerpts
+
+Run: https://github.com/yh4752/illegal-parking-detection/actions/runs/44437068782
+Commit: ad1898f0438c4ba4fc659beb419ad7f4dba2e9dd
+Excerpts retain failure lines only; repository runner path shortened.
+
+Job 135268496396
+2026-11-19T01:27:47.0242931Z 24.04.5
+2026-11-19T01:27:51.8142913Z   Downloading pyrage-1.4.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.3 kB)
+2026-11-19T01:28:14.6364292Z test_authenticated_head_has_canonical_hash_and_no_cache (test_revision_ledger.RevisionLedgerTest.test_authenticated_head_has_canonical_hash_and_no_cache) ... ok
+2026-11-19T01:29:26.3971396Z Traceback (most recent call last):
+2026-11-19T01:29:26.3980815Z     db.command('exec','-T','postgres','pg_isready','-h','127.0.0.1','-U','postgres','-d','parking_handoff')
+2026-11-19T01:29:26.3985981Z     if result.returncode: raise RuntimeError('server_backup_command_failed')
+2026-11-19T01:29:26.3988455Z RuntimeError: server_backup_command_failed
+2026-11-19T01:29:26.4656447Z ##[error]Process completed with exit code 1.
+
+Job 135268496584
+2026-11-19T01:28:53.4295049Z mosquitto-1  | 1795051690: Warning: File /mosquitto/config/acl has world readable permissions. Future versions will refuse to load this file.
+2026-11-19T01:28:53.4295848Z mosquitto-1  | To fix this, use `chmod 0700 /mosquitto/config/acl`.
+2026-11-19T01:28:53.4296788Z mosquitto-1  | 1795051690: Warning: File /mosquitto/config/acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/acl`.
+2026-11-19T01:28:53.4297935Z mosquitto-1  | 1795051690: Warning: File /mosquitto/config/acl group is not mosquitto. Future versions will refuse to load this file.
+2026-11-19T01:28:53.4298704Z mosquitto-1  | 1795051690: Opening ipv4 listen socket on port 8883.
+2026-11-19T01:28:53.4299291Z mosquitto-1  | 1795051690: Opening ipv6 listen socket on port 8883.
+2026-11-19T01:28:53.4299801Z mosquitto-1  | 1795051690: mosquitto version 2.0.22 running
+2026-11-19T01:28:53.9318085Z Traceback (most recent call last):
+2026-11-19T01:28:53.9325127Z RuntimeError: Command failed: docker
+2026-11-19T01:28:53.9330523Z #25 32.62                      > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugins-bom/2.1.21/kotlin-gradle-plugins-bom-2.1.21.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:53.9334924Z #25 32.62             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-buildpack-platform/3.5.16/spring-boot-buildpack-platform-3.5.16.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:53.9339027Z #25 32.62             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-loader-tools/3.5.16/spring-boot-loader-tools-3.5.16.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:53.9342682Z #25 32.62             > Could not GET 'https://repo.maven.apache.org/maven2/org/apache/commons/commons-compress/1.27.1/commons-compress-1.27.1.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:53.9346860Z #25 32.62             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:53.9352879Z 32.62             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:53.9478013Z ##[error]Process completed with exit code 1.
+
+Job 135268496638
+2026-11-19T01:27:53.0642958Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-19T01:27:57.8429243Z ##[endgroup]
+2026-11-19T01:28:46.2140338Z #35 35.79                      > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugins-bom/2.1.21/kotlin-gradle-plugins-bom-2.1.21.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:46.2147354Z #35 35.79             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-buildpack-platform/3.5.16/spring-boot-buildpack-platform-3.5.16.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:46.2153256Z #35 35.79             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-loader-tools/3.5.16/spring-boot-loader-tools-3.5.16.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:46.2159066Z #35 35.79             > Could not GET 'https://repo.maven.apache.org/maven2/org/apache/commons/commons-compress/1.27.1/commons-compress-1.27.1.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:46.2165873Z #35 35.79             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:46.2268929Z 35.79             > Could not GET 'https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.19/spring-core-6.2.19.pom'. Received status code 429 from server: Too Many Requests
+2026-11-19T01:28:46.2460889Z ##[error]Process completed with exit code 1.

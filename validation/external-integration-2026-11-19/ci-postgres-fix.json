@@ -18,5 +18,9 @@
     "existing_running_containers_preserved": 30,
     "seconds": 7.238
   },
-  "linux_ci_verification": "pending"
+  "linux_ci_verification": {
+    "run": 44472397198,
+    "job": 135384782899,
+    "result": "success"
+  }
 }

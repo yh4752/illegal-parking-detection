@@ -55,6 +55,8 @@ docker compose -f .local-state/server-review/compose.json --profile tools config
 
 ## 4. 이번 확인과 다음 작업
 
+- 전체 제품 연결 시험은 `tools/production/verify_external_stack.py`로 실행한다. 같은 PC의 별도 환경에서 HTTPS 로그인 → MQTT 사건 저장/ACK → 제품 DB 백업 → 모의 S3 업로드/회수 → 새 DB 복원 → 복구 인수 → 화면/SSE·새 사건 재개를 확인한다. [통합 시험 기록](../validation/external-integration-2026-11-19/README.md)에 실패 원인과 최종 판정을 구분해 보존한다.
+- **DB 백업은 과거의 내용이고 독립 revision은 이미 사용한 번호의 최신 기준이다.** 따라서 오래된 DB와 로컬 revision 두 파일을 함께 되돌려도 최신 외부 원장과 맞지 않으면 시작을 거부해야 한다. 복원 후에는 잠금 상태에서 장치와 대조하고, 백업 이후 손실을 명시적으로 인수한 다음 이전 예약 범위보다 큰 revision으로 재개한다. 저장소가 잠깐 돌아왔다는 이유만으로 차단을 자동 해제하지 않는다.
 - Python 단위 시험, 실제 loopback HTTP gateway/SigV4 요청, 별도 PostgreSQL dump·S3 회수·복원, Kotlin 회귀·bootJar, Compose 문법·문서/계약 검사를 실행한다. 정확한 횟수·해시는 실행 근거에 기록한다.
 - 실제 S3 버킷/권한·Versioning/삭제 거부·credential 만료·지역 장애, 공인 TLS 발급/갱신·MQTT 장치, 실제 4GB 서버 부하·원래 서버 없는 자료/키 회수는 미실행이다.
 - DB dump와 외부 키를 독립 환경에서 회수한 뒤에는 O4의 hold → 최신 원장 대조 → 새 DB 복원 → 장치 대조/손실 인수 → 새 revision 재개를 그대로 따른다. 암호문 다운로드만으로 hold를 해제하지 않는다.

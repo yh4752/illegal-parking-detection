@@ -1,0 +1,11 @@
+{
+  "command": "cd backend && bash ./gradlew test bootJar --no-daemon --max-workers=2",
+  "result": "BUILD SUCCESSFUL",
+  "counts": {
+    "tests": 172,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "diagnostic": "Request failure log contains exception class only; no exception message, body, credential or throwable. Dedicated log-capture test included."
+}

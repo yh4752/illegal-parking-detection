@@ -1,0 +1,13 @@
+ATTEMPT 2 (failure, not acceptance)
+ Network parking-o4-3dbc7a82_ledger Error Error response from daemon: all predefined address pools have been fully subnetted
+ network:ledger failed to create network parking-o4-3dbc7a82_ledger: Error response from daemon: all predefined address pools have been fully subnetted
+failed to create network parking-o4-3dbc7a82_ledger: Error response from daemon: all predefined address pools have been fully subnetted
+ATTEMPT 3 (failure, not acceptance)
+AssertionError
+ATTEMPT 4 (failure, not acceptance)
+EXTERNAL_PHASE real server backup and all-product-table verification
+botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "http://127.0.0.1:61441/parking-test-backup?versioning"
+ATTEMPT 5 (failure, not acceptance)
+backend-1  | java.lang.IllegalStateException: revision_gate_closed
+revision-ledger-1  | {"test_ledger_slow_seconds": 1.076}
+AssertionError

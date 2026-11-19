@@ -1,0 +1,56 @@
+{
+  "commit": "a35a859517486a202bc12093a54cf3fd0889dc5f",
+  "run": 44472397198,
+  "result": "8 jobs passed after targeted dependency-fetch retries",
+  "scope": "PostgreSQL fixture permission fix; does not include new full-stack S3 test or later diagnostics",
+  "jobs": [
+    {
+      "id": 135396074205,
+      "name": "Local HTTPS, Nginx recovery and real browser",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135396075670,
+      "name": "Production TLS, ACL and DB role isolation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135396076777,
+      "name": "Local encrypted backup, independent revision and restore acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135396076880,
+      "name": "Fresh clone Docker and real browser handoff",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135396111831,
+      "name": "Frontend contract, unit tests and build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135396126376,
+      "name": "Documents and local configuration",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135396126924,
+      "name": "Backend tests, PostgreSQL migration and build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 135396139351,
+      "name": "Local metrics, actual faults, alerts and Grafana browser",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

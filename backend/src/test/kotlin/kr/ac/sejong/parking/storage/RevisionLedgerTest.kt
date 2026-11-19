@@ -11,6 +11,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
+import org.slf4j.LoggerFactory
 
 /** Actual authenticated HTTP against the repository's LOCAL_ONLY adapter, never a mock ledger. */
 class RevisionLedgerTest {
@@ -43,6 +47,24 @@ class RevisionLedgerTest {
             Files.writeString(token, "a".repeat(48))
             val client = RevisionLedger(fixture.uri, fixture.identity, token, mapper, "AWS_S3")
             assertThatThrownBy { client.head() }.hasMessage("revision_ledger_unavailable_or_invalid")
+        }
+    }
+
+    @Test fun `failed requests log only the exception type without credentials or remote body`() {
+        val logger = LoggerFactory.getLogger(RevisionLedger::class.java) as Logger
+        val events = ListAppender<ILoggingEvent>().also { it.start(); logger.addAppender(it) }
+        try {
+            RevisionLedgerFixture(temp, mapper).use { fixture ->
+                val wrongToken = temp.resolve("diagnostic-token")
+                Files.writeString(wrongToken, "b".repeat(48))
+                assertThatThrownBy { fixture.client(token = wrongToken).head() }
+                    .hasMessage("revision_ledger_unavailable_or_invalid")
+                assertThat(events.list.map { it.formattedMessage })
+                    .containsExactly("REVISION_LEDGER_REQUEST_FAILED type=IllegalStateException")
+                assertThat(events.list.single().throwableProxy).isNull()
+            }
+        } finally {
+            logger.detachAppender(events); events.stop()
         }
     }
 
