@@ -39,6 +39,7 @@ const pages = new Map([
   ['frontend-handoff-checklist.md', 'frontend-handoff-checklist.html'],
   ['frontend-handoff.md', 'frontend-handoff.html'],
   ['team-handoff.md', 'team-handoff.html'],
+  ['team-development-guide.md', 'team-development-guide.html'],
   ['deployment-operations.md', 'deployment-operations.html'],
   ['deployment-readiness.md', 'deployment-readiness.html'],
   ['external-storage-preparation.md', 'external-storage-preparation.html'],

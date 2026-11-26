@@ -6,7 +6,8 @@
 
 ## 사용할 파일
 
-- [PNG](diagrams/presentation-overview.png): README·블로그·슬라이드에 바로 삽입하는 1920 × 2300 이미지.
+- [README 지정 이미지](diagrams/readme-architecture.png): 2026-11-26 사용자가 지정한 첨부 PNG를 그대로 보존한 파일. README는 이 파일을 사용하며 재생성으로 덮어쓰지 않는다.
+- [생성 PNG](diagrams/presentation-overview.png): 아래 편집 원본에서 내보내는 블로그·슬라이드용 1920 × 2300 이미지.
 - [SVG](diagrams/presentation-overview.svg): 확대해도 선명한 벡터 파일. 텍스트·도형을 편집할 수 있으며 저장소의 수정 기준은 아래 생성 원본이다.
 - [PDF](diagrams/presentation-overview.pdf): 한 페이지 공유·인쇄본.
 
@@ -67,6 +68,6 @@ SVG·PNG·PDF와 변경한 원본을 함께 커밋한다. 기본 문서 생성�
 
 ## 출처와 확인 범위
 
-구조의 근거는 [현재 구현 상태](status.md), [팀 아키텍처](architecture.md), [로컬 HTTPS Compose](../infra/deploy/compose.yaml)다. 첨부받은 참고 이미지의 밝은 배경·카드·기술 아이콘 표현을 참고해 프로젝트 구성에 맞게 작성했다. 참고 이미지 파일 자체는 저장소에 넣지 않는다.
+구조의 근거는 [현재 구현 상태](status.md), [팀 아키텍처](architecture.md), [로컬 HTTPS Compose](../infra/deploy/compose.yaml)다. 첨부받은 참고 이미지의 밝은 배경·카드·기술 아이콘 표현을 참고해 프로젝트 구성에 맞게 작성했다. 최초 스타일 참고 이미지와 별개로, README용으로 사용자가 지정한 최종 첨부 이미지는 위 별도 PNG로 보존한다.
 
 브랜드 아이콘은 [Simple Icons](https://github.com/simple-icons/simple-icons)의 CC0 배포본이다. 아이콘 저작권 라이선스와 각 브랜드의 상표 사용 조건은 구분한다. 상세 파일 목록·해시는 [아이콘 안내](../tools/docs/assets/simple-icons/README.md)에 보존한다. 문서 그림을 추가한 작업이며 계정 생성·구매·외부 배포는 수행하지 않았다.

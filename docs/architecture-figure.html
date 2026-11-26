@@ -14,7 +14,8 @@ main{max-width:1168px;margin:22px auto;padding:0 24px 40px}.intro{background:#e8
 <figure class="figure"><img src="diagrams/presentation-overview.svg" alt="불법주정차 감지·안내 시스템 아키텍처"><a href="diagrams/presentation-overview.svg" target="_blank" rel="noopener">그림을 크게 열기 ↗</a></figure>
 <h2>사용할 파일</h2>
 <ul>
-<li><a href="diagrams/presentation-overview.png">PNG</a>: README·블로그·슬라이드에 바로 삽입하는 1920 × 2300 이미지.</li>
+<li><a href="diagrams/readme-architecture.png">README 지정 이미지</a>: 2026-11-26 사용자가 지정한 첨부 PNG를 그대로 보존한 파일. README는 이 파일을 사용하며 재생성으로 덮어쓰지 않는다.</li>
+<li><a href="diagrams/presentation-overview.png">생성 PNG</a>: 아래 편집 원본에서 내보내는 블로그·슬라이드용 1920 × 2300 이미지.</li>
 <li><a href="diagrams/presentation-overview.svg">SVG</a>: 확대해도 선명한 벡터 파일. 텍스트·도형을 편집할 수 있으며 저장소의 수정 기준은 아래 생성 원본이다.</li>
 <li><a href="diagrams/presentation-overview.pdf">PDF</a>: 한 페이지 공유·인쇄본.</li>
 </ul>
@@ -74,7 +75,7 @@ python3 tools/check_structure.py
 </code></pre>
 <p>SVG·PNG·PDF와 변경한 원본을 함께 커밋한다. 기본 문서 생성은 SVG·HTML만 갱신하므로 PNG·PDF를 빠뜨리지 않는다. PNG·PDF는 실행 환경의 글꼴에 따라 모양이 달라질 수 있다. 승인 시안은 macOS의 Apple SD Gothic Neo를 사용했으며 다른 환경에서는 Noto Sans KR 등 한국어 글꼴을 준비한 뒤 글자 잘림·겹침과 한 페이지 출력을 확인한다. 글꼴 파일 자체는 저장소에 포함하지 않는다.</p>
 <h2>출처와 확인 범위</h2>
-<p>구조의 근거는 <a href="status.html">현재 구현 상태</a>, <a href="index.html">팀 아키텍처</a>, <a href="../infra/deploy/compose.yaml">로컬 HTTPS Compose</a>다. 첨부받은 참고 이미지의 밝은 배경·카드·기술 아이콘 표현을 참고해 프로젝트 구성에 맞게 작성했다. 참고 이미지 파일 자체는 저장소에 넣지 않는다.</p>
+<p>구조의 근거는 <a href="status.html">현재 구현 상태</a>, <a href="index.html">팀 아키텍처</a>, <a href="../infra/deploy/compose.yaml">로컬 HTTPS Compose</a>다. 첨부받은 참고 이미지의 밝은 배경·카드·기술 아이콘 표현을 참고해 프로젝트 구성에 맞게 작성했다. 최초 스타일 참고 이미지와 별개로, README용으로 사용자가 지정한 최종 첨부 이미지는 위 별도 PNG로 보존한다.</p>
 <p>브랜드 아이콘은 <a href="https://github.com/simple-icons/simple-icons">Simple Icons</a>의 CC0 배포본이다. 아이콘 저작권 라이선스와 각 브랜드의 상표 사용 조건은 구분한다. 상세 파일 목록·해시는 <a href="../tools/docs/assets/simple-icons/README.md">아이콘 안내</a>에 보존한다. 문서 그림을 추가한 작업이며 계정 생성·구매·외부 배포는 수행하지 않았다.</p>
 </article></main>
 <footer>Markdown와 DOT에서 생성한 공유본 · 외부 접속 없이 읽기 가능 · 수정은 원본에서 진행합니다.</footer><script>document.getElementById('print').addEventListener('click',()=>window.print());</script></body></html>
