@@ -64,3 +64,23 @@ it('changing zones discards the old signed cursor and filters', async () => {
   await waitFor(() => expect(events.mock.calls.at(-1)?.[0].get('zone_id')).toBe('zone-02'));
   expect(events.mock.calls.at(-1)?.[0].has('cursor')).toBe(false);
 });
+
+it.each(['true', 'false'])('shows shared credentials only for local handoff (%s)', async (flag) => {
+  vi.stubEnv('VITE_LOCAL_HANDOFF', flag);
+  try {
+    vi.spyOn(api, 'me').mockRejectedValue(new ApiError(401, 'UNAUTHENTICATED', '로그인'));
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <LoginPage />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByRole('button', { name: '로그인' })).toBeVisible());
+    expect(screen.queryByText(/비밀번호: parking1234!/)).toBe(
+      flag === 'true' ? screen.getByText(/비밀번호: parking1234!/) : null,
+    );
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});

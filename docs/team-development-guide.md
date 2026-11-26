@@ -17,7 +17,7 @@ python3 tools/handoff.py prepare
 **2. <http://127.0.0.1:18081>에서 로그인합니다.**
 
 - 아이디: `handoff-viewer`
-- 비밀번호: 실행한 PC의 `.local-state/handoff/web-password` 파일에 생성
+- 비밀번호: `parking1234!` (로컬 개발용 공통 계정)
 
 **3. 가상 사건을 보내고 화면 갱신을 확인합니다.** 같은 저장소 폴더에서 실행합니다.
 

@@ -31,7 +31,7 @@ python3 tools/handoff.py prepare
 
 `feat/console-ui`는 작업 브랜치 예시입니다. 본인 작업에 맞는 고유한 이름을 사용합니다. 이미 클론한 저장소가 있으면 [협업 절차](../CONTRIBUTING.md)에 따라 최신 변경을 받은 뒤 작업 브랜치를 만듭니다. ZIP 폴더에서 이미 수정했다면 그 폴더를 보존하고, 별도로 클론한 저장소의 작업 브랜치에 수정 파일만 비교해서 옮깁니다.
 
-`http://127.0.0.1:18081`에 접속합니다. 아이디는 `handoff-viewer`, 비밀번호는 해당 PC의 `.local-state/handoff/web-password` 파일에 새로 생성됩니다. `python3 tools/handoff.py simulate`를 실행하면 가상 사건이 나타납니다. 자세한 개발 서버 명령은 설명서 3번을 따릅니다.
+`http://127.0.0.1:18081`에 접속합니다. 아이디는 `handoff-viewer`, 비밀번호는 `parking1234!`입니다. `python3 tools/handoff.py simulate`를 실행하면 가상 사건이 나타납니다. 자세한 개발 서버 명령은 설명서 3번을 따릅니다.
 
 ## 이번에 부탁드리는 확인
 

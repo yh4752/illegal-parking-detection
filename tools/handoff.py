@@ -24,15 +24,17 @@ def main():
             fd=os.open(ENV,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
             with os.fdopen(fd,'w') as f:f.write(f'POSTGRES_PASSWORD={secrets.token_urlsafe(32)}\nPARKING_CURSOR_HMAC_KEY={base64.b64encode(secrets.token_bytes(32)).decode()}\n')
         password=STATE/'web-password'
-        if not password.exists():
-            fd=os.open(password,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
-            with os.fdopen(fd,'w') as f:f.write(secrets.token_urlsafe(20)+'\n')
-        print('Local secrets prepared. Username: handoff-viewer. Password file: .local-state/handoff/web-password',flush=True)
+        password.write_text('parking1234!\n'); password.chmod(0o600)
+        print('Local login: handoff-viewer / parking1234!',flush=True)
         compose('build','backend','web','simulator');compose('up','-d','--wait','postgres','mosquitto')
         marker=STATE/'initialized'
         if not marker.exists():
             compose('run','--rm','bootstrap');marker.write_text('parking-handoff initialized\n')
-        else: print('Existing handoff database kept; bootstrap skipped.',flush=True)
+        else:
+            print('Existing handoff data kept; updating local viewer password only.',flush=True)
+            subprocess.run(['docker','compose','--env-file',str(ENV),'-f','infra/handoff/compose.yaml',
+                            'exec','-T','postgres','psql','-U','parking','-d','parking_handoff','-v','ON_ERROR_STOP=1'],
+                           cwd=ROOT,input=(ROOT/'infra/handoff/local-account.sql').read_text(),text=True,check=True)
     elif not ENV.exists(): raise SystemExit('Run python3 tools/handoff.py prepare first.')
     if args.command in ('prepare','start'):
         compose('up','-d','postgres','mosquitto','backend','web');wait_ready();print('Open http://127.0.0.1:18081 . No virtual event yet; run simulate explicitly.')

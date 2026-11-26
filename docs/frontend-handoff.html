@@ -48,10 +48,10 @@ python3 tools/handoff.py prepare
 <ul>
 <li>주소: <a href="http://127.0.0.1:18081">http://127.0.0.1:18081</a></li>
 <li>아이디: <code>handoff-viewer</code></li>
-<li>비밀번호: 실행한 PC의 <code>.local-state/handoff/web-password</code> 파일을 직접 열어 확인합니다. 실행 시 무작위 생성하며 Git에 넣지 않습니다.</li>
+<li>비밀번호: <code>parking1234!</code> — 로컬 개발용 공통 계정입니다.</li>
 <li>최초 화면은 <strong>첫 관측을 기다립니다</strong>입니다. 아직 사건을 만들지 않았으므로 정상입니다.</li>
 </ul>
-<p>공유할 때는 비밀번호 파일/<code>.env</code>를 저장소나 공개 메신저 자료에 첨부하지 않습니다. 상대 PC의 <code>prepare</code>는 그 PC용 계정을 생성합니다.</p>
+<p>기존 로컬 환경도 <code>python3 tools/handoff.py prepare</code>를 다시 실행하면 사건 데이터·권한은 유지하고 해당 조회 계정의 비밀번호만 공통 값으로 맞춥니다. <code>.env</code>의 DB 비밀번호는 계속 무작위로 관리합니다. 운영 환경은 이 공통 계정을 사용하지 않습니다.</p>
 <h2>2. 화면과 실제 저장을 함께 확인하기</h2>
 <p>저장소 최상위의 별도 터미널에서:</p>
 <pre><code class="language-sh">python3 tools/handoff.py simulate

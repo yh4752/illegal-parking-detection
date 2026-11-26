@@ -12,8 +12,10 @@ python3 tools/handoff.py simulate
 # frontend/: Node 24.13.0 (frontend/.nvmrc)
 npm ci
 npm run generate
-PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev
+VITE_LOCAL_HANDOFF=true PARKING_API_PROXY=http://127.0.0.1:18080 npm run dev
 ```
+
+로컬 공통 계정: **`handoff-viewer` / `parking1234!`**. 기존 환경은 `prepare`를 다시 실행하면 데이터를 보존하고 비밀번호를 맞춥니다.
 
 개발 주소: http://127.0.0.1:5173 · 인계 빌드 주소: http://127.0.0.1:18081
 

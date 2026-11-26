@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 const root = path.resolve(import.meta.dirname, '../../..');
-const password = () =>
-  readFileSync(path.join(root, '.local-state/handoff/web-password'), 'utf8').trim();
+const password = () => 'parking1234!';
 const demo = (command: string) =>
   execFileSync('python3', ['tools/handoff.py', command], {
     cwd: root,
@@ -20,6 +18,7 @@ test('fresh clone: real login, MQTT persistence, SSE, history, reconnect, offlin
   expect(entry?.headers()['content-security-policy']).toContain("default-src 'self'");
   expect(entry?.headers()['x-frame-options']).toBe('DENY');
   await expect(page.getByRole('heading', { name: '로그인', exact: true })).toBeVisible();
+  await expect(page.getByText(/비밀번호: parking1234!/)).toBeVisible();
   await page.getByLabel('아이디').fill('handoff-viewer');
   await page.getByLabel('비밀번호').fill('wrong-password-value');
   await page.getByRole('button', { name: '로그인', exact: true }).click();

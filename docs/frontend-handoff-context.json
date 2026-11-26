@@ -47,6 +47,7 @@
     "prepare": "python3 tools/handoff.py prepare",
     "url": "http://127.0.0.1:18081",
     "username": "handoff-viewer",
+    "local_only_password": "parking1234!",
     "password_file": ".local-state/handoff/web-password",
     "simulate": "python3 tools/handoff.py simulate",
     "pause": "python3 tools/handoff.py pause-simulator",

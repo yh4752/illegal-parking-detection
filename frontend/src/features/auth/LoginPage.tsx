@@ -7,6 +7,7 @@ import type { ApiError } from '../../api/client';
 import styles from '../../styles/Console.module.css';
 export function LoginPage() {
   const auth = useAuth();
+  const localHandoff = import.meta.env.VITE_LOCAL_HANDOFF === 'true';
   const [name, setName] = useState(''),
     [password, setPassword] = useState(''),
     [busy, setBusy] = useState(false),
@@ -58,7 +59,9 @@ export function LoginPage() {
         <form onSubmit={submit} className={styles.loginForm}>
           <span className={styles.eyebrow}>TEAM ACCESS</span>
           <h2>로그인</h2>
-          <p className={styles.muted}>발급받은 팀원 계정으로 접속하세요.</p>
+          <p className={styles.muted}>
+            {localHandoff ? '로컬 공통 계정으로 접속하세요.' : '발급받은 팀원 계정으로 접속하세요.'}
+          </p>
           {error && <ErrorNotice error={error} />}
           <label htmlFor="username">아이디</label>
           <input
@@ -86,9 +89,19 @@ export function LoginPage() {
             {auth.loading ? '계정 확인 중…' : busy ? '로그인 중…' : '로그인'}
           </button>
           <p className={styles.loginHelp}>
-            계정이 없거나 접근이 제한된 경우
-            <br />
-            프로젝트 담당자에게 문의해 주세요.
+            {localHandoff ? (
+              <>
+                아이디: handoff-viewer
+                <br />
+                비밀번호: parking1234!
+              </>
+            ) : (
+              <>
+                계정이 없거나 접근이 제한된 경우
+                <br />
+                프로젝트 담당자에게 문의해 주세요.
+              </>
+            )}
           </p>
         </form>
       </main>
