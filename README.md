@@ -4,7 +4,17 @@
 
 여러 사람이 이용하는 출입구·통행로의 불편을 줄이는 것을 목표로 합니다. 현장 보드가 차량의 정차를 판단하고 LED·음성 안내를 담당하며, 서버는 결과를 저장해 관리자 웹 화면에 제공합니다. 법적 위반 확정이나 과태료 부과는 수행하지 않습니다. 실제 통행 개선·업무 부담 감소 효과는 아직 검증하지 않았습니다.
 
-[빠른 실행](#로컬에서-실행하기) · [아키텍처](#전체-흐름) · [담당별 시작점](#담당별-시작점) · [배포 상태](#팀-통합용-배포) · [상세 구현 상태](docs/status.md)
+[빠른 실행](#로컬에서-실행하기) · [아키텍처](#시스템-아키텍처) · [담당별 시작점](#담당별-시작점) · [배포 상태](#팀-통합용-배포) · [상세 구현 상태](docs/status.md)
+
+## 시스템 아키텍처
+
+[![개발과 배포, 서비스 데이터, 모니터링, 백업과 복구의 연결 흐름](docs/diagrams/presentation-overview.png)](docs/diagrams/presentation-overview.png)
+
+그림을 클릭하면 원본 크기로 볼 수 있습니다.
+
+그림의 AWS Lightsail 4GB는 확정한 **배포 목표**입니다. 실선은 검증한 경로, 점선은 아직 연결·검증하지 않은 경로이며, 서비스 경로의 검증은 로컬 환경 기준입니다. Prometheus·Grafana는 같은 서버에 두고, 백업 저장소는 별도 AWS 계정에 둡니다.
+
+[확대용 PDF](docs/diagrams/presentation-overview.pdf) · [벡터 SVG](docs/diagrams/presentation-overview.svg) · [그림 원본과 읽는 순서](docs/architecture-figure.md) · [상세 구조](docs/architecture.md)
 
 ## 지금 사용할 수 있는 것
 
@@ -69,12 +79,6 @@ python3 tools/handoff.py stop
 | 백업·복구 | 암호화 백업 → 별도 AWS 계정의 S3 → 회수·복원. 실제 AWS 연결과 전체 서버 복구는 미검증 |
 
 보드는 웹페이지에 데이터를 올리는 대신 **MQTT over TLS**로 연결합니다. 웹 브라우저는 **HTTPS**를 사용합니다. MQTT 중계기의 수신 확인과 DB 저장 완료 응답은 서로 다릅니다.
-
-![개발과 배포, 서비스 데이터, 모니터링, 백업과 복구의 연결 흐름](docs/diagrams/presentation-overview.png)
-
-그림의 AWS Lightsail 4GB는 확정한 **배포 목표**입니다. 실선은 검증한 경로, 점선은 아직 연결·검증하지 않은 경로이며, 서비스 경로의 검증은 로컬 환경 기준입니다. Prometheus·Grafana는 같은 서버에 두고, 백업 저장소는 별도 AWS 계정에 둡니다.
-
-[확대용 PDF](docs/diagrams/presentation-overview.pdf) · [벡터 SVG](docs/diagrams/presentation-overview.svg) · [그림 원본과 읽는 순서](docs/architecture-figure.md) · [상세 구조](docs/architecture.md)
 
 ## 담당별 시작점
 
