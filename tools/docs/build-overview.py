@@ -14,15 +14,14 @@ def text(x,y,t,size=21,color='#334155',weight=400):raw(f'<text x="{x}" y="{y}" f
 def icon(k,x,y,size=44):
  a=(ICONS/f'{k}.svg').read_text(); paths=''.join(re.findall(r'<path[^>]*>',a));raw(f'<g transform="translate({x} {y}) scale({size/24})" fill="#{logos[k]}">{paths}</g>')
 def badge(x,y,w,t,planned=False):
- rect(x,y,w,29,'#FFF2DF' if planned else '#EAF4F0','none',15);text(x+13,y+20,t,16,'#906021' if planned else '#35705A',500)
+ text(x,y+20,t,16,'#906021' if planned else '#35705A',500)
 def line(d,dash=False,both=False):raw(f'<path d="{d}" fill="none" stroke="{"#A7AEB7" if dash else "#7B91AA"}" stroke-width="2.3" marker-end="url(#arrow)"'+(' stroke-dasharray="8 7"' if dash else '')+(' marker-start="url(#back)"' if both else '')+'/>')
-roles={'Data':('#F3EEFA','#7246A0'),'AI·장치':('#FFF2E7','#A85D16'),'백엔드':('#EBF3FF','#2C609A'),'프론트':('#EAF7F1','#247452'),'공동':('#F3F4F6','#596477')}
-def rolebadge(x,y,role,w=88):
- fill,color=roles[role];rect(x,y,w,22,fill,color,8);text(x+10,y+16,role,14,color,600)
+roles={'Data':('#F8F5FC','#D8CBE7'),'AI·장치':('#FFF8F1','#E8D0B5'),'백엔드':('#F5F8FD','#C9D9EC'),'프론트':('#F3FAF6','#C7E2D2'),'공동':('#F8F9FA','#D8DDE3')}
+def rolelegend(x,y,role):
+ fill,color=roles[role];rect(x,y,16,16,fill,color,3);text(x+24,y+14,'백엔드·운영' if role=='백엔드' else role,15,'#526277',500)
 def card(x,y,w,h,title,sub,logo=None,planned=False,role=None):
  fill,color=roles.get(role,('white','#DACDBA' if planned else '#D3E1EF'))
  rect(x,y,w,h,fill=fill,stroke=color,dash=planned)
- if role:rolebadge(x+w-104,y+8,role)
  if logo: icon(logo,x+24,y+26);tx=x+84
  else:tx=x+24
  text(tx,y+48,title,27,'#233246',600);text(x+24,y+88,sub,19)
@@ -32,8 +31,8 @@ rect(0,0,1920,2300,'#F3F6F9','none',0);rect(28,24,1864,2252,'#FFFFFF','#E0E7EF',
 text(80,91,'불법주정차 감지·안내 시스템',43,'#233246',700)
 text(82,130,'현장에서 판단하고 안내하며, 서버는 사건을 기록하고 관리자는 웹으로 확인합니다.',23)
 badge(1515,64,315,'AWS 배포 방향 확정 · 생성 전',True)
-rolebadge(80,145,'Data');rolebadge(190,145,'AI·장치');rolebadge(300,145,'백엔드');rolebadge(410,145,'프론트');rolebadge(520,145,'공동')
-text(640,162,'색·배지 = 개발 담당 / 점선 = 미완료 연결 / 실행 위치와 담당은 별개',16,'#63758B')
+rolelegend(80,145,'Data');rolelegend(190,145,'AI·장치');rolelegend(320,145,'백엔드');rolelegend(480,145,'프론트');rolelegend(610,145,'공동')
+text(730,162,'색 = 담당 영역 / 점선 = 미완료 연결 / 상자 수는 기여도와 무관',16,'#63758B')
 raw('<path d="M80 177H1840" stroke="#E8EEF5" stroke-width="2"/>')
 text(80,215,'01   개발과 배포 — 코드를 바꾸면 서버에는 어떻게 반영되나요?',23,'#233246',600)
 card(80,235,270,140,'개발자 PC','코드 수정 · 로컬 시험',role='공동')
