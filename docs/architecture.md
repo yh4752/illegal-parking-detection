@@ -12,7 +12,7 @@
 
 ![제품 흐름 중심의 아키텍처 개요](diagrams/presentation-overview.svg)
 
-이 개요 그림은 **실선이 로컬에서 검증한 연결, 점선이 후속 연동·배포 계획**을 뜻합니다. 아래 기존 C4 그림의 관계 표기와 구분합니다. Nginx·MQTT·API·DB의 핵심 흐름을 중심으로 그렸으며, revision·복구·네트워크 상세는 하단의 운영 문서를 따릅니다. 실물 AI 판단·LED/음성 출력과 공개 배포는 미완료입니다.
+개발·CI·담당자 배포, Data·현장 안내, 서비스 데이터, 모니터링, 백업·복구의 다섯 흐름을 위에서 아래로 읽습니다. CI는 구현됐지만 자동 배포 CD와 외부 알림은 미완료입니다. 이 개요 그림의 가운데는 **AWS Lightsail 4GB 배포 목표**입니다. 배포 방향은 확정했지만 서버 생성·실서버 인수는 미완료입니다. **실선은 로컬 검증 경로, 점선은 미검증 실물·외부 연결**을 뜻합니다. 아래 기존 C4 그림의 관계 표기와 구분합니다. Nginx·MQTT·API·DB의 핵심 흐름을 중심으로 그렸으며, revision·복구·네트워크 상세는 하단의 운영 문서를 따릅니다. 실물 AI 판단·LED/음성 출력과 공개 배포는 미완료입니다.
 
 [PNG](diagrams/presentation-overview.png) · [PDF](diagrams/presentation-overview.pdf) · [수정 가능한 원본과 재생성 방법](architecture-figure.md)
 
