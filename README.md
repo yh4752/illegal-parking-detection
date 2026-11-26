@@ -1,42 +1,36 @@
 # 엣지 AI 기반 불법주정차 감지·안내 시스템
 
-**불법주정차 상황을 현장에서 감지해 운전자에게 이동을 안내하고, 관리자가 웹에서 상태와 이력을 확인하는 캡스톤 프로젝트입니다.**
+**지정 구역의 지속 정차를 감지해 현장에서 이동을 안내하고, 관리자가 차량 상태와 안내 이력을 확인하도록 만드는 캡스톤 프로젝트입니다.**
 
-목표는 현장 보드의 AI가 지정 구역에서 차량의 정차 상태를 판단하고 LED·음성 안내로 연결하는 것입니다. 서버는 장치가 보낸 결과를 기록하고 관리자 화면에 전달합니다. 임의로 구성한 구역에서 실차로 검증할 계획이며, 법적 단속·과태료 부과는 수행하지 않습니다.
+여러 사람이 이용하는 출입구·통행로의 불편을 줄이는 것을 목표로 합니다. 현장 보드가 차량의 정차를 판단하고 LED·음성 안내를 담당하며, 서버는 결과를 저장해 관리자 웹 화면에 제공합니다. 법적 위반 확정이나 과태료 부과는 수행하지 않습니다. 실제 통행 개선·업무 부담 감소 효과는 아직 검증하지 않았습니다.
 
-## 현재 어디까지 구현했나요?
+[빠른 실행](#로컬에서-실행하기) · [아키텍처](#전체-흐름) · [담당별 시작점](#담당별-시작점) · [배포 상태](#팀-통합용-배포) · [상세 구현 상태](docs/status.md)
 
-**가상 장치 → MQTT → Spring Boot → PostgreSQL → React 관리자 화면을 연결하고, 로컬 HTTPS·모니터링·백업/복원을 검증했습니다. 실물 보드의 AI 감지·LED/스피커 연동과 외부 배포는 아직 완료하지 않았습니다.**
+## 지금 사용할 수 있는 것
 
-| 영역 | 구현·검증한 범위 | 남은 범위 |
+**가상 장치 → 사건 저장 → 관리자 화면까지 로컬에서 연결·검증했습니다. 실제 보드 통합과 외부 배포는 아직 완료하지 않았습니다.**
+
+| 영역 | 구현·검증 완료 | 남은 작업 |
 |---|---|---|
-| 현장 감지·안내 | 가상 장치, 장치 SDK의 메시지·재전송·저장 ACK 흐름 | 실물 보드의 AI 추론·차량 판단, LED/스피커 출력, 실차 성능 시험 |
-| 수신·저장 | MQTT 메시지 검증, 중복·역순 처리, DB 커밋 후 ACK, heartbeat | 실물 장치와의 통합 검증 |
-| 관리자 화면 | 로그인·구역 권한, 구역 현황, 사건 목록·상세, SSE 자동 갱신·재접속 | 관리 명령·정책 변경·사진 파일, 팀원 PC 인수 |
-| 운영 기반 O1~O4 | 운영 프로필·DB 역할 분리·MQTT TLS/인증, Nginx HTTPS, Prometheus·Grafana, 암호화 백업·별도 로컬 revision 서비스·복원 | 실제 외부 저장소·키 회수·서버 유실 복구, 외부 알림·실서버 부하 검증 |
-| 배포 준비 O5 | 총 5만 원·조기 팀 통합 방향, 30분 로컬 관측, S3 원장·암호화 외부 백업·운영 파일 생성, Linux CI의 20개 제품 테이블 복원·서비스 재개 검증 | 실제 4GB 서버·외부 저장소·키 회수·공개 접속 인수 |
+| 사건 수신·저장 | MQTT 메시지 검증, 중복·역순 처리, DB 저장 후 완료 응답 | 실제 보드와 연결 검증 |
+| 관리자 웹 | 로그인·구역별 권한, 구역 상태, 사건 목록·상세, 실시간 갱신 | 팀원 PC 인수, 화면 개선, 관리 명령·정책 변경·사진 |
+| 장치 연결 | 가상 장치의 로컬 저장·재전송·저장 응답 처리 | 실제 보드용 SDK 구현·결합, AI 판단·LED·스피커 연동 |
+| 운영 | 로컬 HTTPS·모니터링·암호화 백업·복원, 외부 저장 연결 코드의 로컬 시험 | 실제 AWS 설정·부하·복구 검증, 외부 관측·알림 |
 
-현재 공개 웹 주소는 없습니다. 로컬 검증은 실제 AI 감지 정확도나 운영 서버의 복구 성능을 입증하지 않습니다. 자세한 완료 조건은 [현재 상태](docs/status.md), 남은 운영 작업은 [후속 이슈 #6](https://github.com/yh4752/illegal-parking-detection/issues/6)에서 확인합니다.
+현재 공개 웹 주소는 없습니다. 아래 화면은 **실제 API에 연결된 가상 사건 화면**이며, 실물 AI의 판단 결과나 현장 안내 효과를 보여주는 것은 아닙니다.
 
-[외부 저장·배포 준비 구현 안내](docs/external-storage-preparation.md)에서 S3 원장과 DB 백업의 차이, 실행 순서, 실제 AWS에서 남은 검증을 확인할 수 있습니다. 서버 생성·외부 배포는 아직 하지 않았습니다.
+<details>
+<summary>관리자 화면 보기</summary>
 
-## 시스템 아키텍처
+![가상 사건의 구역 상태와 이력을 조회하는 관리자 화면](docs/screenshots/zone-desktop.png)
 
-![불법주정차 감지·안내 시스템의 현재 로컬 연결과 후속 실물·배포 계획](docs/diagrams/presentation-overview.png)
-
-실선은 로컬에서 연결·검증한 경로, 점선은 실물 장치 연동·외부 배포 계획입니다. DB 저장 후 ACK는 MQTT를 거쳐 장치로 돌아가며, 관리자 화면은 Nginx를 통해 API·SSE에 연결됩니다.
-
-[확대·편집용 SVG](docs/diagrams/presentation-overview.svg) · [발표용 PDF](docs/diagrams/presentation-overview.pdf) · [구조 설명](docs/architecture.md) · [원본·수정 방법](docs/architecture-figure.md)
-
-## 실행 화면
-
-![가상 장치가 보고한 구역 상태와 사건 이력을 실제 API로 조회하는 관리자 화면](docs/screenshots/zone-desktop.png)
-
-*가상 장치의 MQTT 메시지를 Spring Boot가 PostgreSQL에 저장하고 React 화면에 전달한 실행 화면입니다. 실물 AI 감지 결과나 실제 LED·음성 출력의 증거는 아닙니다.*
+</details>
 
 ## 로컬에서 실행하기
 
-저장소는 공개되어 누구나 열람·클론할 수 있습니다. **팀 개발은 ZIP 다운로드 대신 아래 명령으로 클론해서 시작합니다.** Git, Python 3.10 이상, 실행 중인 Docker Desktop/Engine과 Compose v2가 필요합니다. Windows는 WSL2를 사용합니다.
+Git, Python 3.10 이상, 실행 중인 Docker와 Compose v2가 필요합니다. Windows에서는 WSL2를 사용합니다. 이 경로는 로컬 HTTP 인계 환경이며 클라우드 자원을 생성하지 않습니다.
+
+**1. 저장소를 클론하고 실행합니다.**
 
 ```sh
 git clone https://github.com/yh4752/illegal-parking-detection.git
@@ -44,28 +38,82 @@ cd illegal-parking-detection
 python3 tools/handoff.py prepare
 ```
 
-<http://127.0.0.1:18081>에서 `handoff-viewer`로 로그인합니다. 비밀번호는 실행한 PC의 `.local-state/handoff/web-password` 파일에 생성됩니다. 별도 터미널에서 가상 사건을 보내면 화면이 갱신됩니다.
+**2. <http://127.0.0.1:18081>에서 로그인합니다.**
+
+- 아이디: `handoff-viewer`
+- 비밀번호: 실행한 PC의 `.local-state/handoff/web-password` 파일에 생성
+
+**3. 가상 사건을 보내고 화면 갱신을 확인합니다.** 같은 저장소 폴더에서 실행합니다.
 
 ```sh
 python3 tools/handoff.py simulate
 ```
 
-실습을 마치면 `python3 tools/handoff.py stop`으로 이 인계 환경을 중지합니다. 데이터는 보존됩니다. 이 실행 절차는 로컬 HTTP 인계 환경이며, HTTPS 실습은 [O2 안내](docs/local-https.md)를 따릅니다.
+실습을 마치면 다음 명령으로 인계 환경을 중지합니다. 데이터는 보존합니다.
 
-팀의 공통 개발 기준은 **`main`**입니다. 최신 main에서 작업 브랜치를 만들고 PR도 main을 대상으로 올립니다. 기존 `parking-system` 클론을 사용 중이라면 [원격 주소 갱신 안내](CONTRIBUTING.md#저장소-이름-변경-후-기존-클론-연결하기)를 확인하세요. 로컬 폴더와 기존 데이터는 그대로 사용할 수 있습니다.
+```sh
+python3 tools/handoff.py stop
+```
 
-**[프론트 인계 설명서](docs/frontend-handoff.md)** — 처음 실행하기, 화면 수정, API·SSE 규칙, 오류 대응을 한곳에 정리했습니다. 프론트 개발에는 Node.js 24.13.0을 사용합니다.
+설치·실행 오류와 화면 개발은 [인계 설명서](docs/frontend-handoff.md)를 참고하세요. 프론트 코드를 직접 수정할 때는 Node.js 24.13.0을 사용합니다. HTTPS 실습은 별도의 [로컬 HTTPS 안내](docs/local-https.md)를 따릅니다. 기존 클론·데이터가 있다면 삭제하거나 초기화하지 말고 [협업 안내](CONTRIBUTING.md)를 먼저 확인하세요.
 
-## 개발·학습 자료
+## 전체 흐름
 
-| 필요한 내용 | 진입점 |
+| 흐름 | 연결과 역할 |
 |---|---|
-| 전체 구조·역할 분담 | [C4 아키텍처](docs/architecture.md) |
-| 프론트 수정·AI 코딩 도구에 인계 | [팀 전달 자료](docs/team-handoff.md) · [프론트 README](frontend/README.md) · [인계 컨텍스트](docs/frontend-handoff-context.json) |
-| 서버·장치 통신 계약 | [백엔드 구조](docs/backend.md) · [메시지·API 정의](docs/contracts.md) |
-| 팀 통합 조기 배포·4GB 검증 | [사전 측정](docs/preflight-4gb.md) · [팀 연결·남은 구현](docs/team-integration-preparation.md) |
-| 운영 배포를 준비할 때 | [배포·운영 설계](docs/deployment-operations.md) · [배포 준비](docs/deployment-readiness.md) · [승인된 복구 목표](docs/backup-recovery-policy.md) |
-| 실행한 시험·남은 작업 | [현재 상태](docs/status.md) · [인계 판정표](docs/frontend-handoff-checklist.md) |
-| 협업·코딩 도구 규칙 | [개발 참여 안내](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md) |
-| 완성 코드로 학습 | [학습 순서](docs/learning-map.md) · [O1 개념·질문](docs/production-basics.md) |
-| 블로그용 결정·수치·캡처 | [운영 학습·증거 모음](docs/operations-learning-evidence.md) · [이름을 정한 이유](docs/adr/011-project-identity.md) |
+| 개발·배포 | 개발 PC → GitHub → Actions의 자동 시험·빌드 → 담당자가 검증한 버전 배포. **자동 배포 CD는 미구현** |
+| Data·현장 안내 | Data의 영상·정답 → AI의 탐지·정차 판단 → 현장 LED·스피커 출력. 실물 통합은 미완료 |
+| 사건 전달 | 장치 → Mosquitto 메시지 중계 → Spring Boot 검증 → PostgreSQL 저장 → 장치에 저장 완료 응답 |
+| 화면 조회 | 팀원 브라우저의 React → Nginx → Spring Boot API. SSE로 저장된 상태 변경을 화면에 반영 |
+| 운영 관측 | Prometheus가 앱·Linux·내부 HTTPS 지표 수집 → Grafana에서 운영자가 조회. 외부 알림은 미연결 |
+| 백업·복구 | 암호화 백업 → 별도 AWS 계정의 S3 → 회수·복원. 실제 AWS 연결과 전체 서버 복구는 미검증 |
+
+보드는 웹페이지에 데이터를 올리는 대신 **MQTT over TLS**로 연결합니다. 웹 브라우저는 **HTTPS**를 사용합니다. MQTT 중계기의 수신 확인과 DB 저장 완료 응답은 서로 다릅니다.
+
+![개발과 배포, 서비스 데이터, 모니터링, 백업과 복구의 연결 흐름](docs/diagrams/presentation-overview.png)
+
+그림의 AWS Lightsail 4GB는 확정한 **배포 목표**입니다. 실선은 검증한 경로, 점선은 아직 연결·검증하지 않은 경로이며, 서비스 경로의 검증은 로컬 환경 기준입니다. Prometheus·Grafana는 같은 서버에 두고, 백업 저장소는 별도 AWS 계정에 둡니다.
+
+[확대용 PDF](docs/diagrams/presentation-overview.pdf) · [벡터 SVG](docs/diagrams/presentation-overview.svg) · [그림 원본과 읽는 순서](docs/architecture-figure.md) · [상세 구조](docs/architecture.md)
+
+## 담당별 시작점
+
+그림의 **보라색 Data · 주황색 AI·장치 · 파란색 백엔드·운영 · 초록색 프론트**는 개발 담당을 나타냅니다. 회색은 공동 개발 도구입니다. 색상은 완료 여부가 아니며, 실제 실행 위치와도 구분합니다. 배포·운영을 세분화한 그림이므로 상자 수나 면적을 담당별 작업량·난도·기여도로 해석하지 않습니다.
+
+**LED·음성 출력은 AI·장치 담당입니다.** 현장 보드에서 안내 조건을 판단하고 배선·출력 제어·중단·실물 동작을 확인합니다. 백엔드는 보드에서 사용하는 저장·통신 SDK를 작성하고, AI 담당이 이를 실제 보드에 결합합니다. 프론트는 관리자 화면의 요청·상태·실행 결과를 표시합니다. 관리 명령 기능은 아직 후속 범위입니다.
+
+새 안내는 **AI 판단 → SDK의 로컬 저장 완료 → AI의 최신 조건 재검사 → LED·음성 실행** 순서로 설계합니다. 안전 중단·LED 끄기는 저장 지연에도 우선합니다. 서버의 DB 저장 응답(ACK)은 물리 출력 성공을 뜻하지 않습니다. [역할 기준](reference/v1.43/spec/roles/B1.md) · [출력 책임 규칙](reference/v1.43/spec/roles/B3.md)
+
+
+| 담당·목적 | 먼저 읽을 자료 | 맡을 범위 |
+|---|---|---|
+| 프론트 | [팀 인계](docs/team-handoff.md) · [프론트 README](frontend/README.md) | 본인 PC 실행 확인, 화면·사용성 개선, 필요한 API 협의 |
+| 백엔드 | [백엔드 구조](docs/backend.md) · [통신·API 계약](docs/contracts.md) | 수신·저장·권한·API, 보드용 저장·통신 SDK |
+| AI·보드 | [SDK 연결 경계](edge-sdk/README.md) · [AI 담당 작업](reference/v1.43/tasks/vision.md) | 보드 환경 제공, 차량 판단, 카메라·LED·스피커, SDK 결합 |
+| Data | [Data 담당 작업](reference/v1.43/tasks/data.md) | 영상·라벨·정답·평가 자료를 AI 담당에게 전달 |
+| 배포·운영 | [외부 저장·배포 준비](docs/external-storage-preparation.md) · [서버 설치 절차](infra/server/README.md) | AWS 설정, 보안 접속, 실제 부하·백업·복구 검증 |
+
+`reference/v1.43`은 보존된 역할·계약 기준입니다. 실제 구현 완료 여부는 [현재 상태](docs/status.md)를 따릅니다. 팀원에게 제공할 [AI 코딩 도구용 프론트 인계 컨텍스트](docs/frontend-handoff-context.json)도 있습니다.
+
+## 팀 통합용 배포
+
+2026-11-26 기준 **AWS Lightsail 4GB로 팀 통합용 배포를 진행하는 방향**입니다. 서버 생성·주소 등록·외부 접속 인수는 아직 수행하지 않았습니다.
+
+- 운영 계획: 총 5만 원 목표, 2026년 12월 11일까지 사용. 비용·실행 조건은 [배포 준비](docs/deployment-readiness.md)를 확인합니다.
+- 주소 후보: `illegal-parking-detection.duckdns.org` — 미등록이며 현재 접속 주소가 아닙니다.
+- 웹 접속과 보드 접속은 별도로 검증합니다. DB·관리 포트는 외부에 직접 공개하지 않습니다.
+- 팀 개방 전 실제 로그인·사건 저장·응답·화면 갱신과 백업·복구를 확인합니다. 보드 연결 규격은 [팀 연결 안내](docs/team-integration-preparation.md)를 따릅니다.
+
+배포 작업은 [후속 이슈 #6](https://github.com/yh4752/illegal-parking-detection/issues/6)에서 추적합니다. 로컬 시험·CI 통과가 실제 서버 인수를 대신하지는 않습니다.
+
+## 검증 근거와 협업
+
+[GitHub Actions](.github/workflows/verify.yml)는 PR과 main 변경 시 문서·계약·백엔드·DB·프론트·통합 환경을 검사합니다. 실행 결과는 [Actions](https://github.com/yh4752/illegal-parking-detection/actions)에서 확인합니다.
+
+- [현재 구현·검증 범위](docs/status.md): 완료한 기능, 실행 조건, 남은 작업
+- [30분 연속 로컬 실행 기록](validation/preflight-4gb-continuous-2026-11-18/README.md): 요청·사건·백업 중 상태 관측
+- [외부 저장 통합 시험 기록](validation/external-integration-2026-11-19/README.md): 모의 S3와 실제 제품 DB의 복원·재개 시험
+- [학습·블로그 근거](docs/operations-learning-evidence.md): 결정 이유·로그·캡처·측정값
+- [학습 순서](docs/learning-map.md) · [운영 기초와 이해 질문](docs/production-basics.md)
+
+개발은 최신 `main`에서 작업 브랜치를 만들고 PR로 합칩니다. 검사 명령·협업 절차는 [CONTRIBUTING.md](CONTRIBUTING.md), 코딩 도구의 작업 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다. 비밀번호·개인키·실차 원본 영상은 커밋하지 않습니다.

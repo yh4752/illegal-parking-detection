@@ -6,7 +6,7 @@ digraph Deployment {
  board [label="Remote team board\nAI/device integration pending",fillcolor="#FFF0DC"];
  admin [label="Operator\nRestricted SSH + tunnel",fillcolor="#DCEFE5"];
  subgraph cluster_host {
- label="Single Linux host / Docker Compose"; color="#9FB9C2";
+ label="AWS Lightsail 4GB target / Linux / Docker Compose"; color="#9FB9C2";
  web [label="Nginx\nTLS + static UI + API proxy"];
  app [label="Spring Boot · 1 instance\nREST / SSE / MQTT ingest"];
  broker [label="Mosquitto\nTLS + per-device ACL"];
@@ -26,6 +26,6 @@ digraph Deployment {
  browser -> web [label="HTTPS 443"];
  board -> broker [label="Restricted TLS 8883 / future\nevents + application ACK",dir=both,style=dashed];
  admin -> mon [label="SSH tunnel"];
- app -> external [label="Reservation confirmed before use\nNEW implementation required",style=dashed];
+ app -> external [label="Reservation confirmed before use\nAdapter locally tested / AWS acceptance pending",style=dashed];
  db -> external [label="Backup job / daily + pre-release",style=dashed];
 }
